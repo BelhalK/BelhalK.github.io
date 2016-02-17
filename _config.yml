@@ -1,0 +1,137 @@
+
+# Site settings
+
+url: "http://sds-dubois.github.io"
+baseurl: ""
+google-tracking-id: "UA-72300346-1"
+
+#############
+# HTML Head #
+#############
+
+author: "Sebastien Dubois"
+lang: "en"
+title: "Sebastien Dubois"
+favicon: "/img/ico.ico"
+description: "Personal website of Sebastien Dubois."
+keywords: "sebastien, dubois, stanford, polytechnique"
+
+################
+# Intro layout #
+################
+
+# black-favicon: "/img/black-lab-glass.ico"
+background-img: "../img/wall4.jpg"
+me-img: "/img/my_picture3.jpg"
+
+##############################
+# Dynamic Text on the header #
+##############################
+
+# dynamic-typing: True
+# shuffle: True	# Shuffle the lines.
+# loop: True
+# loop-count:	False # Set False for infinite loop, or set any number for finite loop.
+# type-speed:	10		# Default 10
+# start-delay: 200	# Default 200
+# delete-delay: 5000	# Default 5000
+# lines:			# You can add HTML Tags in the Text
+#   - text: "The lower you fall, the higher you'll fly."
+#   - text: "Where’s your will to be weird?"
+
+########
+# Blog #
+########
+
+post-preview-words: 128
+
+paginate: 5
+
+fb-share: False
+twitter-share: False
+reddit-share: False
+disqus-shortname: False
+
+###############
+# Life Events #
+###############
+
+events:
+  - image: "/img/career/SU2.jpg"
+    date: "Sept. 2015 - April 2017"
+    description: "Stanford University - MS in Data Science at ICME"
+  - image: "/img/career/mit2.jpg"
+    date: "March 2015 - July 2015"
+    description: "CSAIL, MIT - Research Internship at Alfa Group"
+  # - image: "/img/career/spidertocat.png"
+  #   date: "July 2014 - Aug. 2014"
+  #   description: "ST Microelectronics India - Summer Internship"
+  - image: "/img/career/csu3.png"
+    date: "Sept. 2014"
+    description: "Cabinet Start-Up - Co-founded a student association at Ecole Polytechnique to develop entrepreneurial activities"
+  - image: "/img/career/logo-X-2.jpg"
+    date: "Sept. 2012 - Aug. 2015"
+    description: "Ecole Polytechnique - Diplome d'Ingenieur (MS) in Computer Science and Applied Mathematics"
+  - image: "/img/career/hoche2.png"
+    date: "Sept. 2010 - June 2012"
+    description: "Lycee Hoche - Classes Preparatoires"
+
+# # First image of the Career timeline
+# career-img: "/img/career/eiffel2.png"
+
+##################
+# Contact layout #
+##################
+
+email: "sdubois@stanford.edu"
+
+##################
+# Social Buttons #
+##################
+
+social:
+  # - title: "twitter"
+  #   url: "http://twitter.com/"
+  # - title: "youtube"
+  #   url: "http://youtube.com/"
+  - title: "linkedin"
+    url: "http://bit.do/SebastienDubois"
+  #  url: "https://www.linkedin.com/in/sebdubois"
+  - title: "github"
+    url: "http://bit.do/sdubois_git"
+  #  url: "https://github.com/sds-dubois"
+  - title: "envelope"
+  #  url: "https://github.com/sds-dubois"
+  # - title: "rss"
+  #   url: "/feed.xml"
+
+############
+# 404 page #
+############
+
+404-img: "/img/labtocat.png"
+
+################################################################################
+
+# Tread carefully if you want to change the variables below this point!
+
+# Navigation bar links
+# Blog link in the blog and post pages will point to the blog.html#blog
+# In the default page it will point to the preview of the last post
+
+pages_list:
+  About: 'about'
+  Resume: 'resume'
+  Projects: 'projects'
+  Career: 'career'
+  Contact: 'contact'
+
+# Pagination path
+paginate_path: "blog/page:num"
+
+# Enable minification SASS
+sass:
+  style: compressed
+
+# Exclusion list from the generated _site
+exclude: ["Rakefile", "LICENSE", "readme.markdown", "vendor"]

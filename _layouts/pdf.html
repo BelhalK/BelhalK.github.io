@@ -1,0 +1,28 @@
+
+<!-- Pdf Layout Start -->
+
+<!DOCTYPE html>
+<html lang="{{ site.lang }}">
+
+  {% include head.html %}
+
+  <body id="page-top" data-spy="scroll" data-target=".navbar-fixed-top">
+    {% include navigation.html %}
+
+    <section id="{{ page.title }}" class="container content-section text-center">
+		{{ page.title | markdownify }}
+      <div>
+
+   		{{ content }}
+
+      </div>
+    </section>
+
+    {% include footer.html %}
+
+    {% include js.html %}
+
+  </body>
+</html>
+
+<!-- Pdf Layout End -->

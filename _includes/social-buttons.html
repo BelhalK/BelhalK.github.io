@@ -1,0 +1,32 @@
+
+<!-- Social Buttons Start -->
+
+<ul class="list-inline social-buttons">
+  {% for network in site.social %}
+
+    {% if network.title == 'envelope' %}
+    {% if site.email contains '@' %}
+      {% assign newemail = site.email | split: '@' %}
+        <script>
+          function join_at_email(user, domain){
+          return (user && domain)?(user + "@" + domain):"";
+          }
+          document.write('<li><a href="mailto:'
+          + join_at_email( "{{ newemail[0] }}", "{{ newemail[1] }}" )
+          + '">'
+          + '<i class="fa fa-{{ network.title }} fa-fw"></i></a></li>'
+          );
+          </script>
+    {% else %}
+      <li><a href="mailto:{{ site.email }}"><i class="fa fa-{{ network.title }} fa-fw"></i></a></li>
+    {% endif %}
+<!--       <li><a href="mailto:{{ site.email }}"><i class="fa fa-{{ network.title }} fa-fw"></i></a></li>
+ -->
+    {% else %}
+    <li><a href="{{site.baseurl}}{{ network.url }}" target="_blank"><i class="fa fa-{{ network.title }} fa-fw"></i></a></li>
+    {% endif %}  
+
+  {% endfor %}
+</ul>
+
+<!-- Social Buttons End -->
