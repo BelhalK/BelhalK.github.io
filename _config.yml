@@ -1,7 +1,7 @@
 
 # Site settings
 
-url: "http://sds-dubois.github.io"
+url: "http://BelhalK.github.io"
 baseurl: ""
 google-tracking-id: "UA-72300346-1"
 
@@ -9,19 +9,19 @@ google-tracking-id: "UA-72300346-1"
 # HTML Head #
 #############
 
-author: "Sebastien Dubois"
+author: "Belhal Karimi"
 lang: "en"
-title: "Sebastien Dubois"
+title: "Belhal Karimi"
 favicon: "/img/ico.ico"
-description: "Personal website of Sebastien Dubois."
-keywords: "sebastien, dubois, stanford, polytechnique"
+description: "Personal website of Belhal Karimi."
+keywords: "belhal, karimi, supelec, mit"
 
 ################
 # Intro layout #
 ################
 
 # black-favicon: "/img/black-lab-glass.ico"
-background-img: "../img/wall4.jpg"
+background-img: "../img/SF.jpg"
 me-img: "/img/my_picture3.jpg"
 
 ##############################
@@ -71,7 +71,7 @@ events:
     description: "Cabinet Start-Up - Co-founded a student association at Ecole Polytechnique to develop entrepreneurial activities"
   - image: "/img/career/logo-X-2.jpg"
     date: "Sept. 2012 - Aug. 2015"
-    description: "Ecole Polytechnique - Diplome d'Ingenieur (MS) in Computer Science and Applied Mathematics"
+    description: "Supelec - Diplome d'Ingenieur (MS) in Computer Science and Applied Mathematics"
   - image: "/img/career/hoche2.png"
     date: "Sept. 2010 - June 2012"
     description: "Lycee Hoche - Classes Preparatoires"
@@ -83,7 +83,7 @@ events:
 # Contact layout #
 ##################
 
-email: "sdubois@stanford.edu"
+email: "belhal@csail.mit..edu"
 
 ##################
 # Social Buttons #
@@ -95,7 +95,7 @@ social:
   # - title: "youtube"
   #   url: "http://youtube.com/"
   - title: "linkedin"
-    url: "http://bit.do/SebastienDubois"
+    url: "http://bit.do/BelhalKarimi"
   #  url: "https://www.linkedin.com/in/sebdubois"
   - title: "github"
     url: "http://bit.do/sdubois_git"
