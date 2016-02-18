@@ -1,7 +1,7 @@
 ---
 layout: post
 section-type: post
-title: Telecom ParisTech - Private Data Disclosure Behaviors On The Internet
+title: Facebook - Private Data Disclosure Behaviors On The Internet
 post-preview: Study about private data disclosure behavior on social networks. Litterature review and experiment done during my last year at Telecom ParisTech
 ---
 Study about private data disclosure behavior on social networks.
