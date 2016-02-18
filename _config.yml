@@ -90,12 +90,12 @@ email: "belhal@csail.mit..edu"
 ##################
 
 social:
-  # - title: "twitter"
-  #   url: "http://twitter.com/"
+  - title: "twitter"
+    url: "https://twitter.com/BelhalK"
   # - title: "youtube"
   #   url: "http://youtube.com/"
   - title: "linkedin"
-    url: "http://bit.do/BelhalKarimi"
+    url: "www.linkedin.com/in/belhal"
   #  url: "https://www.linkedin.com/in/sebdubois"
   - title: "github"
     url: "https://github.com/BelhalK"
