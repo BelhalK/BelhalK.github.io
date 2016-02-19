@@ -82,7 +82,7 @@ ol {
     border-bottom: 1px solid rgba($light, 0.3);
     text-transform: uppercase;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
-    background-color: $dark;
+    background-color: $light;
     
     .navbar-brand {
         -webkit-text-fill-color: white;
@@ -138,7 +138,7 @@ ol {
         padding: 20px 0;
         border-bottom: none;
         letter-spacing: 1px;
-        background: transparent;
+        background: $light;
         -webkit-transition: background .5s ease-in-out,padding .5s ease-in-out;
         -moz-transition: background .5s ease-in-out,padding .5s ease-in-out;
         transition: background .5s ease-in-out,padding .5s ease-in-out;
