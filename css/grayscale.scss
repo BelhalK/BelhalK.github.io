@@ -86,14 +86,14 @@ ol {
     
     .navbar-brand {
         font-weight: 700;
-        color: #FFF;
+        
             &:focus {
                 outline: none;
             }
         .navbar-toggle {
             padding: 4px 6px;
             font-size: 16px;
-                color: #FFF;
+                color: $light;
                 &:focus,
                 &:active {
                     outline: none;
@@ -138,12 +138,12 @@ ol {
     .top-nav-collapse {
         padding: 0;
         background-color: #B0C4DE;
-        color: #FFF;
+        
     }
 
     .navbar-custom.top-nav-collapse {
         border-bottom: 1px solid rgba($light, 0.3);
-        #FFF;
+        color: #FFF;
     }
 }
 
