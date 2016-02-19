@@ -82,7 +82,7 @@ ol {
     border-bottom: 1px solid rgba($light, 0.3);
     text-transform: uppercase;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
-    background-color: $light;
+    background-color: rgba($light, 0.3);
     
     .navbar-brand {
         
@@ -133,7 +133,7 @@ ol {
         padding: 0;
         border-bottom: none;
         letter-spacing: 1px;
-        background: #B0C4DE;
+        background-color: rgba($light, 0.3);
         -webkit-transition: background .5s ease-in-out,padding .5s ease-in-out;
         -moz-transition: background .5s ease-in-out,padding .5s ease-in-out;
         transition: background .5s ease-in-out,padding .5s ease-in-out;
@@ -141,7 +141,7 @@ ol {
 
     .top-nav-collapse {
         padding: 0;
-        background-color: #B0C4DE;
+        background-color: rgba($light, 0.3);
         
         
     }
