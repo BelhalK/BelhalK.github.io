@@ -52,7 +52,7 @@ p {
 }
 
 a {
-    color: #800;
+    
     text-shadow: 0.1px 0.1px #00cccc;
     -webkit-transition: all .2s ease-in-out;
     -moz-transition: all .2s ease-in-out;
@@ -138,13 +138,13 @@ ol {
     .top-nav-collapse {
         padding: 0;
         background-color: #B0C4DE;
-        color: #800;
+        
         
     }
 
     .navbar-custom.top-nav-collapse {
         border-bottom: 1px solid rgba($light, 0.3);
-        color: #800;
+        
     }
 }
 
@@ -283,7 +283,7 @@ ol {
     width: 100%;
     height: 200px;
     margin-top: 100px;
-    color: #800;
+    
 }
 
 @media(min-width:767px) {
