@@ -91,7 +91,7 @@ ol {
                 outline: none;
             }
         .navbar-toggle {
-        
+            color: #FFF;
             padding: 4px 6px;
             font-size: 16px;
                 color: $light;
@@ -111,6 +111,7 @@ ol {
 			background-color: rgba($light, 0.3);
         }
             a {
+                font-weight: 700;
                 color: #FFF;
                 -webkit-transition: background .3s ease-in-out;
                 -moz-transition: background .3s ease-in-out;
