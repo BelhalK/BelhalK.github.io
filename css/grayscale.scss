@@ -85,9 +85,7 @@ ol {
     background-color: $light;
     
     .navbar-brand {
-        -webkit-text-fill-color: white;
-        -webkit-text-stroke-color: black;
-        -webkit-text-stroke-width: 1.00px;
+        
         font-weight: 700;
         color: #FFF;
             &:focus {
