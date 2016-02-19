@@ -86,11 +86,12 @@ ol {
     
     .navbar-brand {
         font-weight: 700;
-        
+        color: #FFF;
             &:focus {
                 outline: none;
             }
         .navbar-toggle {
+        
             padding: 4px 6px;
             font-size: 16px;
                 color: $light;
