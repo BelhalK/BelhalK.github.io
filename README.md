@@ -1,3 +1,3 @@
-My personal website, check [here](http://sds-dubois.github.io/)
+My personal website, check [here](http://BelhalK.github.io/)
 <br></br>
 *Under construction*
