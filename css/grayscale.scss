@@ -34,7 +34,7 @@ h6 {
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     font-weight: 700;
     letter-spacing: 1px;
-    color: #800
+    
 }
 
 p {
@@ -83,6 +83,7 @@ ol {
     text-transform: uppercase;
     font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
     background-color: $dark;
+    
     .navbar-brand {
         font-weight: 700;
             &:focus {
@@ -91,7 +92,7 @@ ol {
         .navbar-toggle {
             padding: 4px 6px;
             font-size: 16px;
-                color: $light;
+                color: #800;
                 &:focus,
                 &:active {
                     outline: none;
