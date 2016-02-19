@@ -2,7 +2,8 @@
 layout: post
 section-type: post
 title: Probabilistic Computing Project
-post-preview: Working on BayesDB. Under the supervision of V.Mansinghka and R.Tibbetts
+post-preview: We build probabilistic computing systems that exploit uncertain knowledge to learn from data, infer its probable causes, make calibrated predictions and choose effective actions. We also study the computational principles and building blocks needed to design, implement and analyze these systems, drawing on and contributing to an emerging integration of key ideas from probability theory and computer science. Our research includes work on machine learning and artificial intelligence fundamentals, as well as applications to modeling human cognition and to intelligent data analysis.
+
 ---
 **[Probabilistic Computing Project](http://probcomp.csail.mit.edu)** is a project I'm currently enrolled in at MIT.
 
