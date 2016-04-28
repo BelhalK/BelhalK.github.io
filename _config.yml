@@ -45,7 +45,7 @@ me-img: "/img/my_picture3.jpg"
 
 post-preview-words: 128
 
-paginate: 5
+paginate: 10
 
 fb-share: False
 twitter-share: False
