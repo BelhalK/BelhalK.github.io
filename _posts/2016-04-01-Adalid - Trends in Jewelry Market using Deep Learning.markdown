@@ -15,4 +15,7 @@ For instance, here is an example of colours, size and type of jewels we were abl
 
 Another use case consists in analyzing in real time the performance of your products. Using both deep learning to detect the product and NLP to do sentiment analysis.
 <center><img src="https://BelhalK.github.io/img/projects/realtime.jpg" style="width: 70%; height: 70%"></center> 
+
+PL used: Lua, Python (scrapping)
+
 More to come on this project...

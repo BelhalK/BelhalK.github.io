@@ -13,3 +13,5 @@ While this solution was originally made for all internet users, the issue of qua
 
 
 Check out our website http://meetagora.strikingly.com/
+
+PL used: PHP, Javascript, HTML, CSS
