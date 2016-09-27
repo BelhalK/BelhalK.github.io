@@ -2,10 +2,17 @@
 layout: post
 section-type: post
 title: Adalid - Trends in Jewelry Market using Deep Learning
-post-preview: DataXylo, is a data science company with its unique AI backed data prep platform, to tame the big data and clean, prepare, unify and expand multiple silo database relevant for analytics across customer data driven Enterprise. While working with business users and Analyst, Dataxylo helps in solving real business problem through bottom-up Analytics basis and let the data scientist focus on more insights than data preparation.
+post-preview: ADALID started with three friends with complementary skills and wanting to disrupt an old fashionned industry. The Jewelery market was waiting for its real tech disruption and we thought about using cutting edge technology to value huge amount of online content for the sake of this industry.
 
 ---
 **[Adalid - Trends in Jewelry Market using Deep Learning]** is a project I realized with two friends working in the industry in NYC at that time
 
-ADALID, 
+ADALID started with three friends with complementary skills and wanting to disrupt an old fashionned industry. The Jewelery market was waiting for its real tech disruption and we thought about using cutting edge technology to value huge amount of online content for the sake of this industry.
+
+
+For instance, here is an example of colours, size and type of jewels we were able to detect on thousand of instagram photos we scrapped in order to detect trends in jewels shape and colours:
+<center><img src="https://BelhalK.github.io/img/projects/adalid.jpg" style="width: 70%; height: 70%"></center> 
+
+Another use case consists in analyzing in real time the performance of your products. Using both deep learning to detect the product and NLP to do sentiment analysis.
+<center><img src="https://BelhalK.github.io/img/projects/realtime.jpg" style="width: 70%; height: 70%"></center> 
 More to come on this project...
