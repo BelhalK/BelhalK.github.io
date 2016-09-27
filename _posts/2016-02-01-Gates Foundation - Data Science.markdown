@@ -11,4 +11,4 @@ The project consisted in applying Bayesian Statistics to enable domain experts t
 Focus on Data Visualisation and building strong reliable statistical models based on bayesian inference strategies and dependency blocks on Growth & Development datasets (Malnutrition, IQ, Health..) in developing countries.
 
 Here is a sample of what the kind of deliverable is:
-<center><img src="https://BelhalK.github.io/img/projects/gates.png" style="width: 70%; height: 70%"></img></center>   
+<center><img src="https://BelhalK.github.io/img/projects/gates.png" style="width: 70%; height: 70%"></center>   

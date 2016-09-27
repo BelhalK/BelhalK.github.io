@@ -1,11 +1,11 @@
 ---
 layout: post
 section-type: post
-title: MIT VMS - DataXylo
+title: Adalid - Trends in Jewelry Market using Deep Learning
 post-preview: DataXylo, is a data science company with its unique AI backed data prep platform, to tame the big data and clean, prepare, unify and expand multiple silo database relevant for analytics across customer data driven Enterprise. While working with business users and Analyst, Dataxylo helps in solving real business problem through bottom-up Analytics basis and let the data scientist focus on more insights than data preparation.
 
 ---
-**[MIT VMS - DataXylo](https://dataxylo.com)** is a project I started with two other classmates within the MIT Ventureships Club.
+**[Adalid - Trends in Jewelry Market using Deep Learning]** is a project I realized with two friends working in the industry in NYC at that time
 
-DataXylo, is a data science company with its unique AI backed data prep platform, to tame the big data and clean, prepare, unify and expand multiple silo database relevant for analytics across customer data driven Enterprise. While working with business users and Analyst, Dataxylo helps in solving real business problem through bottom-up Analytics basis and let the data scientist focus on more insights than data preparation.
+ADALID, 
 More to come on this project...
