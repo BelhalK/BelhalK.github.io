@@ -60,7 +60,7 @@ events:
   - image: "/img/career/mit2.jpg"
     date: "Jan. 2016 - June 2016"
     description: "MIT - Visiting Student in Machine Learning"
-  - image: "/img/career/gates.jpg"
+  - image: "/img/career/gates.png"
     date: "Feb. 2016 - April 2016"
     description: "Data Scientist at Gates Foundation"
   # - image: "/img/career/spidertocat.png"
