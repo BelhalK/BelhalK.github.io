@@ -12,6 +12,6 @@ We thought about using the opportunity that the everyday brower gave us.We start
 While this solution was originally made for all internet users, the issue of quantifying knowledge and managing noise on Slack channels represented a first usecase for our extension.
 
 
-Check out our website http://meetagora.strikingly.com/
+Check out our website http://www.getagora.io/
 
 PL used: PHP, Javascript, HTML, CSS
