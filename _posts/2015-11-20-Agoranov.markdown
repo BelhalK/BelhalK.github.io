@@ -4,7 +4,8 @@ section-type: post
 title: Agoranov - Statistical study on startup populations in France
 post-preview: With **[Agoranov - Statistical study on startup populations in France](https://github.com/BelhalK)**, Within my internship at agoraov, I aimed at caracterizing the distibution of the startups incubated at Agoranov compared to a French startup database. 
 ---
-**[Agoranov - Statistical study on startup populations in France](https://github.com/BelhalK)** Within my internship at Agoranov, I aimed at caracterizing the distibution of the startups incubated at Agoranov compared to a French startup database. 
+<a href="http://belhalk.github.io/2015/11/20/Agoranov.html" style="color: rgb(0,255,0);text-decoration: none">Agoranov - Statistical study on startup populations in France</a>.
+Within my internship at Agoranov, I aimed at caracterizing the distibution of the startups incubated at Agoranov compared to a French startup database. 
 
 My goal was to defend the value of such a structure for the growth of companies and more generally the growth in jobs creation.
 Statistical study on startup datable of Both France (Online database) and Agoranov databases.
