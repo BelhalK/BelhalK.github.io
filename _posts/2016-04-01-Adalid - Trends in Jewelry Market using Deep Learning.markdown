@@ -5,7 +5,7 @@ title: Adalid - Trends in Jewelry Market using Deep Learning
 post-preview: ADALID started with three friends with complementary skills and wanting to disrupt an old fashionned industry. The Jewelery market was waiting for its real tech disruption and we thought about using cutting edge technology to value huge amount of online content for the sake of this industry.
 
 ---
-<a href="http://belhalk.github.io/2016/04/01/Adalid-Trends-in-Jewelry-Market-using-Deep-Learning.html" style="color: rgb(0,255,0);text-decoration: none">#{{ tag }}Adalid - Trends in Jewelry Market using Deep Learning</a> is a project I realized with two friends working in the industry in NYC at that time
+<a href="http://belhalk.github.io/2016/04/01/Adalid-Trends-in-Jewelry-Market-using-Deep-Learning.html" style="color: rgb(0,255,0);text-decoration: none">Adalid - Trends in Jewelry Market using Deep Learning</a> is a project I realized with two friends working in the industry in NYC at that time
 
 ADALID started with three friends with complementary skills and wanting to disrupt an old fashionned industry. The Jewelery market was waiting for its real tech disruption and we thought about using cutting edge technology to value huge amount of online content for the sake of this industry.
 
