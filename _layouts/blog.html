@@ -17,7 +17,7 @@
         {{ page.content | markdownify }}
 
         {% for post in paginator.posts %}
-          <strong>{{ post.date | date_to_string }}</strong> <small>. {{ post.category }} .</small> <a href="{{site.baseurl}}{{post.url}}" style="color: rgb(0,255,0);text-decoration: none"> {{ post.title }}</a> <!-- <small><a href="{{site.baseurl}}{{post.url}}#disqus_thread">Comments</a></small> -->
+          <h3 align="left"><strong>{{ post.date | date_to_string }}</strong> <small>. {{ post.category }} .</small> <a href="{{site.baseurl}}{{post.url}}" style="color: rgb(0,255,0);text-decoration: none"> {{ post.title }}</a> <!-- <small><a href="{{site.baseurl}}{{post.url}}#disqus_thread">Comments</a></small> --></h3>
         {% endfor %}
 
         {% include pagination.html %}
