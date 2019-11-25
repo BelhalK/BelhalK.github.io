@@ -252,7 +252,7 @@
                                 <span class="title">Efficient Metropolis-Hastings sampling for nonlinear mixed effects models </span>
                                 <p>
               <i>Belhal Karimi</i> and Marc Lavielle.<br>
-              Proceedings of <a href="http://www.baysm.org/">BAYSM</a>, 2018. <br>
+              Proceedings of <a href="http://www.baysm.org/">BAYSM</a>, Bayesian Statistics and New Generations, 2018. <br>
               Accepted for a poster presentation at <a href="http://www.baysm.org/">BAYSM</a> in Coventry, United Kingdom.</p>
               <p>
                <div class="btn-group-xs">
@@ -261,16 +261,20 @@
               <a a href="https://github.com/belhal/saemix" class="btn btn-default">Code</a>
             <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-2">bibtex</a>
 <pre class="bibtex-2 collapse">
-@article{karimi:hal-01958247,
-  TITLE = {{Efficient Metropolis-Hastings sampling for nonlinear mixed effects models}},
-  AUTHOR = {Karimi, Belhal and Lavielle, Marc},
-  URL = {https://hal.inria.fr/hal-01958247},
-  JOURNAL = {{Proceedings of BAYSM 2018}},
-  PUBLISHER = {{Raffaele Argiento, Daniele Durante, Sara Wade}},
-  YEAR = {2019},
-  PDF = {https://hal.inria.fr/hal-01958247/file/main.pdf},
-  HAL_ID = {hal-01958247},
-  HAL_VERSION = {v1},
+@InProceedings{10.1007/978-3-030-30611-3_9,
+author="Karimi, Belhal
+and Lavielle, Marc",
+editor="Argiento, Raffaele
+and Durante, Daniele
+and Wade, Sara",
+title="Efficient Metropolis-Hastings Sampling for Nonlinear Mixed Effects Models",
+booktitle="Bayesian Statistics and New Generations",
+year="2019",
+publisher="Springer International Publishing",
+address="Cham",
+pages="85--93",
+abstract="The ability to generate samplesKarimi, Belhal of the random effects from their conditional distributions isLavielle, Marc fundamental for inference in mixed effects models. Random walk Metropolis is widely used to conduct such sampling, but such a method can converge slowly for medium dimension problems, or when the joint structure of the distributions to sample is complex. We propose a Metropolis--Hastings (MH) algorithm based on a multidimensional Gaussian proposal that takes into account the joint conditional distribution of the random effects and does not require any tuning, in contrast with more sophisticated samplers such as the Metropolis Adjusted Langevin Algorithm or the No-U-Turn Sampler that involve costly tuning runs or intensive computation. Indeed, this distribution is automatically obtained thanks to a Laplace approximation of the original model. We show that such approximation is equivalent to linearizing the model in the case of continuous data. Numerical experiments based on real data highlight the very good performances of the proposed method for continuous data model.",
+isbn="978-3-030-30611-3"
 }
               </pre>
             </div><p>
