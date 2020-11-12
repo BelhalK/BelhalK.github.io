@@ -1,769 +1,720 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>Belhal Karimi</title>
-    <!-- Bootstrap core CSS -->
-    <link href="css/homepagee.css" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom styles for this template -->
-  </head>
-  <body>
-    <div class="container">
-      <div class="row" style="padding:20px">
-        <div class="hidden-xs col-sm-2 col-md-2" id="sidebar" role="navigation" style="margin-top:190px">
-          <hr>
-          <ul class="nav nav-pills nav-stacked">
-            <li><a href="#papers" class=" active">Papers</a></li>
-            <li><a href="#talks" class=" active">Talks</a></li>
-            <li><a href="#software" class="">Software</a></li>
-            <li><a href="#industry" class="">Industry</a></li>
-            <li><a href="#awards" class="">Awards</a></li>
-            <li><a href="https://scholar.google.com/citations?user=Xh_OIWkAAAAJ&hl=fr&oi=ao" class="">Scholar</a></li>
-            <li><a href="https://github.com/BelhalK" class="">Github</a></li>
-            <li><a href="https://www.linkedin.com/in/belhal-karimi-2baa71a5" class="">Linkedin</a></li>
-            <li><a href="playlists.html" class="">Playlists</a></li>
-            <!-- <li><a href="downloads/CV.pdf" class="">Resume</a></li> -->
-            <!-- <li><a href="https://soundcloud.com/lalbe" class="">Soundcloud</a></li> -->
-            
-          </ul>
-        </div>
-        <div class="col-xs-13 col-sm-8 col-md-8">
-          <div class="row">
-            <div id="photo">
-            <img class="img-circle" src="img/my_picture4.jpg" class="pull-left" style="margin:20px 20px 20px 0; width:155px; height:150px; border-radius:100%" >
+   <head>
+      <meta name="google-site-verification" content="akBBJHNHcfkLYshrEBhurLwioqq3iowF6sm19u59wHs" />
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="description" content="Homepage">
+      <link rel="icon" href="./assets/img/air.png">
+      <meta name="author" content="Belhal Karimi">
+      <meta name="keywords" content="Belhal Karimi, Machine Learning Computer Science Statistics  Computer Vision Deep Learning">
+      <title> Belhal Karimi | Baidu Research, CCL </title>
+      <!-- Bootstrap core CSS -->
+      <link href="./assets/style_files/bootstrap.min.css" rel="stylesheet">
+      <link href="./assets/style_files/non-responsive.css" rel="stylesheet">
+      <link href="./assets/style_files/social-buttons-3.css" rel="stylesheet">
+      <link href="./assets/style_files/font-awesome.min.css" rel="stylesheet">
+      <link href="./assets/style_files/main.css" rel="stylesheet">
+      <script type="text/javascript">
+         function display(id) {
+           var currentDisplay = document.getElementById(id).style.display;
+           if (currentDisplay == 'none') {
+             document.getElementById(id).style.display = "inline";
+           }
+           else {
+             document.getElementById(id).style.display = "none";
+           }
+         }
+      </script>
+      <style type="text/css">
+         .divLeft {
+         width:15%;
+         display:block;
+         float: left;
+         margin-left: 20px;
+         }
+         .divRight {
+         width:55%;
+         display:block;
+         float: right;
+         margin-right: 25%;
+         }
+      </style>
+      <style type="text/css">
+         .rainbow {
+         /* Font options */
+         font-family: 'Pacifico', cursive;
+         font-size:40px;
+         /* Chrome, Safari, Opera */
+         -webkit-animation: rainbow 5s infinite; 
+         /* Internet Explorer */
+         -ms-animation: rainbow 5s infinite;
+         /* Standar Syntax */
+         animation: rainbow 5s infinite; 
+         }
+         /* Chrome, Safari, Opera */
+         @-webkit-keyframes rainbow{
+         0%{color: orange;}  
+         10%{color: purple;} 
+         20%{color: red;}
+         30%{color: CadetBlue;}
+         40%{color: brown;}
+         50%{color: coral;}
+         60%{color: green;}
+         70%{color: cyan;}
+         80%{color: DeepPink;}
+         90%{color: DodgerBlue;}
+         100%{color: orange;}
+         }
+         /* Internet Explorer */
+         @-ms-keyframes rainbow{
+         0%{color: orange;} 
+         10%{color: purple;} 
+         20%{color: red;}
+         30%{color: CadetBlue;}
+         40%{color: brown;}
+         50%{color: coral;}
+         60%{color: green;}
+         70%{color: cyan;}
+         80%{color: DeepPink;}
+         90%{color: DodgerBlue;}
+         100%{color: orange;}
+         }
+         /* Standar Syntax */
+         @keyframes rainbow{
+         0%{color: orange;}  
+         10%{color: purple;} 
+         20%{color: red;}
+         30%{color: CadetBlue;}
+         40%{color: brown;}
+         50%{color: coral;}
+         60%{color: green;}
+         70%{color: cyan;}
+         80%{color: DeepPink;}
+         90%{color: DodgerBlue;}
+         100%{color: orange;}
+         }
+      </style>
+   </head>
+   <body data-feedly-mini="yes">
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-default navbar-fixed-top">
+         <div class="container">
+            <div class="navbar-header">
+               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+               <span class="sr-only">Toggle navigation</span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               <span class="icon-bar"></span>
+               </button>
+               <a class="scroll-top navbar-brand" href="./index.html"><b>Home</b></a>
             </div>
-            <h1>Belhal Karimi</h1>
-            <p class="lead">Machine Learning<br>
-              Baidu Research, Cognitive Computing Lab<br>
-              <!-- Beijing, China -->
-              <a href="mailto:belhal dot karimi at gmail dot com" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/mail.png" height="20" width="20" alt="Send an email" style="vertical-align:middle;" border="0" ></span>
-
-
-              <a href="https://twitter.com/BelhalK" target="_blank" style="text-decoration:none;">
-              <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/twitter.png" height="20" width="20" alt="Twitter" style="vertical-align:middle;" border="0" ></span></a>
-
-
-              <a href="https://scholar.google.com/citations?user=Xh_OIWkAAAAJ&hl=fr&oi=ao" target="_blank" style="text-decoration:none;">
-              <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/scholar.png" height="20" width="20" alt="Google Scholar" style="vertical-align:middle;" border="0" ></span></a>
-
-
-              <a href="https://github.com/BelhalK" target="_blank" style="text-decoration:none;">
-              <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/github.png" height="20" width="20" alt="Github" style="vertical-align:middle;" border="0" ></span></a>
-
-
-              <a href="https://www.linkedin.com/in/belhal-karimi-2baa71a5"  target="_blank" style="text-decoration:none;">
-              <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/linkedin.png" height="20" width="20" alt="LinkedIn" style="vertical-align:middle;" border="0" ></span></a>
-
-              <a href="https://soundcloud.com/lalbe" target="_blank" style="text-decoration:none;">
-              <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/soundcloud.png" height="20" width="20" alt="Soundcloud" style="vertical-align:middle;" border="0" ></span></a>
-
-              <a href="https://belhal.exposure.co/" target="_blank" style="text-decoration:none;">
-              <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/exposure.png" height="20" width="20" alt="Exposure" style="vertical-align:middle;" border="0" ></span></a>
-
-            </p>
-          </div>
-        </div>
-        <div class="col-xs-13 col-sm-8 col-md-8">
-          <div class="row">
-            <hr>
-            <p>
-
-            I am currently an ML Researcher in the Cognitive Computing Lab at <b><a href="http://research.baidu.com/">Baidu Research</a></b> working with <a href="http://research.baidu.com/People/index-view?id=111">Dr. Ping Li</a>.
-
+            <div id="navbar" class="collapse navbar-collapse">
+               <ul class="nav navbar-nav">
+                  <li><a href="#publication">Papers</a></li>
+                  <li><a href="#talk">Talks</a></li>
+                  <li><a href="#software">Software</a></li>
+                  <li><a href="#industry">Industry</a></li>
+                  <li><a href="#award">Awards</a></li>
+                  <li><a href="#reviewing">Reviewing</a></li>
+                  <li><a href="#teaching">Teaching</a></li>
+                  <li><a href="#education">Education</a></li>
+                  <li><a target="_blank" class="rainbow" href="music.html">Music</a></li>
+               </ul>
+               <ul class="nav navbar-nav navbar-right"></ul>
+            </div>
+            <!--/.nav-collapse -->
+         </div>
+      </nav>
+      <!-- Begin page content -->
+      <div class="container">
+         <div class="row">
             <br>
-            I obtained my Ph.D. in Machine Learning at <b><a> Ecole Polytechnique</a></b> (<a href="https://portail.polytechnique.edu/cmap/fr?lang=en" >CMAP</a>) and <b><a> INRIA</a></b>, under the supervision of <a href="http://www.cmap.polytechnique.fr/~lavielle/" >Marc Lavielle</a> and <a href="http://perso.telecom-paristech.fr/~moulines/" >Eric Moulines</a>. From October 2016 to October 2019, I was a member of the <a href="https://team.inria.fr/xpop/fr/" >XPOP</a> team, a joint team between INRIA and CMAP focussing on statistical modelling for life sciences. 
+            <span class="divRight">
+               <h1 style="font-size:22pt">Belhal Karimi <span style="font-size:12pt"></span></h1>
+               <address>
+                  <font size="3">
+                     ML Research
+                     <br> <a target="_blank" href="http://research.baidu.com/">Baidu Research, Cognitive Computing Lab </a>
+                     <!-- <br> <a target="_blank" href="http://research.baidu.com/">Baidu Research </a> -->
+                     <br>   <a href="mailto:belhal dot karimi at gmail dot com" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/mail.png" height="20" width="20" alt="Send an email" style="vertical-align:middle;" border="0" ></span>
+                     <a href="https://twitter.com/BelhalK" target="_blank" style="text-decoration:none;">
+                     <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/twitter.png" height="20" width="20" alt="Twitter" style="vertical-align:middle;" border="0" ></span></a>
+                     <a href="https://scholar.google.com/citations?user=Xh_OIWkAAAAJ&hl=fr&oi=ao" target="_blank" style="text-decoration:none;">
+                     <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/scholar.png" height="20" width="20" alt="Google Scholar" style="vertical-align:middle;" border="0" ></span></a>
+                     <a href="https://github.com/BelhalK" target="_blank" style="text-decoration:none;">
+                     <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/github.png" height="20" width="20" alt="Github" style="vertical-align:middle;" border="0" ></span></a>
+                     <a href="https://www.linkedin.com/in/belhal-karimi-2baa71a5"  target="_blank" style="text-decoration:none;">
+                     <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/linkedin.png" height="20" width="20" alt="LinkedIn" style="vertical-align:middle;" border="0" ></span></a>
+                     <a href="https://soundcloud.com/lalbe" target="_blank" style="text-decoration:none;">
+                     <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/soundcloud.png" height="20" width="20" alt="Soundcloud" style="vertical-align:middle;" border="0" ></span></a>
+                     <!-- <a href="https://belhal.exposure.co/" target="_blank" style="text-decoration:none;">
+                        <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/exposure.png" height="20" width="20" alt="Exposure" style="vertical-align:middle;" border="0" ></span></a> -->
+                     <a href="https://www.instagram.com/belhal/" target="_blank" style="text-decoration:none;">
+                     <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/insta.jpeg" height="20" width="20" alt="Instagram" style="vertical-align:middle;" border="0" ></span></a>
+                     <br><br> Email: belhal.karimi-at-gmail.com <br>
+                     Previous: <a href="https://team.inria.fr/xpop/fr/team-members/" target="_blank">INRIA</a>; <a href="https://portail.polytechnique.edu/cmap/fr?lang=en" target="_blank"> Ecole Polytechnique</a>; <a href="https://cs.hse.ru/big-data/bayeslab/samsunglab/" target="_blank">Samsung Research</a>; <a target="_blank" href="http://probcomp.csail.mit.edu/" target="_blank">MIT</a>
+                     <!-- <br>
+                        Current: <a href="https://team.inria.fr/xpop/fr/team-members/" target="_blank">INRIA </a>; <a href="https://portail.polytechnique.edu/cmap/fr?lang=en" target="_blank"> Ecole Polytechnique</a>; <a href="https://cs.hse.ru/big-data/bayeslab/samsunglab/" target="_blank">Samsung Research</a>; <a target="_blank" href="http://probcomp.csail.mit.edu/" target="_blank">MIT</a> -->
+                     [<a target="_blank" href="./assets/downloads/resumebelhal.pdf">Curriculum Vitae</a>] [<a target="_blank" href="https://scholar.google.com.hk/citations?hl=en&user=Xh_OIWkAAAAJ">Google Scholar</a>] [<a target="_blank" href="./assets/downloads/researchstatement.pdf">Research Statement</a>]
+                  </font>
+               </address>
+            </span>
+            <span class="divLeft">
+            <br><img src="./assets/img/belhal.PNG" height=120 width=140 class="img-thumbnail">
+            </span>
+         </div>
+         <!-- <div class="container"> -->
+         <span id="bio" name="bio">
+            <h3><br>About</h3>
+         </span>
+         <p style="top-margin: 100px;"></p>
+         <table class="table table-hover">
+            <tbody>
+               <!-- 
+                  <tr><td>
+                  <img src="./assets/style_files/mission2.PNG" width="91%" height="53%">
+                  </td></tr>
+                     -->
+               <tr>
+                  <td>
+                     I am currently an ML Researcher in the Cognitive Computing Lab at <b><a href="http://research.baidu.com/">Baidu Research</a></b> working with <a href="http://research.baidu.com/People/index-view?id=111">Dr. Ping Li</a>.
+                     <br>
+                     I obtained my Ph.D. in Machine Learning at <b><a> Ecole Polytechnique</a></b> (<a href="https://portail.polytechnique.edu/cmap/fr?lang=en" >CMAP</a>) and <b><a> INRIA</a></b>, under the supervision of <a href="http://www.cmap.polytechnique.fr/~lavielle/" >Marc Lavielle</a> and <a href="http://perso.telecom-paristech.fr/~moulines/" >Eric Moulines</a>. From October 2016 to October 2019, I was a member of the <a href="https://team.inria.fr/xpop/fr/" >XPOP</a> team, a joint team between INRIA and CMAP focussing on statistical modelling for life sciences. 
+                     <br><br>
+                     I had the opportunity to intern in the <b><a> Samsung AI - HSE Lab</b></a> (Moscow, RU, 2019), where I was working with <a href = "https://bayesgroup.ru/people/dmitry-vetrov/">Dr. Dmitry Vetrov</a> on optimization methods for Bayesian Neural Networks and at <b><a> MIT </b></a> (Boston, USA, 2016), under the supervision of <a href = "http://probcomp.csail.mit.edu/principal-investigator/">Dr. Vikash Mansinghka</a>, where I've spent most of my time at the <a href="http://probcomp.csail.mit.edu/" >Probabilistic Computing Project</a> working on MCMC methods.
+                     <br><br>
+                     I am developing, with other researchers, an open-source R package, called <strong><a href = "http://saemixr.github.io/">Saemix</a></strong>, devoted to the training of nonlinear mixed models in biostatistics, economy, epidemiology etc. Check out our R bookdown [<a  href="http://saemixdevelopment.github.io/">bookdown</a>] and Twitter feed [<a  href="https://twitter.com/saemixR">twitter</a>] for more information.
+            </tbody>
+         </table>
+         <span id="news" name="news">
+            <h3> News </h3>
+         </span>
+         <ul>
+            <li>
+               [2020, Sept.] Our work on improving generalization for adaptive gradient methods <i>'Towards Better Generalization of Adaptive Gradient Methods'</i> is accepted in <a target="_blank" href="https://neurips.cc/">NeurIPS 2020</a> (acceptance rate: 20.1%) [Poster]. -- <span style="color: green">New</span>
+            </li>
+            <li>
+               [2020, Aug.] Our paper on communication-efficient Federated Learning <i>'FedSKETCH: Communication-Efficient and Private Federated Learning via Sketching'</i>  is now on <a target="_blank" href="https://arxiv.org/abs/2008.04975">Arxiv</a>. -- <span style="color: green">New</span>
+            </li>
+            <li>
+               [2020, Jun.] <a target="_blank" href="https://monk.ai/">Monk AI</a> is raising a $2.4m Seed round to develop its AI-based inspection technology through R&amp;D boost.
+            </li>
+            <li>
+               [2020, Mar.] Submitted proposal to the <a target="_blank" href="https://chanzuckerberg.com/grants-ventures/grants/">Chan Zuckerberg Initiative</a> for <a target="_blank" href="https://saemixr.github.io/">saemix</a>, an R package for mixed effects models.
+            </li>
+            <li>
+               [2020, Jan.] I am joining <a target="_blank" href="http://research.baidu.com/">Baidu Research</a>, Beijing, as a researcher.
+            </li>
+            <li>
+               [2019, Sep.] I have successfully defended my Ph.D. on <i>'Nonconvex Optimization for Latent Data Models'</i>. [<a target="_blank" href="./assets/downloads/manuscriptBelhalKarimi.pdf">manuscript</a>] [<a target="_blank" href="./assets/downloads/slidesDefense.pdf">slides</a>] 
+            </li>
+         </ul>
+         <span id="publication" name="publication">
+            <h3> Papers </h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+              <!--  <tr>
+                  <td width="30%"><img src="./assets/paperthumb/hwa.png" width=230 height=100></td>
+                  <td>
+                     <strong> HWA: Hyperparameters Weight Averaging in Bayesian Neural Networks</strong>
+                     <br>  <i>Belhal Karimi</i> and Ping Li.
+                     <br> <b>Sumitted, 2020.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;hwa-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/hwa.pdf">pdf</a>] [<a target="_blank" href="">code</a>] 
+                     <div id="hwa-abs" style="display:none">
+                        <p>
+                           Bayesian neural networks attempt to combine the strong predictive performance of neural networks with formal quantification of uncertainty of the predicted output in the Bayesian framework. In deterministic deep neural network, confidence of the model and the predic- tions at inference time are left alone. Applying randomness and Bayes Rule to the weights of a deep neural network is a step towards achieving this goal. Current state of the art optimization methods for training Bayesian Neural Networks are relatively slow and in- efficient, compared to their deterministic counterparts. In this paper, we propose HWA (Hyperparameters Weight Averaging) algorithm that exploits an averaging procedure in order to optimize faster and achieve better accuracy. We develop our main algorithm us- ing the simple averaging heuristic and demonstrate its effectiveness on the space of the hyperparameters of the networks random weights. Numerical applications are presented to confirm the empirical benefits of our method.
+                        </p>
+                     </div>
+                  </td>
+               </tr> -->
 
-            <br>
-            I had the opportunity to intern in the <b><a> Samsung AI - HSE Lab</b></a> (Moscow, RU, 2019), where I was working with <a href = "https://bayesgroup.ru/people/dmitry-vetrov/">Dr. Dmitry Vetrov</a> on optimization methods for Bayesian Neural Networks and at <b><a> MIT </b></a> (Boston, USA, 2016), under the supervision of <a href = "http://probcomp.csail.mit.edu/principal-investigator/">Dr. Vikash Mansinghka</a>, where I've spent most of my time at the <a href="http://probcomp.csail.mit.edu/" >Probabilistic Computing Project</a> working on MCMC methods.
-
-            <br>
-            I am developing, with other researchers, an open-source R package, called <strong><a href = "http://saemixr.github.io/">Saemix</a></strong>, devoted to the training of nonlinear mixed models in biostatistics, economy, epidemiology etc. Check out our R bookdown [<a  href="http://saemixdevelopment.github.io/">bookdown</a>] and Twitter feed [<a  href="https://twitter.com/saemixR">twitter</a>] for more information.
-
-
-            </p>
-          </div>
-          <div class="row"><a name="research_interests"></a>
-          <hr class="bigHr">
-          <center><h3>Research interests</h3></center>
-          <hr>
-          My work lies in the intersection of machine learning, statistics and optimization and particularly focuses on training nonconvex latent data models for large scale Machine Learning and improving optimization methods for Probabilistic Deep Learning.<br>
-          I've been using machine learning techniques in various domains such as :
-          <p align="left">
-          <b>Growth &amp; Development:</b> Bill &amp; Melinda Gates Foundation - HBGDki [<a  href="downloads/hbgdki.pdf">PDF</a>], [<a  href="downloads/gusto.pdf">Slides</a>] and [<a  href="downloads/poster.pdf">Poster</a>] <br>
-        <b>Healthcare:</b> Xpop &amp; Lixoft - Pharmacokinetics [<a  href="downloads/lixoftSlides.pdf">Slides</a>] <br>
-        <b>Education:</b> MIT - US College Scorecard [<a  href="downloads/uscollege.pdf">PDF</a>] <br>
-        <b>Social Sciences:</b> Telecom ParisTech - Behaviours towards private data disclosure [<a  href="downloads/fbprivate.pdf">PDF</a>] <br>
-        <b>Economics:</b> Agoranov - Importance of Startups in job creation
-      </p>
-          </div>
-          
-
-<div class="row"><a name="papers"></a>
-          <hr class="bigHr">
-          <center><h3><font color=#000000>Preprints</font> - <font color=#D32011>Publications</font> - <font color=#007A36> Manuscripts</font></h3></center>
-            <hr>
-<!-- 
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag preprint">11</div>
-                            </th>
-                            <th class="content">
-                                <span class="title">MISSO: Minimization by Incremental Stochastic Surrogate for Large-Scale Nonconvex and Nonsmooth Optimization </span>
-                                <p>
-              <i>Belhal Karimi</i>, Hoi-To Wai, Eric Moulines and Ping Li.<br>
-              Submitted, 2020.<br></p>
-              <p>
-               <div class="btn-group-xs">
-              <a a href="downloads/misso2020.pdf" class="btn btn-default">Paper</a>
-              <a a href="https://github.com/belhal/misso2" class="btn btn-default">Code</a>
-            </div><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag preprint">10</div>
-                            </th>
-                            <th class="content">
-                                <span class="title">Two-Time-Scale Noisy EM Methods </span>
-                                <p>
-              <i>Belhal Karimi</i> and Ping Li.<br>
-              Submitted, 2020.<br></p>
-              <p>
-               <div class="btn-group-xs">
-              <a a href="downloads/ttsem.pdf" class="btn btn-default">Paper</a>
-              <a a href="https://github.com/belhal/ttsem" class="btn btn-default">Code</a>
-            </div><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div> -->
-
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag manuscript">9</div>
-                            </th>
-                            <th class="content">
-                                <span class="title"> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications </span>
-                                <p>
-              <i>Belhal Karimi</i>.<br>
-             Ph.D. thesis, <a href="https://www.inria.fr/equipes/xpop" >Xpop</a> at INRIA and Ecole Polytechnique, 2019.
-            </p>
-              <p>
-              <div class="btn-group-xs">
-              <a a href="https://tel.archives-ouvertes.fr/tel-02319140" class="btn btn-default">HAL</a>
-              <a a href="downloads/manuscriptBelhalKarimi.pdf" class="btn btn-default">Paper</a>
-              <a a href="downloads/slidesDefense.pdf" class="btn btn-default">Slides</a>
-              <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-thesis">bibtex</a>
-<pre class="bibtex-thesis collapse">
-@phdthesis{karimi:tel-02319140,
-  TITLE = {{Non-Convex Optimization for Latent Data Models : Algorithms, Analysis and Applications}},
-  AUTHOR = {Karimi, Belhal},
-  URL = {https://tel.archives-ouvertes.fr/tel-02319140},
-  NUMBER = {2019SACLX040},
-  SCHOOL = {{Universit{\'e} Paris-Saclay}},
-  YEAR = {2019},
-  MONTH = Sep,
-  KEYWORDS = {Stochastic Approximation ; Non-Convex Optimization ; Finite-Sum ; Large-Scale ; Latent Data ; Mcmc ; Incremental ; Online ; Approximation Stochastique ; Optimisation Non Convexe ; Somme-Finie ; Grande-Echelle ; Donn{\'e}es Latentes ; Mcmc ; Incr{\'e}mental ; En ligne},
-  TYPE = {Theses},
-  PDF = {https://tel.archives-ouvertes.fr/tel-02319140/file/82036_KARIMI_2019_archivage.pdf},
-  HAL_ID = {tel-02319140},
-  HAL_VERSION = {v1},
-}
-              </pre><br><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag conference">8</div>
-                            </th>
-                            <th class="content">
-                                <span class="title">On the Global Convergence of (Fast) Incremental Expectation Maximization Methods </span>
-                                <p>
-              <i>Belhal Karimi</i>, Hoi-To Wai, Eric Moulines and Marc Lavielle.<br>
-              Advances in Neural Information Processing Systems (<a href="https://neurips.cc/">NeurIPS</a>), 2019.</p>
-              <p>
-               <div class="btn-group-xs">
-              <a a href="https://arxiv.org/abs/1910.12521" class="btn btn-default">arXiv</a>
-              <a a href="https://github.com/belhal/PapersCode/tree/master/fiem" class="btn btn-default">Code</a>
-              <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-fiem">bibtex</a>
-<pre class="bibtex-fiem collapse">
-@misc{karimi2019global,
-    title={On the Global Convergence of (Fast) Incremental Expectation Maximization Methods},
-    author={Belhal Karimi and Hoi-To Wai and Eric Moulines and Marc Lavielle},
-    year={2019},
-    eprint={1910.12521},
-    archivePrefix={arXiv},
-    primaryClass={stat.ML}
-}
-              </pre><br><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag conference">7</div>
-                            </th>
-                            <th class="content">
-                                <span class="title"> Non-asymptotic Analysis of Biased Stochastic Approximation Scheme </span>
-                                <p>
-              <i>Belhal Karimi</i>, Blazej Miasojedow, Eric Moulines and Hoi-To Wai.<br>
-              Proceedings of the 32nd Conference On Learning Theory (<a href="http://learningtheory.org/colt2019/">COLT</a>), 2019.</p>
-              <p>
-              <div class="btn-group-xs">
-              <a a href="https://arxiv.org/abs/1902.00629" class="btn btn-default">arXiv</a>
-              <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-1">bibtex</a>
-<pre class="bibtex-1 collapse">
-@InProceedings{pmlr-v99-karimi19a,
-  title =    {Non-asymptotic Analysis of Biased Stochastic Approximation Scheme},
-  author =   {Karimi, Belhal and Miasojedow, Blazej and Moulines, Eric and Wai, Hoi-To},
-  booktitle =    {Proceedings of the Thirty-Second Conference on Learning Theory},
-  pages =    {1944--1974},
-  year =   {2019},
-  editor =   {Beygelzimer, Alina and Hsu, Daniel},
-  volume =   {99},
-  series =   {Proceedings of Machine Learning Research},
-  address =    {Phoenix, USA},
-  month =    {25--28 Jun},
-  publisher =    {PMLR},
-  pdf =    {http://proceedings.mlr.press/v99/karimi19a/karimi19a.pdf},
-  url =    {http://proceedings.mlr.press/v99/karimi19a.html}
-}
-              </pre><br><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag preprint">6</div>
-                            </th>
-                            <th class="content">
-                                <span class="title">MISSO: Minimization by Incremental Stochastic Surrogate for large-scale nonconvex Optimization </span>
-                                <p>
-              <i>Belhal Karimi</i> and Eric Moulines.<br>
-              Submitted, 2018.<br>
-              Accepted for a poster presentation at the <a href="http://bayesiandeeplearning.org/">Bayesian Deep Learning NeurIPS 2018 Workshop</a> and <a href="http://bayesiandeeplearning.org/">NeurIPS 2018: Advances in Approximate Bayesian Inference</a> in Montreal, Canada.</p>
-              <p>
-               <div class="btn-group-xs">
-              <a a href="downloads/misso.pdf" class="btn btn-default">Paper</a>
-              <a a href="downloads/aabi2018poster.pdf" class="btn btn-default">Poster</a>
-              <a a href="https://github.com/belhal/misso" class="btn btn-default">Code</a>
-            </div><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
+                <tr>
+                  <td width="30%"><img src="./assets/paperthumb/opt.png" width=230 height=100></td>
+                  <td>
+                     <strong> An Optimistic Acceleration of AMSGrad for Nonconvex Optimization</strong>
+                     <br>  Jun-Kun Wang, Xiaoyun Li, <i>Belhal Karimi</i> and Ping Li.
+                     <br> <b>Sumitted, 2020.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;opt-abs&#39;)">abs</a>] [<a target="_blank" href="https://arxiv.org/abs/1903.01435">pdf</a>] [<a target="_blank" href="">code</a>] 
+                     <div id="opt-abs" style="display:none">
+                        <p>
+                           We propose a new variant of AMSGrad [Reddi et. al., 2018], a popular adaptive gradient-based optimization algorithm widely used for training deep neural networks. Our algorithm adds prior knowledge about the sequence of consecutive mini-batch gradients and leverages its underlying structure making the gradients sequentially predictable. By exploiting the predictability and ideas from optimistic online learning, the proposed algorithm can accelerate the convergence and increase sample efficiency. After establishing a tighter upper bound under some convexity conditions on the regret, we offer a complimentary view of our algorithm which generalizes the offline and stochastic version of nonconvex optimization. In the nonconvex case, we establish a non-asymptotic convergence bound independently of the initialization. We illustrate the practical speedup on several deep learning models via numerical experiments.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
 
 
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag conference">5</div>
-                            </th>
-                            <th class="content">
-                                <span class="title">Efficient Metropolis-Hastings sampling for nonlinear mixed effects models </span>
-                                <p>
-              <i>Belhal Karimi</i> and Marc Lavielle.<br>
-              Proceedings of Bayesian Statistics and New Generations (<a href="http://www.baysm.org/">BAYSM</a>), 2018. <br>
-              Accepted for a poster presentation at <a href="http://www.baysm.org/">BAYSM</a> in Coventry, United Kingdom.</p>
-              <p>
-               <div class="btn-group-xs">
-              <a a href="https://hal.inria.fr/hal-01958247v1" class="btn btn-default">HAL</a>
-              <a a href="downloads/baysm.pdf" class="btn btn-default">Poster</a>
-              <a a href="https://github.com/belhal/saemix" class="btn btn-default">Code</a>
-            <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-2">bibtex</a>
-<pre class="bibtex-2 collapse">
-@InProceedings{10.1007/978-3-030-30611-3_9,
-author="Karimi, Belhal
-and Lavielle, Marc",
-editor="Argiento, Raffaele
-and Durante, Daniele
-and Wade, Sara",
-title="Efficient Metropolis-Hastings Sampling for Nonlinear Mixed Effects Models",
-booktitle="Bayesian Statistics and New Generations",
-year="2019",
-publisher="Springer International Publishing",
-address="Cham",
-pages="85--93",
-abstract="The ability to generate samplesKarimi, Belhal of the random effects from their conditional distributions isLavielle, Marc fundamental for inference in mixed effects models. Random walk Metropolis is widely used to conduct such sampling, but such a method can converge slowly for medium dimension problems, or when the joint structure of the distributions to sample is complex. We propose a Metropolis--Hastings (MH) algorithm based on a multidimensional Gaussian proposal that takes into account the joint conditional distribution of the random effects and does not require any tuning, in contrast with more sophisticated samplers such as the Metropolis Adjusted Langevin Algorithm or the No-U-Turn Sampler that involve costly tuning runs or intensive computation. Indeed, this distribution is automatically obtained thanks to a Laplace approximation of the original model. We show that such approximation is equivalent to linearizing the model in the case of continuous data. Numerical experiments based on real data highlight the very good performances of the proposed method for continuous data model.",
-isbn="978-3-030-30611-3"
-}
-              </pre>
-            </div><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag conference">4</div>
-                            </th>
-                            <th class="content">
-                                <span class="title"> f-SAEM: A fast Stochastic Approximation of the EM algorithm </span>
-                                <p>
-              <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.<br>
-             Computational Statistics and Data Analysis (<a href="https://www.journals.elsevier.com/computational-statistics-and-data-analysis">CSDA</a>), 2018. <br>
-                Accepted for a poster presentation at the <a href="https://bpy2018.wixsite.com/bpstochastics">Paris-Berlin Young Researchers Workshop : Stochastic Analysis with applications in Biology and Finance</a> in Paris, France.</p>
-              <p>
-              <div class="btn-group-xs">
-              <a a href="https://hal.inria.fr/hal-01958248v1" class="btn btn-default">HAL</a>
-              <a a href="downloads/parisberlin.pdf" class="btn btn-default">Poster</a>
-              <a a href="https://github.com/belhal/saemix" class="btn btn-default">Code</a>
-            <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-3">bibtex</a>
-<pre class="bibtex-3 collapse">
-@article{karimi2019f,
-  title={f-SAEM: A fast Stochastic Approximation of the EM algorithm for nonlinear mixed effects models},
-  author={Karimi, Belhal and Lavielle, Marc and Moulines, Eric},
-  journal={Computational Statistics \& Data Analysis},
-  year={2019},
-  publisher={Elsevier}
-}
-              </pre><br><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag preprint">3</div>
-                            </th>
-                            <th class="content">
-                                <span class="title"> On the Convergence Properties of the Mini-Batch EM and MCEM Algorithms </span>
-                                <p>
-              <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.<br>
-             Preprint, 2018. <br>
-                Accepted for a poster presentation at the <a href="http://www.ds3-datascience-polytechnique.fr/">Data Science Summer School 2017</a> in Palaiseau, France.
-            </p>
-              <p>
-              <div class="btn-group-xs">
-              <a a href="https://hal.inria.fr/hal-02334485v1" class="btn btn-default">HAL</a>
-              <a a href="downloads/DS3_final.pdf" class="btn btn-default">Poster</a>
-              <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-4">bibtex</a>
-<pre class="bibtex-4 collapse">
-@article{karimi2018convergence,
-  title={On the Convergence Properties of the Mini-Batch EM and MCEM Algorithms},
-  author={Karimi, Belhal and Lavielle, Marc and Moulines, Eric},
-  year={2018}
-}
-              </pre><br><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag conference">2</div>
-                            </th>
-                            <th class="content">
-                                <span class="title"> Non linear Mixed Effects Models: Bridging the gap between Independent Metropolis Hastings and Variational Inference</span>
-                                <p>
-              <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.<br>
-                Accepted at the <a href="https://sites.google.com/view/implicitmodels/accepted-papers">Implicit Models workshop ICML</a>, 2017.</p>
-              <p>
-              <div class="btn-group-xs">
-              <a a href="https://easychair.org/publications/preprint/7z2D" class="btn btn-default">Easychair</a>
-              <a a href="#/" class="btn btn-default" data-toggle="collapse" data-target=".bibtex-5">bibtex</a>
-<pre class="bibtex-5 collapse">
-@inproceedings{karimi2017non,
-  title={Non linear Mixed Effects Models: Bridging the gap between Independent Metropolis Hastings and Variational Inference},
-  author={Karimi, Belhal and Lavielle, Marc and Moulines, Eric},
-  booktitle={ICML 2017 Implicit Models Workshop},
-  year={2017}
-}
-              </pre><br><p>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-
-
-<div class="research_list">
-                <ul>
-                  <li><table>
-                        <tr>
-                            <th class="tagcell">
-                                <div class="tag manuscript">1</div>
-                            </th>
-                            <th class="content">
-                                <span class="title"> Probabilistic and Inferential Programming </span>
-                                <p>
-              <i>Belhal Karimi</i>.<br>
-             MS thesis, <a href="http://probcomp.csail.mit.edu/" >ProbComp Project</a> at MIT, 2016.
-            </p>
-              <p>
-              <div class="btn-group-xs">
-              <a a href="downloads/masters_thesis.pdf" class="btn btn-default">Paper</a>
-            </div>
-            </p>
-               </th>
-              </tr>
-        </table></li>
-      </ul>
-</div>
-
-            <!-- </div> -->
-            
-            <div class="row"><a name="talks"></a>
-            <hr class="bigHr">
-            <center><h3>Talks &amp; Posters</h3></center>
-            <hr>
-
-
-             <strong>2019</strong><br>
-                <ul>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="https://neurips.cc/">NeurIPS 2019</a> <i> On the Global Convergence of (Fast) Incremental EM Methods</i>
-                    <a a href="downloads/fiemPOSTER.pdf" class="btn btn-default">Poster</a>
-                  </div>
-                </li>
-
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="">Ph.D. Defense</a> (Sept.)<i> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications</i>
-                    <a a href="downloads/slidesDefense.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="https://research.samsung.com/aicenter_moscow">Samsung AI - HSE Lab</a> <i> An Incremental and An Online Point of View of Nonconvex Optimization</i>
-                    <a a href="downloads/slidesSamsung.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="http://research.baidu.com">Baidu Research</a> <i> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications</i>
-                    <a a href="downloads/slidesBaidu.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="http://learningtheory.org/colt2019/">COLT 2019</a> <i> Non-asymptotic Analysis of Biased Stochastic Approximation Scheme</i>
-                    <a a href="downloads/postercolt.pdf" class="btn btn-default">Poster</a>
-                    <a a href="downloads/slidescolt.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                </li>
-
-                </ul> 
-
-            <strong>2018</strong><br>
-                <ul>
-
-                  <li>
-                  <div class="btn-group-xs">
-                    <a href="http://approximateinference.org/">NeurIPS 2018: Advances in Approximate Bayesian Inference</a> <i>MISSO Scheme </i>
-                    <a a href="downloads/aabi2018poster.pdf" class="btn btn-default">Poster</a>
-                    <a a href="downloads/aabi2018paper.pdf" class="btn btn-default">Paper</a>
-                  </div>
-                  </li>
-
-                  <li>
-                  <div class="btn-group-xs">
-                    <a href="http://bayesiandeeplearning.org/">NeurIPS 2018: Bayesian Deep Learning Workshop</a> <i>MISSO Scheme </i>
-                    <a a href="downloads/bdl2018poster.pdf" class="btn btn-default">Poster</a>
-                  </div>
-                  </li>
-
-                  <li>
-                  <div class="btn-group-xs">
-                    <a href="https://www.fondation-hadamard.fr/fr/pgmo/pgmodays">PGMODays 2018</a> <i>MISSO Scheme </i>
-                    <a a href="downloads/pgmo.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                  </li>
-
-                  <li>
-                  <div class="btn-group-xs">
-                    <a href="http://www.compstat2018.org/">Compstats 2018</a> <i>Acceleration of MLE algorithms</i>
-                    <a a href="downloads/compstats.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                  </li>
-
-                  <li>
-                  <div class="btn-group-xs">
-                    <a href="http://www.cmap.polytechnique.fr/~zoltan.szabo/journal_club.html">ML Journal Club</a> <i>A Universal Catalyst for First-Order
-Optimization</i>
-                    <a a href="downloads/catalyst.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                  </li>
-
-
-               </ul> 
-
-
-
-            <strong>2017</strong><br>
-                <ul>
-                <li>
-                  <div class="btn-group-xs">
-                    <a>Facebook HQ</a> <i> Mixed effects models: Maximum Likelihood and Inference</i>
-                    <a a href="downloads/fb.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="https://bpy2018.wixsite.com/bpstochastics">Paris-Berlin Workshop : Stochastic Analysis in Biology and Finance</a> <i> f-SAEM algorithm</i>
-                    <a a href="downloads/parisberlin.pdf" class="btn btn-default">Poster</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a>Jacobs Startup Comptetition</a> <i> Detecting Flaws at Scale</i>
-                    <a a href="downloads/agora.pdf" class="btn btn-default">Pitch</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a href="http://www.cmap.polytechnique.fr/~zoltan.szabo/journal_club.html">ML Journal Club</a> <i>Consistent Kernel Mean Estimation for Functions of Random Variables</i>
-                    <a a href="downloads/kernel.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                  </li>
-
-                  <li>
-                  <div class="btn-group-xs">
-                    <a href="http://www.ds3-datascience-polytechnique.fr/">Data Science Summer School 2017</a> <i>Mini-batch EM and MCEM algorithms</i>
-                    <a a href="downloads/DS3_final.pdf" class="btn btn-default">Poster</a>
-                  </div>
-                  </li>
-
-
-
-                </ul> 
-
-                <strong>2016</strong><br>
-                <ul>
-                <li>
-                  <div class="btn-group-xs">
-                    <a>McGovern Institute</a> <i> Analysis of birth cohort studies in BayesDB</i>
-                    <a a href="downloads/poster.pdf" class="btn btn-default">Poster</a>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="btn-group-xs">
-                    <a>ML Tea at CSAIL</a> <i> Probabilisitc Computing Project</i>
-                    <a a href="downloads/mltea.pdf" class="btn btn-default">Slides</a>
-                  </div>
-                </li>
-
-                </ul> 
-
-
-        </div>
-        
-          <div class="row"><a name="software"></a>
-            <hr class="bigHr">
-            <center><h3>Software</h3></center>
-            <hr>
-            <ul>
-              <li> <strong><a href = "http://saemixr.github.io/">Saemix</a></strong>: open-source R package for Biostatisticians. See [<a  href="https://github.com/belhal/saemixextension">git</a>] and [<a  href="https://github.com/CRAN/saemix">CRAN</a>] (original version developed by E. Comets, M. Lavielle and A. Lavenu). Check out our R bookdown [<a  href="http://saemixdevelopment.github.io/">bookdown</a>], Twitter feed [<a  href="https://twitter.com/saemixR">twitter</a>] and CZI Proposal [<a  href="downloads/saemixproposal.pdf">proposal</a>]</li>  
-            </ul>
-          </div>
-
-
-          <div class="row"><a name="awards"></a>
-            <hr class="bigHr">
-            <center><h3>Awards</h3></center>
-            <hr>
-            <ul>
-              <li> <b>Visiting Student Researcher Grant</b> from the Jacques Hadamard Foundation [<a  href="https://www.fondation-hadamard.fr/fr/financements/accueil-209-visibilite-scientifique-junior">Junior Scientific Visibility</a>] to pursue a research project on Bayesian Deep Learning at the HSE-Samsung AI Lab in Moscow with Dr. Dmitry Vetrov. ANR-11-LABX-0056-LMH.</li>
-              <li> <b>Student Travel Award</b>, Conference on Learning Theory (June 2019 Phoenix, USA)</li>
-              <li> <b>Young Researcher Travel Award</b>, BAYSM (July 2018 Warwick, UK)</li>
-              <li> Ranked 4th/130 at <a href="http://www.jacobs-startup.com/" >JSC 2017</a>. Awarded to pitch at Axel Springer Plug and Play accelerator in Berlin, Aug 2017</li>
-          </ul>
-          </div>
-          <div class="row">
-            <hr class="bigHr">
-            <center><h3><a name="contact"></a>Teaching Assistant</h3></center>
-            <hr>
-            <ul>
-            <li> <i>Executive Education Program at Ecole Polytechnique</i>: Machine Learning (Orange, SFR,...)</li>
-              <li> <i>MAP534 Machine Learning</i>: Msc Ecole Polytechnique-HEC</li>
-              <li> <i>MAP535 Regression</i>: Msc Ecole Polytechnique-HEC</li>
-              <li> <i>Bayesian Statistics</i>: Msc Data Science Ecole Polytechnique</li>
-              <li> <i>Innovation &amp; Technology</i>: 3rd-year students at Ecole Polytechnique</li>
-            </ul>
-          </div>
-          <div class="row">
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/ttsem.png" width=230 height=100></td>
+                  <td>
+                     <strong> Two-Timescale Stochastic EM Algorithms </strong>
+                     <br>  <i>Belhal Karimi</i> and Ping Li.
+                     <br> <b>Sumitted, 2020.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;tts-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/ttsem.pdf">pdf</a>] [<a target="_blank" href="https://github.com/BelhalK/PapersCode/tree/master/ttsem">code</a>] 
+                     <div id="tts-abs" style="display:none">
+                        <p>
+                           The Expectation-Maximization (EM) algorithm is a popular choice for learning latent variable models. Variants of the EM have been initially introduced by Neal and Hinton (1998), using in- cremental updates to scale to large datasets, and by Wei and Tanner (1990); Delyon et al. (1999), using Monte Carlo (MC) approximations to bypass the intractable conditional expectation of the latent data for most nonconvex models. In this paper, we propose a general class of methods called Two-Timescale EM Methods based on a two-stage approach of stochastic updates to tackle an es- sential nonconvex optimization task for latent variable models. We motivate the choice of a double dynamic by invoking the variance reduction virtue of each stage of the method on both sources of noise: the index sampling for the incremental update and the MC approximation. We establish finite-time and global convergence bounds for nonconvex objective functions. Numerical applica- tions on various models such as deformable template for image analysis or nonlinear mixed-effects models for pharmacokinetics are also presented to illustrate our findings.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/sagd.png" width=230 height=100></td>
+                  <td>
+                     <strong> Towards Better Generalization of Adaptive Gradient Methods </strong>
+                     <br>  Yingxue Zhou, <i>Belhal Karimi</i>, Jinxing Yu, Zhiqiang Xu and Ping Li.
+                     <br> <b>Advances in Neural Information Processing Systems (<a href="https://neurips.cc/">NeurIPS</a>), 2020.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;sagd-abs&#39;)">abs</a>] [<a target="_blank" href="https://proceedings.neurips.cc/paper/2020/file/08fb104b0f2f838f3ce2d2b3741a12c2-Paper.pdf">pdf</a>] [<a target="_blank" href="https://github.com/BelhalK/PapersCode/tree/master/sagd">code</a>] 
+                     <div id="sagd-abs" style="display:none">
+                        <p>
+                           Adaptive gradient methods such as AdaGrad, RMSprop and Adam have been optimizers of choice for deep learning due to their fast training speed. However, it was
+                           recently observed that their generalization performance is often worse than that of
+                           SGD for over-parameterized neural networks. While new algorithms (such as AdaBound) have been proposed to improve the situation, the provided analyses are
+                           only committed to optimization bounds for the training objective, leaving critical
+                           generalization capacity unexplored. To close this gap, we propose Stable Adaptive
+                           Gradient Descent (SAGD) for non-convex optimization which leverages differential privacy to boost the generalization performance of adaptive gradient methods.
+                           Theoretical analyses show that SAGD has high-probability convergence to a population stationary point. We further conduct experiments on various popular deep
+                           learning tasks and models. Experimental results illustrate that SAGD is empirically competitive and often better than baselines.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/fedsketch.png" width=230 height=100></td>
+                  <td>
+                     <strong> FedSKETCH: Communication-Efficient Federated Learning via Sketching </strong>
+                     <br> Farzin Haddadpour, <i>Belhal Karimi</i>, Ping Li and Xiaoyun Li.
+                     <br> <b>Submitted, 2020.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;fedsketch-abs&#39;)">abs</a>] [<a target="_blank" href="https://arxiv.org/abs/2008.04975">pdf</a>] [<a target="_blank" href="">code</a>] 
+                     <div id="fedsketch-abs" style="display:none">
+                        <p>
+                           Communication complexity and privacy are the two key challenges in Federated Learning where the goal is to perform a distributed learning through a large volume of devices. In this work, we introduce FedSKETCH and FedSKETCHGATE algorithms to address both challenges in Federated learning jointly, where these algorithms are intended to be used for homogeneous and heterogeneous data distribution settings respectively. The key idea is to compress the accumulation of local gradients using count sketch, therefore, the server does not have access to the gradients themselves which provides privacy. Furthermore, due to the lower dimension of sketching used, our method exhibits communication-efficiency property as well. We provide, for the aforementioned schemes, sharp convergence guarantees.
+                           Finally, we back up our theory with various set of experiments.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/czi.png" width=230 height=100></td>
+                  <td>
+                     <strong> Scaling Saemix, a dedicated R package for nonlinear mixed effects modeling</strong>
+                     <br>  <i>Belhal Karimi</i> and Emmanuelle Comets.
+                     <br> <b>Chan Zuckerberg Intitiative Proposal (<a href="https://chanzuckerberg.com/rfa/essential-open-source-software-for-science/">CZI</a>), 2020.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;czi-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/czi.pdf">pdf</a>] [<a target="_blank" href="https://github.com/saemixdevelopment">code</a>] 
+                     <div id="czi-abs" style="display:none">
+                        <p>
+                           The saemix package for R (in CRAN) provides maximum likelihood estimates of parame- ters in nonlinear mixed effect models (NLMEM), using a modern and efficient estimation algorithm, the Stochastic Approximation of the Expectation-Maximisation (SAEM), introduced in Kuhn and Lavielle (2005). This algorithm is a state-of-the-art method for fitting, possibly nonlinear, models in agronomy, animal breeding or Pharmacokinetics- Pharmacodynamics (PKPD) analysis.
+                           This prpoposal aims to increase our visibility, our userbase and attract new contributors by extending and improving the saemix package features and to refresh the documentation with modern examples, ensure maintenance and reproducibility of the contributed experiments.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/fsaem.png" width=230 height=130></td>
+                  <td>
+                     <strong> f-SAEM: A fast Stochastic Approximation of the EM algorithm </strong>
+                     <br> <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.
+                     <br> <b>Computational Statistics and Data Analysis (<a href="https://www.journals.elsevier.com/computational-statistics-and-data-analysis">CSDA</a>), vol. 141, p. 123-138, 2020. </b> 
+                     <br> <b>Accepted for a poster presentation at the <a href="https://bpy2018.wixsite.com/bpstochastics">Paris-Berlin Young Researchers Workshop : Stochastic Analysis with applications in Biology and Finance</a>.</b>
+                     <br> [<a href="javascript:none" onclick="display(&#39;fsaem-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.inria.fr/hal-01958248v1">pdf</a>] [<a target="_blank" href="https://github.com/belhal/saemix">code</a>] [<a target="_blank" href="./assets/downloads/parisberlin.pdf">poster</a>]
+                     <div id="fsaem-abs" style="display:none">
+                        <p>
+                           The ability to generate samples of the random effects from their conditional distributions is fundamental for inference in mixed effects models. Random walk Metropolis is widely used to perform such sampling, but this method is known to converge slowly for high dimensional problems, or when the joint structure of the distributions to sample is spatially heterogeneous. We propose an independent Metropolis-Hastings (MH) algorithm based on a multidimensional Gaussian proposal that takes into account the joint conditional distribution of the random effects and does not require any tuning. Indeed, this distribution is automatically obtained thanks to a Laplace approximation of the incomplete data model. We show that such approximation is equivalent to linearizing the structural model in the case of continuous data. Numerical experiments based on simulated and real data illustrate the performance of the proposed methods. In particular, we show that the suggested MH algorithm can be efficiently combined with a stochastic approximation version of the EM algorithm for maximum likelihood estimation in nonlinear mixed effects models.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/phd.png" width=230 height=100></td>
+                  <td>
+                     <strong> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications </strong>
+                     <br> <i>Belhal Karimi</i>.
+                     <br> <b>Ph.D. thesis, <a href="https://www.inria.fr/equipes/xpop" >Xpop</a> at INRIA and Ecole Polytechnique, 2019.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;phd-abs&#39;)">abs</a>] [<a target="_blank" href="https://tel.archives-ouvertes.fr/tel-02319140/document">pdf</a>] [<a target="_blank" href="./assets/downloads/slidesDefense.pdf">slides</a>] 
+                     <div id="phd-abs" style="display:none">
+                        <p>
+                           Many problems in machine learning pertain to tackling the minimization of a possibly non-convex and non-smooth function defined on a Many problems in machine learning pertain to tackling the minimization of a possibly non-convex and non-smooth function defined on a Euclidean space.Examples include topic models, neural networks or sparse logistic regression.Optimization methods, used to solve those problems, have been widely studied in the literature for convex objective functions and are extensively used in practice.However, recent breakthroughs in statistical modeling, such as deep learning, coupled with an explosion of data samples, require improvements of non-convex optimization procedure for large datasets.This thesis is an attempt to address those two challenges by developing algorithms with cheaper updates, ideally independent of the number of samples, and improving the theoretical understanding of non-convex optimization that remains rather limited.In this manuscript, we are interested in the minimization of such objective functions for latent data models, ie, when the data is partially observed which includes the conventional sense of missing data but is much broader than that.In the first part, we consider the minimization of a (possibly) non-convex and non-smooth objective function using incremental and online updates.To that end, we propose several algorithms exploiting the latent structure to efficiently optimize the objective and illustrate our findings with numerous applications.In the second part, we focus on the maximization of non-convex likelihood using the EM algorithm and its stochastic variants.We analyze several faster and cheaper algorithms and propose two new variants aiming at speeding the convergence of the estimated parameters.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/fiem.png" width=230 height=100></td>
+                  <td>
+                     <strong> On the Global Convergence of (Fast) Incremental Expectation Maximization Methods </strong>
+                     <br> <i>Belhal Karimi</i>, Hoi-To Wai, Eric Moulines and Marc Lavielle.
+                     <br> <b>Advances in Neural Information Processing Systems (<a href="https://neurips.cc/">NeurIPS</a>), 2019.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;fiem-abs&#39;)">abs</a>] [<a target="_blank" href="https://arxiv.org/abs/1910.12521">pdf</a>] [<a target="_blank" href="https://github.com/belhal/PapersCode/tree/master/fiem">code</a>] [<a target="_blank" href="./assets/downloads/fiempres.pdf">slides</a>] [<a target="_blank" href="./assets/downloads/fiemPOSTER.pdf">poster</a>]
+                     <div id="fiem-abs" style="display:none">
+                        <p>
+                           The EM algorithm is one of the most popular algorithm for inference in latent data models. The original formulation of the EM algorithm does not scale to large data set, because the whole data set is required at each iteration of the algorithm. To alleviate this problem, Neal and Hinton have proposed an incremental version of the EM (iEM) in which at each iteration the conditional expectation of the latent data (E-step) is updated only for a mini-batch of observations. Another approach has been proposed by Cappé and Moulines in which the E-step is replaced by a stochastic approximation step, closely related to stochastic gradient. In this paper, we analyze incremental and stochastic version of the EM algorithm as well as the variance reduced-version of Chen et. al. in a common unifying framework. We also introduce a new version incremental version, inspired by the SAGA algorithm by Defazio et. al. We establish non-asymptotic convergence bounds for global convergence. Numerical applications are presented in this article to illustrate our findings.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/nonas.png" width=230 height=100></td>
+                  <td>
+                     <strong> Non-asymptotic Analysis of Biased Stochastic Approximation Scheme </strong>
+                     <br> <i>Belhal Karimi</i>, Blazej Miasojedow, Eric Moulines and Hoi-To Wai.
+                     <br>  <b>Proceedings of the 32nd Conference On Learning Theory (<a href="http://learningtheory.org/colt2019/">COLT</a>), 2019.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;nonasy-abs&#39;)">abs</a>] [<a target="_blank" href="https://arxiv.org/abs/1902.00629">pdf</a>] [<a target="_blank" href="">code</a>] [<a target="_blank" href="">slides</a>] [<a target="_blank" href="./assets/downloads/postercolt.pdf">poster</a>]
+                     <div id="nonasy-abs" style="display:none">
+                        <p>
+                           Stochastic approximation (SA) is a key method used in statistical learning. Recently, its non-asymptotic convergence analysis has been considered in many papers. However, most of the prior analyses are made under restrictive assumptions such as unbiased gradient estimates and convex objective function, which significantly limit their applications to sophisticated tasks such as online and reinforcement learning. These restrictions are all essentially relaxed in this work. In particular, we analyze a general SA scheme to minimize a non-convex, smooth objective function. We consider update procedure whose drift term depends on a state-dependent Markov chain and the mean field is not necessarily of gradient type, covering approximate second-order method and allowing asymptotic bias for the one-step updates. We illustrate these settings with the online EM algorithm and the policy-gradient method for average reward maximization in reinforcement learning.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/misso.png" width=230 height=100></td>
+                  <td>
+                     <strong> MISSO: Minimization by Incremental Stochastic Surrogate for large-scale nonconvex Optimization </strong>
+                     <br> <i>Belhal Karimi</i> and Eric Moulines.
+                     <br>  <b>1st Symposium on Advances in Approximate Bayesian Inference (<a href="http://approximateinference.org/">AABI</a>), 2018.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;misso-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/misso.pdf">pdf</a>] [<a target="_blank" href="https://github.com/BelhalK/PapersCode/tree/master/misso/code">code</a>] [<a target="_blank" href="">slides</a>] [<a target="_blank" href="./assets/downloads/aabi2018poster.pdf">poster</a>]
+                     <div id="misso-abs" style="display:none">
+                        <p>
+                           Many nonconvex optimization problems can be solved using the Majorization- Minimization (MM) algorithm that consists in upper bounding, at each iteration of the algorithm, the objective function by a surrogate that is easier to minimize. When the objective function can be expressed as a large sum of individual losses, incremental version of the MM algorithm is often used. However, in many cases of interest (Generalized Linear Mixed Model or Variational Bayesian inference) those surrogates are intractable. In this contribution, we propose a generalization of incremental MM algorithm using Monte Carlo approximation of these surrogates. We establish the convergence of our unifying scheme for possibly nonconvex objective. Finally, we apply our new framework to train a logistic regression and a Bayesian neural network on the MNIST dataset and compare its convergence behaviour with state-of-the-art optimization methods.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/eff.png" width=230 height=100></td>
+                  <td>
+                     <strong> Efficient Metropolis-Hastings sampling for nonlinear mixed effects models </strong>
+                     <br> <i>Belhal Karimi</i> and Marc Lavielle.
+                     <br>   <b>Proceedings of Bayesian Statistics and New Generations (<a href="http://www.baysm.org/">BAYSM</a>), 2018.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;eff-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.inria.fr/hal-01958247v1">pdf</a>] [<a target="_blank" href="https://github.com/belhal/saemix">code</a>] [<a target="_blank" href="">slides</a>] [<a target="_blank" href="./assets/downloads/baysm.pdf">poster</a>]
+                     <div id="eff-abs" style="display:none">
+                        <p>
+                           The ability to generate samples of the random effects from their conditional distributions isLavielle, Marc fundamental for inference in mixed effects models. Random walk Metropolis is widely used to conduct such sampling, but such a method can converge slowly for medium dimension problems, or when the joint structure of the distributions to sample is complex. We propose a Metropolis--Hastings (MH) algorithm based on a multidimensional Gaussian proposal that takes into account the joint conditional distribution of the random effects and does not require any tuning, in contrast with more sophisticated samplers such as the Metropolis Adjusted Langevin Algorithm or the No-U-Turn Sampler that involve costly tuning runs or intensive computation. Indeed, this distribution is automatically obtained thanks to a Laplace approximation of the original model. We show that such approximation is equivalent to linearizing the model in the case of continuous data. Numerical experiments based on real data highlight the very good performances of the proposed method for continuous data model.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/iem.png" width=230 height=100></td>
+                  <td>
+                     <strong> On the Convergence Properties of the Mini-Batch EM and MCEM Algorithms </strong>
+                     <br> <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.
+                     <br>   <b>Accepted for a poster presentation at the Data Science Summer School (<a href="https://www.ds3-datascience-polytechnique.fr//">DS3</a>), 2017.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;iem-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.inria.fr/hal-02334485v1">pdf</a>] [<a target="_blank" href="">code</a>] [<a target="_blank" href="">slides</a>] [<a target="_blank" href="./assets/downloads/DS3_final.pdf">poster</a>]
+                     <div id="iem-abs" style="display:none">
+                        <p>
+                           The EM algorithm is one of the most popular algorithm for inference in latent data models. For large datasets, each iteration of the algorithm can be numerically involved. To alleviate this problem, (Neal and Hinton, 1998) has proposed an incremental version in which the conditional expectation of the latent data (E-step) is computed on a mini-batch of observations. In this paper, we analyse this variant and propose and analyse the Monte Carlo version of the incremental EM in which the conditional expectation is evaluated by a Markov Chain Monte Carlo (MCMC). We establish the almost-sure convergence of these algorithms, covering both the mini-batch EM and its stochastic version. Various numerical applications are introduced in this article to illustrate our findings.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/nonlinear.png" width=230 height=100></td>
+                  <td>
+                     <strong> Non linear Mixed Effects Models: Bridging the gap between Independent Metropolis Hastings and Variational Inference </strong>
+                     <br> <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.
+                     <br>   <b>Accepted at the Implicit Models workshop (<a href="https://sites.google.com/view/implicitmodels/accepted-papers">ICML</a>), 2017.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;nonlinear-abs&#39;)">abs</a>] [<a target="_blank" href="https://easychair.org/publications/preprint/7z2D">pdf</a>] [<a target="_blank" href="">code</a>] [<a target="_blank" href="">slides</a>] [<a target="_blank" href="">poster</a>]
+                     <div id="nonlinear-abs" style="display:none">
+                        <p>
+                           Variational inference and MCMC methods have been two popular methods in order to sample from a posterior distribution. Whereas the former extends the computation feasibility to higher dimension, the latter takes advantage of nice convergence properties to the exact posterior distribution. In this work we’ll draw the parallel between a famous MCMC scheme called the Independent Metropolis Hastings and Variational inference. We’ll explain our work on both Linear and Non-linear Gaussian cases. In the non linear case, a new proposal will be introduced motivated by a faster convergence of the Markov chain.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/masters2.png" width=230 height=100></td>
+                  <td>
+                     <strong> Probabilistic and Inferential Programming</strong>
+                     <br> <i>Belhal Karimi</i>.
+                     <br>   <b>MS thesis, <a href="http://probcomp.csail.mit.edu/" >ProbComp Project</a> at MIT, 2016.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;masters-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/masters_thesis.pdf">pdf</a>] [<a target="_blank" href="">code</a>] [<a target="_blank" href="./assets/downloads/mltea.pdf">slides</a>] [<a target="_blank" href="./assets/downloads/poster.pdf">poster</a>]
+                     <div id="masters-abs" style="display:none">
+                        <p>
+                           The following report is exploring all my areas of interests during my visit at the Probabilistic Computing Lab http://probcomp. csail. mit. edu at MIT, Brain and Cognitive Science Department. I would like to thank Vikash Mansighka for his supervision throughout the visit. He allowed me to tackle several issues towards the field and developed several skill sets I needed to pursue a career in Technological fields.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         
+         <span id="talk" name="talk">
+            <h3>Talks</h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>
+                     <strong>        <a href="https://neurips.cc/">NeurIPS 2019</a> <i> On the Global Convergence of (Fast) Incremental EM Methods</i> </strong>
+                     <br> Vancouver, Canada, Dec. 2019. [<a a href="./assets/downloads/fiemPOSTER.pdf" class="">poster</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>        <a href="">Ph.D. Defense</a> <i> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications </i></strong>
+                     <br> Palaiseau, France, Sept. 2019. [<a a href="./assets/downloads/slidesDefense.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>        <a href="https://research.samsung.com/aicenter_moscow">Samsung AI - HSE Lab</a> <i> An Incremental and An Online Point of View of Nonconvex Optimization</i></strong>
+                     <br> Moscow, Russia, Aug. 2019. [<a a href="./assets/downloads/slidesSamsung.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>       <a href="http://research.baidu.com">Baidu Research</a> <i> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications</i></strong>
+                     <br> Beijing, China, Aug. 2019. [<a a href="./assets/downloads/slidesBaidu.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>       <a href="http://learningtheory.org/colt2019/">COLT 2019</a> <i> Non-asymptotic Analysis of Biased Stochastic Approximation Scheme</i></strong>
+                     <br> Phoenix, USA, Jun. 2019. [<a a href="./assets/downloads/postercolt.pdf" class="">poster</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>      <a href="https://www.fondation-hadamard.fr/fr/pgmo/pgmodays">PGMODays 2018</a> <i>MISSO Scheme </i></strong>
+                     <br> Palaiseau, France, May. 2018. [<a a href="./assets/downloads/pgmo.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>                          <a href="http://www.compstat2018.org/">Compstat 2018</a> <i>Acceleration of MLE algorithms</i> </strong>
+                     <br> Iasi, Romania, Aug. 2018. [<a a href="./assets/downloads/compstats.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>                         <a>Facebook HQ</a> <i> Mixed effects models: Maximum Likelihood and Inference</i> </strong>
+                     <br> Paris, France, Feb. 2017. [<a a href="./assets/downloads/fb.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>                       <a>McGovern Institute</a> <i> Analysis of birth cohort studies in BayesDB</i></strong>
+                     <br> Boston, USA, May. 2016. [<a a href="./assets/downloads/poster.pdf" class="">poster</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong> <a>ML Tea at CSAIL</a> <i> Probabilisitc Computing Project</i></strong>
+                     <br> Boston, USA, May. 2016. [<a a href="./assets/downloads/mltea.pdf" class="">slides</a>]
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="software" name="software">
+            <h3> Software </h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>  
+                     <strong> Saemix </strong>
+                     <!-- <img src='./assets/industry/saemix.jpg' width=50px align="right"> -->
+                     <br> Marc Lavielle, Emmanuelle Comets, Audrey Lavenu and Belhal Karimi.
+                     <br> 
+                     [<a target="_blank" href="https://github.com/saemixr">git</a>]  
+                     [<a target="_blank" href="https://saemixr.github.io/">web</a>] 
+                     [<a target="_blank" href="https://saemixdevelopment.github.io/saemix_bookdown/index.html">R bookdown</a>]   
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="industry" name="industry">
+            <h3> Industry </h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>  
+                     <strong> Monk AI </strong>
+                     <img src='./assets/industry/monk.png' width=50px align="right">
+                     <br> Machine Learning advisor to <strong><a target="_blank" href="https://monk.ai/">Monk AI</a></strong>, a French startup providing automated &amp; objective condition reports, Paris, France. Damages detection using Mask R-CNN.
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> Samsung AI </strong>
+                     <img src='./assets/industry/samsung.png' width=50px align="right">
+                     <br>Research intern at <strong><a target="_blank" href="https://cs.hse.ru/big-data/bayeslab/samsunglab/">Samsung AI - HSE Lab</a></strong>, leading Russian lab in Bayesian Deep Learning, Moscow, Russia.
+                     <br><strong>Project</strong>: Optimization for Bayesian Neural Networks with Dr. Dmitry Vetrov.
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> OuiCar </strong>
+                     <img src='./assets/industry/ouicar.png' width=40px align="right">
+                     <br> One-year freelance at <strong><a target="_blank" href="https://www.ouicar.fr/" >OuiCar</a></strong>, French peer-to-peer car sharing platform, Paris, France.
+                     <br><strong>Project</strong>: damages detection using Deep Learning (Mask R-CNN).
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> Popsy </strong>
+                     <img src='./assets/industry/popsy.webp' width=40px align="right">
+                     <br> Freelance at <strong><a target="_blank" href="https://www.mypopsy.com/" >Popsy</a></strong>, leading South American Classifieds App, NYC, USA.
+                     <br><strong>Project</strong>: predict the Category and Price of any given listing based on their pictures.
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> AMIES </strong>
+                     <img src='./assets/industry/amies.png' width=50px align="right">
+                     <br> Industry workshops at <strong><a target="_blank" href="https://www.agence-maths-entreprises.fr/a/" >AMIES</a></strong>, Mathematics and Enterprises, Montreal, Canada.
+                     <br><strong>Project</strong>: Inspection Route Optimization. [<a  target="_blank" href="http://www.crm.umontreal.ca/probindustriels2017/wp-content/uploads/2017/08/Cooperators1Final.pdf">slides</a>] [<a  target="_blank" href="./assets/downloads/amies.pdf">pdf</a>]
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> Agora </strong>
+                     <img src='./assets/industry/agora.png' width=40px align="right">
+                     <br>  Start-up project <strong><a href="" >Agora</a></strong>, an innovative <a >Scratches Detection</a> computer vision engine, Paris, France.<br>
+                     See [<a target="_blank" href="./assets/downloads/agora.pdf">pitch</a>],  [<a target="_blank" href="http://get-agora.com/">www</a>] and [<a target="_blank" href="./assets/downloads/agora-ui.png">UI</a>].
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="award" name="award">
+            <h3>Awards</h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>  
+                     <strong> Visiting Student Researcher Grant </strong>
+                     <br> Obtained from the Jacques Hadamard Foundation [<a  href="https://www.fondation-hadamard.fr/fr/financements/accueil-209-visibilite-scientifique-junior">Junior Scientific Visibility</a>] to pursue a research project on Bayesian Deep Learning at the HSE-Samsung AI Lab in Moscow with Dr. Dmitry Vetrov. ANR-11-LABX-0056-LMH.
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> Student Travel Award </strong>
+                     <br> Conference on Learning Theory (June 2019 Phoenix, USA).
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> Young Researcher Travel Award </strong>
+                     <br> International Conference on Bayesian Statistics in Action (July 2018 Warwick, UK).
+                  </td>
+               </tr>
+               <tr>
+                  <td>  
+                     <strong> Startup Pitch Award </strong>
+                     <br> Ranked 4th/130 at <a href="http://www.jacobs-startup.com/" >JSC 2017</a>. Awarded to pitch at Axel Springer Plug and Play accelerator in Berlin, Aug 2017.
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="reviewing" name="reviewing">
+            <h3>Reviewing Activities</h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>
+                     NeurIPS ICBINB Workshop 2020<br>
+                     AISTATS 2019<br>
+                     AABI 2019<br>
+                     ICML 2019<br>
+                     Statistics and Computing - Springer<br>
+                     Neural Networks - Elsevier<br>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="teaching" name="teaching">
+            <h3>Teaching Activities</h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>
+                     <i>Executive Education Program at Ecole Polytechnique</i>: Machine Learning (Orange, SFR,...)<br>
+                     <i>MAP534 Machine Learning</i>: Msc Ecole Polytechnique-HEC<br>
+                     <i>MAP535 Regression</i>: Msc Ecole Polytechnique-HEC<br>
+                     <i>Bayesian Statistics</i>: Msc Data Science Ecole Polytechnique<br>
+                     <i>Innovation &amp; Technology</i>: 3rd-year students at Ecole Polytechnique<br>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="education" name="education">
+            <h3>Education</h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>
+                     <strong>Ecole Polytechnique</strong>
+                     <br><strong>Oct. 2016 -- Sep. 2019 </strong>
+                     <br> Ph.D. candidate in Machine Learning
+                     <br> Advisors: Prof. <a target="_blank" href="http://www.cmap.polytechnique.fr/~lavielle/">Marc Lavielle</a>, Prof. <a target="_blank" href="https://fr.wikipedia.org/wiki/%C3%89ric_Moulines">Eric Moulines</a>
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>Paris Sciences et Lettres, PSL ITI</strong>
+                     <br><strong> Sep. 2015 -- Jun. 2016 </strong>
+                     <br> Masters in Computer Science
+                     <br> Advisor: Dr. <a target="_blank" href="http://probcomp.csail.mit.edu/principal-investigator/">Vikash Mansinghka</a> while visiting MIT (Jan. -- Jun. 2016).
+                     <br> Professors: Prof. <a target="_blank" href="http://www.gpeyre.com/">Gabriel Peyre</a> (Computer Vision and Graphics).
+                  </td>
+               </tr>
+               <tr>
+                  <td>
+                     <strong>CentraleSupelec</strong>
+                     <br><strong> Sep. 2011 -- Jun. 2015 </strong>
+                     <br> Bachelors and Masters in Computer Science and Engineering
+                     <br> Professors: Prof. <a target="_blank" href="http://www.lifl.fr/~pietquin/">Olivier Pietquin</a>, Prof. <a target="_blank" href="http://www.metz.supelec.fr/metz/personnel/p_doct.fr.php?uid=geist_mat&n_ann=5">Matthieu Geist</a> (Signals &amp; Systems).
+                  </td>
+               </tr>
+            </tbody>
+         </table>
+         <span id="contact" name="contact">
+            <h3>Contact</h3>
+         </span>
+         <table class="table table-hover">
+            <tbody>
+               <tr>
+                  <td>
+                     <strong>Belhal Karimi</strong> 
+                     <br><a class="u-email" href="mailto:belhal.karimi@gmail.com">belhal.karimi@gmail.com</a>
+                     <!-- <br> INRIA Saclay, Alan Turing 
+                        <br>1 Rue Honoré d'Estienne d'Orve, 134
+                        <br>Palaiseau, FRANCE  -->
+                     <br>
+                     <div id="social-link">
+                        <a href="https://www.linkedin.com/in/belhal-karimi-2baa71a5" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/linkedin.png" height="20" width="20" alt="See LinkedIn profile" style="vertical-align:middle;" border="0"  ></span></a>
+                        <!-- <a href="mailto:belhal dot karimi at gmail dot com" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/mail.png" height="20" width="20" alt="Send an email" style="vertical-align:middle;" border="0" ></span></a> -->
+                        <a href="https://twitter.com/BelhalK" target="_blank" style="text-decoration:none;">
+                        <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/twitter.png" height="20" width="20" alt="Twitter" style="vertical-align:middle;" border="0" ></span></a>
+                        <a href="https://github.com/BelhalK" target="_blank" style="text-decoration:none;">
+                        <span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/github.png" height="20" width="20" alt="Github" style="vertical-align:middle;" border="0" ></span></a>
+                     </div>
+                  </td>
+               </tr>
+            </tbody>
+         </table>
       </div>
-
-
-<div class="row">
-            <hr class="bigHr">
-            <center><h3><a name="reviewing"></a>Reviewing</h3></center>
-            <hr>
-            <ul>
-            <li> AISTATS 2019.</li>
-            <li> AABI 2019.</li>
-            <li> ICML 2019.</li>
-            </ul>
-          </div>
-          <div class="row">
-      </div>
-
-
-
-
-          <div class="row"><a name="industry"></a>
-            <hr class="bigHr">
-            <center><h3>Industry</h3></center>
-            <hr>
-            <ul>
-               <!--  <li> <a href="" >Monk AI</a>: Machine Learning advisor to a French startup providing automated &amp; objective condition reports. Currently focussing on car damages.</li>
-                <li> <a href="https://www.ouicar.fr/" >OuiCar</a>: one-year freelance for French peer-to-peer car sharing platform on damages detection using Deep Learning (Mask R-CNN).</li>
-                <li> <a href="https://www.mypopsy.com/" >Popsy</a>: actively working with leading South American Classifieds App to predict the Category and Price of any given listing based on their pictures.</li>
-                <li> <a href="https://www.agence-maths-entreprises.fr/a/" >AMIES</a>: attending a week of workshops around Mathematics and Enterprises in Montréal (Université de Montreal), Aug 2017. [<a  href="http://www.crm.umontreal.ca/probindustriels2017/wp-content/uploads/2017/08/Cooperators1Final.pdf">Slides</a>]</li>
-                <li>
-                  <a>Agora</a>: working on an innovative <a >Scratches Detection</a> computer vision engine. [<a  href="downloads/agora.pdf">pitch</a>] and [<a  href="http://get-agora.com/">www</a>] and [<a  href="downloads/agora-ui.png">UI</a>]</li>
-                <li> <a href="http://obvious.ly/" >Obviously</a>: digging how the influencers market is behaving with a promising startup based in SF/NY.</li> -->
-
-              
-                <li> Machine Learning advisor to <strong><a href="">Monk AI</a></strong>, a French startup providing automated &amp; objective condition reports, Paris, France. Damages detection using Mask R-CNN.
-                </li>
-
-                <li> Research intern at <strong><a href="https://cs.hse.ru/big-data/bayeslab/samsunglab/">Samsung AI - HSE Lab</a></strong>, leading Russian lab in Bayesian Deep Learning, Moscow, Russia.
-                <br><strong>Project</strong>: Optimization for Bayesian Neural Networks with Dr. Dmitry Vetrov.
-                </li>
-
-                <li> One-year freelance at <strong><a href="https://www.ouicar.fr/" >OuiCar</a></strong>, French peer-to-peer car sharing platform, Paris, France.
-                <br><strong>Project</strong>: damages detection using Deep Learning (Mask R-CNN).
-                </li>
-
-                
-                 <li> Freelance at <strong><a href="https://www.mypopsy.com/" >Popsy</a></strong>, leading South American Classifieds App, NYC, USA.
-                <br><strong>Project</strong>: predict the Category and Price of any given listing based on their pictures.
-                </li>
-
-                
-                <li> Industry workshops at <strong><a href="https://www.agence-maths-entreprises.fr/a/" >AMIES</a></strong>, Mathematics and Enterprises, Montreal, Canada.
-                <br><strong>Project</strong>: Optimization, Travel Sales Problem. [<a  href="http://www.crm.umontreal.ca/probindustriels2017/wp-content/uploads/2017/08/Cooperators1Final.pdf">Slides</a>]
-                </li>
-                
-
-                <li> Start-up project <strong><a href="" >Agora</a></strong>, an innovative <a >Scratches Detection</a> computer vision engine, Paris, France.<br>
-                See [<a  href="downloads/agora.pdf">pitch</a>],  [<a  href="http://get-agora.com/">www</a>] and [<a  href="downloads/agora-ui.png">UI</a>].
-                </li>
-
-
-              </ul>
-          </div>
-
-
-
-            <hr class="bigHr">
-            <center><h3><a name="contact"></a>Contact</h3></center>
-            <hr>
-            <address>
-              <strong>Belhal Karimi</strong><br>
-              INRIA Saclay, Alan Turing <br>
-              1 Rue Honoré d'Estienne d'Orve, 134 <br>
-              Palaiseau <br>
-              91120
-              FRANCE
-            </address>
-            <div id="social-link">
-              <a href="https://www.linkedin.com/in/belhal-karimi-2baa71a5" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/linkedin.png" height="20" width="20" alt="See LinkedIn profile" style="vertical-align:middle;" border="0"  ></span></a>
-              <a href="mailto:belhal dot karimi at gmail dot com" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./icons/mail.png" height="20" width="20" alt="Send an email" style="vertical-align:middle;" border="0" ></span></a>
-            </div>
-          </div>
-        </div>
-     
-     
-    </div>
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script type='text/javascript' src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="offcanvas.js"></script>
-    <script src="code.js"></script>
-  </body>
+      <footer class="footer">
+         <div class="container">
+            <!-- <p class="text-muted">Last updated by Belhal Karimi, Oct. 2020.</p> -->
+         </div>
+      </footer>
+      <!-- Bootstrap core JavaScript
+         ================================================== -->
+      <!-- Placed at the end of the document so the pages load faster -->
+      <script src="./assets/style_files/jquery.min.js.download"></script>
+      <script src="./assets/style_files/bootstrap.min.js.download"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="./assets/style_files/ie10-viewport-bug-workaround.js.download"></script>
+      <div id="feedly-mini" title="feedly Mini tookit"></div>
+   </body>
 </html>
