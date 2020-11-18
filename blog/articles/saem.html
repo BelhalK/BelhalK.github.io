@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>
+         Belhal Karimi &middot; blog
+      </title>
+      <link rel="stylesheet" href="../css/styles.css">
+      <link rel="alternate" type="application/atom+xml" title="Belhal Karimi" href="/atom.xml">
+      <style type="text/css">
+         .center {
+           display: block;
+           margin-left: auto;
+           margin-right: auto;
+           width: 70%;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container content">
+         <header class="masthead">
+            <h3 class="masthead-title">
+               <a href="../blogindex.html" title="Home">Belhal Karimi</a>
+               <small>blog</small>
+            </h3>
+         </header>
+         <main>
+            <div class="posts">
+               <article class="post">
+                  <h1 class="post-title">
+                     <a href="">
+                     The SAEM Algorithm
+                     </a>
+                  </h1>
+                  <time datetime="2020-09-10T00:00:00+00:00" class="post-date">10 Sep 2020</time>
+                  <p class="message">
+                     SAEM: Stochastic Approximation of the EM algorithm.
+                  </p>
+                  <p>  For nonlinear models, Expectations under the posterior are intractable. Monte Carlo integration could be used but are generally computationally expensive in order to ensure convergence. The SAEM algorithm (Delyon et. al. , 1999) introduces a Stochastic Approximation update of the EM combining MC integration and Robbins-Monro update to smooth the iterates. </p>
+
+                  <img src="assets/saem1.png" alt="" /  style="display: block;margin-left: auto;margin-right: auto;width: 90%;">
+
+                  <p> The first stage is thus very stochastic in order to quickly converge to a neighbourhood of the solution. The second stage, where the stepsize is decreasing, ensures almost sure and pointwise convergence of the algorithm without requiring a large number of MC simulations. </p>
+
+                  <img src="assets/saem2.png" alt="" /  class="center">
+
+                  <h3 id="mixup">Markov Chain Monte Carlo (MCMC)</h3>
+                   <p>MCMC algorithms are a class of methods allowing to sample from a complex distribution. An important class of samplers, called Metropolis- Hastings (MH) algorithm, iteratively draw samples from a proposal distribution q and compute an acceptance ratio. </p>
+
+                  <p>For Independent Sampler, the proposal is independent of the current state of the chain, and its mixing rate is directly related to the ratio of proposal to the target. This naturally suggests to find a (simple) proposal which approximates the target, see Figure below. </p>
+
+                  <img src="assets/mcmc.png" alt="" /  class="center">
+
+                  <h3 id="mixup">Laplace Approximation Method</h3>
+
+                  <p>For complex posterior distributions, sampling or computing expected values according to that distribution can be intractable.
+                  In some cases, it is suitable to just pay attention to the region around the highest value, namely the mode. </p>
+
+                  <p>Laplace Approximation leverages a second-order approximation within that high-valued region.
+                  Specifically, a Taylor expansion of the log-likelihood around its maximum point is taken up to the  second order. </p>
+
+                  <img src="assets/laplace.png" alt="" /  class="center">
+
+                  <p>The resulting approximation of the posterior distribution is thus a simple and tractable multivariate Gaussian distribution.</p>
+
+
+
+                 
+                  <h3 id="mixup">Simulated annealing</h3>
+                 <p>Fitting nonlinear mixed effects models requires optimizing a (highly) nonconvex loss function. Simulated annealing (SA) then allows to escape local maximums and improve the convergence towards the global maximum of that nonconvex loss. </p>
+
+                  <p>In practice, SA constrains the variance of the random effects and the residual error parameters of the model to a certain decay. 
+                  This avoids the variances to decrease too fast and allows keeping the explored parameter space large for a longer time. It is often used within the SAEM for fitting non mixed models for instance.</p>
+
+                  <img src="assets/sa.png" alt="" /  style="display: block;margin-left: auto;margin-right: auto;width: 90%;">
+ 
+               
+                     
+
+
+
+                  
+               </article>
+            </div>
+            <div class="pagination">
+               <a class="pagination-item older" href="./pkmodel.html">Older</a>
+               <span class="pagination-item newer">Newer</span>
+            </div>
+            <div class="footer">
+               <br />
+               <small>
+               Read <a href="../blogindex.html">more</a>  |
+               About <a target = "_blank" href="https://belhal.github.io/">me</a>
+               </small>
+            </div>
+         </main>
+      </div>
+   </body>
+</html>
