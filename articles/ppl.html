@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>
+         Belhal Karimi &middot; blog
+      </title>
+      <link rel="stylesheet" href="../css/styles.css">
+      <link rel="alternate" type="application/atom+xml" title="Belhal Karimi" href="/atom.xml">
+      <style type="text/css">
+         .center {
+         display: block;
+         margin-left: auto;
+         margin-right: auto;
+         width: 70%;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container content">
+         <header class="masthead">
+            <h3 class="masthead-title">
+               <a href="../blog.html" title="Home">Belhal Karimi</a>
+               <small>blog</small>
+            </h3>
+         </header>
+         <main>
+            <div class="posts">
+               <article class="post">
+                  <h1 class="post-title">
+                     <a href="">
+                     Probabilistic Programming Languages
+                     </a>
+                  </h1>
+                  <time datetime="2020-09-10T00:00:00+00:00" class="post-date">22 Nov 2020</time>
+                  <p class="message">
+                     Probabilistic programming is about doing statistics using the tools of computer science.
+                  </p>
+                  <p>  Probabilistic Programming Languages (PPL) describe probabilistic models and the underlying mechanics to perform inference. 
+                     PPL combines the inference capabilities of probabilistic methods with the representational power of programming languages.
+                  </p>
+                  <p> Examples include Stan (Stats), VentureScript (ML, Robotics), Pyro (Deep Learning),... </p>
+                  <h4 id="mixup">Simple illustrative example</h4>
+                  <p> 
+                     We consider in this example a coin. If this coin is biased, i.e. the probability that a coin toss leads to head is different than of tail, one interesting problem is to have an estimate of this inherent bias. 
+                     A simple model for that would be to consider iid Bernoulli tosses, of parameter &theta;, where &theta; represents the bias of the toss. Rigorously it reads: p(toss = tail | &theta;) = 1 − &theta;.
+                  </p>
+                  <p> 
+                     The power of PPL makes this problem easily implementable. 
+                     In Edward, a Python library for probabilistic modeling, inference, and criticism built on top of Tensorflow by Dustin Tran, Alp Kucukelbir, Adji B. Dieng, Maja Rudolph, Dawen Liang and David M. Blei, this problem can be written in a few lines as follows:
+                  </p>
+                  <div style=" background-color: #fffffa ; padding: 10px; border: 1px solid green;">
+                     theta = Uniform(0.0, 1.0) #prior on the bias<br>
+                     x = Bernoulli(probs=theta, sample_shape=10) #toss model<br>
+                     data={x:  np.array([0, 1, 0, 0, 0, 0, 0, 0, 0, 1])}) #observed tosses<br>
+                     qtheta = Empirical(tf.Variable(tf.ones(1000) ∗ 0.5)) #posterior distribution variables<br>
+                     inference = edward.HMC({theta: qtheta}, #init HMC (black box HMC implemented in edward)<br>
+                     inference.run() #HMC runs<br>
+                     mean, stddev = edward.get_session().run( [qtheta.mean(),qtheta.stddev()])
+                  </div>
+                  <br>
+                  <p> 
+                     After simply defining the prior on the bias &theta; (here uniform) and choosing a Bernoulli model for the tosses, the function <code> edward.HMC() </code> runs a Hamiltonian Monte Carlo Markov Chain in order to obtain unbiased samples from the posterior distribution of the random variable &theta; given the observed realizations. After sufficient transitions, the mean of those samples yields the desired estimated bias of the coin.
+                  </p>
+                  <h3 id="mixup">MlxTran Language for PK-PD Analysis</h3>
+                  <p>An example of probabilistic programming language designed for nonlinear mixed-effects models, particularly appealing to PK modeling, is MlxTran. 
+                     It is a declarative, human-readable language for the description of the statistical elements of nonlinear mixed effect modeling found in pharmacology. 
+                  </p>
+                  <p>MlxTran is used for parameter estimation with <a href"http://monolix.lixoft.com/"> Monolix </a> and for simulation with <a href"http://simulx.webpopix.org/"> Simulx </a>. We recall the example of iv and oral administration using a PK model. </p>
+                  <br>
+                  <img src="assets/ppl1.png" alt="" /  style="display: block;margin-left: auto;margin-right: auto;width: 70%;">
+                  <br>
+                  <p> This complex model can be easily implemented using MlxTran where several abstractions are used to model the iv administration, the priors on the random effects and the compartmental structure of the model. </p>
+                  <br>
+                  <img src="assets/ppl2.png" alt="" /  style="display: block;margin-left: auto;margin-right: auto;width: 70%;">
+                  <h4 id="mixup">Some common models in MlxTran</h4>
+                  <p>Examples implemented models include the following:
+                  <ul>
+                     <li>PK/PD model: several types of administrations (IV bolus, infusion, zero and first order absorption), any number of compartment (between 1 and 3), several elimination process (linear and Michaelis-Menten)</li>
+                     <li>PK double absorption model: combinations of absorption types and delays for two absorptions. The absorptions can be specified as simultaneous or sequential, and with a pre-defined or independent order.</li>
+                     <li>Target-mediated drug disposition (TMDD) model: TMDD models corresponding to different approximations, different administration routes, different parameterizations, and different outputs</li>
+                     <li>Time-to-event (TTE) model</li>
+                     <li>Count model</li>
+                     <li>Tumor growth inhibition model: test and combine different hypotheses for the tumor growth kinetics and effect of a treatment, allowing to fit a large variety of tumor size data</li>
+                  </ul>
+                  </p>
+               </article>
+            </div>
+            <div class="pagination">
+               <a class="pagination-item older" href="./saem.html">Older</a>
+               <span class="pagination-item newer">Newer</span>
+            </div>
+            <div class="footer">
+               <br />
+               <small>
+               Read <a href="../blog.html">more</a>  |
+               About <a target = "_blank" href="https://belhal.github.io/">me</a>
+               </small>
+            </div>
+         </main>
+      </div>
+   </body>
+</html>
