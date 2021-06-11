@@ -137,6 +137,7 @@
                   <font size="3">
                      ML Research
                      <br> <a target="_blank" href="http://research.baidu.com/">Baidu Research, Cognitive Computing Lab </a>
+                     <br> Seattle, WA, USA
                      <!-- <br> <a target="_blank" href="http://research.baidu.com/">Baidu Research </a> -->
                      <br>   <a href="mailto:belhal dot karimi at gmail dot com" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/mail.png" height="20" width="20" alt="Send an email" style="vertical-align:middle;" border="0" ></span>
                      <a href="https://twitter.com/BelhalK" target="_blank" style="text-decoration:none;">
@@ -189,6 +190,8 @@
                      I had the opportunity to intern in the <b><a> Samsung AI - HSE Lab</b></a> (Moscow, RU, 2019), where I was working with <a target = "_blank" href = "https://bayesgroup.ru/people/dmitry-vetrov/">Dr. Dmitry Vetrov</a> on optimization methods for Bayesian Neural Networks and at <b><a> MIT </b></a> (Boston, USA, 2016), under the supervision of <a target = "_blank" href = "http://probcomp.csail.mit.edu/principal-investigator/">Dr. Vikash Mansinghka</a>, where I've spent most of my time at the <a target = "_blank" href="http://probcomp.csail.mit.edu/" >Probabilistic Computing Project</a> working on MCMC methods.
                      <br><br>
                      I am developing, with other researchers, an open-source R package, called <strong><a target = "_blank" href = "http://saemixr.github.io/">Saemix</a></strong>, devoted to the training of nonlinear mixed models in biostatistics, epidemiology etc. Check out our R bookdown [<a  target = "_blank" href="http://saemixdevelopment.github.io/">bookdown</a>] and Twitter feed [<a  target = "_blank" href="https://twitter.com/saemixR">twitter</a>] for more information. 
+                     <br><br>
+                     Inclusivity advocate at Central Asian in AI [<a  target = "_blank" href="https://caiai.vercel.app/">CAiAI</a>]
                      
             </tbody>
          </table>
@@ -196,6 +199,10 @@
             <h3> News </h3>
          </span>
          <ul>
+         <li>
+               [2021, Apr.] Our work <i>'Two-Timescale Stochastic EM Algorithms'</i> has been accepted in IEEE International Symposium on Information Theory (<a href="https://2021.ieee-isit.org/">ISIT 2021</a>). [<a target="_blank" href="https://hal.archives-ouvertes.fr/hal-02994707v1">pdf</a>], slides and presentation available soon -- <span style="color: green">New</span>
+            </li>
+
             <li>
                [2021, Jan.] Virtually presenting our work <i>'HWA: Hyperparameters Weight Averaging in Bayesian Neural Networks'</i>  on <a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">Youtube</a> for <a href="http://approximateinference.org/">AABI 2020</a> conference. [<a target="_blank" href="./assets/downloads/hwa_slides.pdf">slides</a>] and [<a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">video</a>] -- <span style="color: green">New</span>
             </li>
@@ -227,12 +234,29 @@
          </span>
          <table class="table table-hover">
             <tbody>
+
+            <tr>
+                  <td width="30%"><img src="./assets/paperthumb/ttsem.png" width=230 height=100></td>
+                  <td>
+                     <strong> Two-Timescale Stochastic EM Algorithms </strong>
+                     <br>  <i>Belhal Karimi</i> and Ping Li.
+                     <br> <b>IEEE International Symposium on Information Theory (<a href="https://2021.ieee-isit.org/">ISIT</a>), 2021.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;tts-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.archives-ouvertes.fr/hal-02994707v1">pdf</a>] [<a target="_blank" href="https://github.com/BelhalK/PapersCode/tree/master/ttsem">code</a>] 
+                     <div id="tts-abs" style="display:none">
+                        <p>
+                           The Expectation-Maximization (EM) algorithm is a popular choice for learning latent variable models. Variants of the EM have been initially introduced by Neal and Hinton (1998), using in- cremental updates to scale to large datasets, and by Wei and Tanner (1990); Delyon et al. (1999), using Monte Carlo (MC) approximations to bypass the intractable conditional expectation of the latent data for most nonconvex models. In this paper, we propose a general class of methods called Two-Timescale EM Methods based on a two-stage approach of stochastic updates to tackle an es- sential nonconvex optimization task for latent variable models. We motivate the choice of a double dynamic by invoking the variance reduction virtue of each stage of the method on both sources of noise: the index sampling for the incremental update and the MC approximation. We establish finite-time and global convergence bounds for nonconvex objective functions. Numerical applica- tions on various models such as deformable template for image analysis or nonlinear mixed-effects models for pharmacokinetics are also presented to illustrate our findings.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+
+               
                <tr>
                   <td width="30%"><img src="./assets/paperthumb/hwa.png" width=230 height=100></td>
                   <td>
                      <strong> HWA: Hyperparameters Weight Averaging in Bayesian Neural Networks</strong>
                      <br>  <i>Belhal Karimi</i> and Ping Li.
-                     <br>  <b>3rd Symposium on Advances in Approximate Bayesian Inference (<a href="http://approximateinference.org/">AABI</a>), 2020.</b>
+                     <br>  <b>Advances in Approximate Bayesian Inference (<a href="http://approximateinference.org/">AABI</a>), 2020.</b>
                      <br> [<a href="javascript:none" onclick="display(&#39;hwa-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.archives-ouvertes.fr/hal-03087352v1">pdf</a>] [<a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">video</a>] 
                      <div id="hwa-abs" style="display:none">
                         <p>
@@ -258,20 +282,7 @@
                </tr>
 
 
-               <tr>
-                  <td width="30%"><img src="./assets/paperthumb/ttsem.png" width=230 height=100></td>
-                  <td>
-                     <strong> Two-Timescale Stochastic EM Algorithms </strong>
-                     <br>  <i>Belhal Karimi</i> and Ping Li.
-                     <br> <b>Sumitted, 2020.</b> 
-                     <br> [<a href="javascript:none" onclick="display(&#39;tts-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.archives-ouvertes.fr/hal-02994707v1">pdf</a>] [<a target="_blank" href="https://github.com/BelhalK/PapersCode/tree/master/ttsem">code</a>] 
-                     <div id="tts-abs" style="display:none">
-                        <p>
-                           The Expectation-Maximization (EM) algorithm is a popular choice for learning latent variable models. Variants of the EM have been initially introduced by Neal and Hinton (1998), using in- cremental updates to scale to large datasets, and by Wei and Tanner (1990); Delyon et al. (1999), using Monte Carlo (MC) approximations to bypass the intractable conditional expectation of the latent data for most nonconvex models. In this paper, we propose a general class of methods called Two-Timescale EM Methods based on a two-stage approach of stochastic updates to tackle an es- sential nonconvex optimization task for latent variable models. We motivate the choice of a double dynamic by invoking the variance reduction virtue of each stage of the method on both sources of noise: the index sampling for the incremental update and the MC approximation. We establish finite-time and global convergence bounds for nonconvex objective functions. Numerical applica- tions on various models such as deformable template for image analysis or nonlinear mixed-effects models for pharmacokinetics are also presented to illustrate our findings.
-                        </p>
-                     </div>
-                  </td>
-               </tr>
+               
                <tr>
                   <td width="30%"><img src="./assets/paperthumb/sagd.png" width=230 height=100></td>
                   <td>
@@ -461,6 +472,15 @@
          <table class="table table-hover">
             <tbody>
 
+             <tr>
+                  <td>
+                     <strong>        <a href="http://approximateinference.org/">ISIT 2021</a> <i> Two-Timescale Stochastic EM Algorithms</i> </strong>
+                     <br> Virtual Conference, Jul. 2021. [<a target="_blank" href="./assets/downloads/ISIT-21-TTSEM-short.pdf">slides</a>] [<a target="_blank" href="https://www.youtube.com/watch?v=N8xR9Axuwnc">video</a>] 
+                  </td>
+               </tr>
+
+
+
             <tr>
                   <td>
                      <strong>        <a href="http://approximateinference.org/">AABI 2020</a> <i> HWA: Hyperparameters Weight Averaging in Bayesian Neural Networks</i> </strong>
@@ -575,7 +595,9 @@
                   <td>  
                      <strong> Monk AI </strong>
                      <img src='./assets/industry/monk.png' width=50px align="right">
-                     <br> Machine Learning advisor to <strong><a target="_blank" href="https://monk.ai/">Monk AI</a></strong>, a French startup providing automated &amp; objective condition reports, Paris, France. Damages detection using Mask R-CNN.
+                     <br> Scientific advisor to <strong><a target="_blank" href="https://monk.ai/">Monk AI</a></strong>, a French startup providing automated &amp; objective condition reports, Paris, France. Damages detection using Mask R-CNN.
+                     <br>
+                     PR: <a target="_blank" href="https://www.frenchweb.fr/reconnaissance-visuelle-monk-leve-21-millions-deuros-pour-identifier-les-dommages-automobiles/401575">Monk AI lève 2.1 millions d’euros pour identifier les dommages automobiles...</a> 
                   </td>
                </tr>
                <tr>
@@ -584,6 +606,8 @@
                      <img src='./assets/industry/samsung.png' width=50px align="right">
                      <br>Research intern at <strong><a target="_blank" href="https://cs.hse.ru/big-data/bayeslab/samsunglab/">Samsung AI - HSE Lab</a></strong>, leading Russian lab in Bayesian Deep Learning, Moscow, Russia.
                      <br><strong>Project</strong>: Optimization for Bayesian Neural Networks with Dr. Dmitry Vetrov.
+                     <br>
+                     PR: <a target="_blank" href="https://cs.hse.ru/en/big-data/bayeslab/news/300433303.html">Our colleagues Alexander Shekhovtsov and Belhal Karimi gave talks on actual problems of machine learning...</a> 
                   </td>
                </tr>
                <tr>
@@ -658,12 +682,19 @@
             <tbody>
                <tr>
                   <td>
-                     NeurIPS ICBINB Workshop 2020<br>
-                     AISTATS 2019<br>
-                     AABI 2019<br>
-                     ICML 2019<br>
-                     Statistics and Computing - Springer<br>
-                     Neural Networks - Elsevier<br>
+                  &bull; <i>Conferences</i><br>
+                    NeurIPS 2021<br>
+                    ICLR 2020<br>
+                    AAAI 2020<br>
+                    NeurIPS ICBINB Workshop 2020<br>
+                    AISTATS 2019<br>
+                    AABI 2019<br>
+                    ICML 2019<br>
+                    <br>
+                  &bull; <i>Journals</i><br>
+                    Australian &amp; New Zealand Journal of Statistics<br>
+                    Statistics and Computing - Springer<br>
+                    Neural Networks - Elsevier<br>
                   </td>
                </tr>
             </tbody>
@@ -675,11 +706,11 @@
             <tbody>
                <tr>
                   <td>
-                     <i>Executive Education Program at Ecole Polytechnique</i>: Machine Learning (Orange, SFR,...)<br>
-                     <i>MAP534 Machine Learning</i>: Msc Ecole Polytechnique-HEC<br>
-                     <i>MAP535 Regression</i>: Msc Ecole Polytechnique-HEC<br>
-                     <i>Bayesian Statistics</i>: Msc Data Science Ecole Polytechnique<br>
-                     <i>Innovation &amp; Technology</i>: 3rd-year students at Ecole Polytechnique<br>
+                     <i>&bull; Executive Education Program at Ecole Polytechnique</i>: Machine Learning (Orange, SFR,...)<br>
+                     <i>&bull; MAP534 Machine Learning</i>: Msc Ecole Polytechnique-HEC<br>
+                     <i>&bull; MAP535 Regression</i>: Msc Ecole Polytechnique-HEC<br>
+                     <i>&bull; Bayesian Statistics</i>: Msc Data Science Ecole Polytechnique<br>
+                     <i>&bull; Innovation &amp; Technology</i>: 3rd-year students at Ecole Polytechnique<br>
                   </td>
                </tr>
             </tbody>
@@ -725,9 +756,8 @@
                   <td>
                      <strong>Belhal Karimi</strong> 
                      <br><a class="u-email" href="mailto:belhal.karimi@gmail.com">belhal.karimi@gmail.com</a>
-                     <!-- <br> INRIA Saclay, Alan Turing 
-                        <br>1 Rue Honoré d'Estienne d'Orve, 134
-                        <br>Palaiseau, FRANCE  -->
+                     <br> Baidu Research, CCL
+                        <br>10900 NE 8th St #750, Bellevue, WA 98004
                      <br>
                      <div id="social-link">
                         <a href="https://www.linkedin.com/in/belhal-karimi-2baa71a5" style="text-decoration:none;"><span style="font: 80% Arial,sans-serif; color:#0783B6;"><img src="./assets/icons/linkedin.png" height="20" width="20" alt="See LinkedIn profile" style="vertical-align:middle;" border="0"  ></span></a>
