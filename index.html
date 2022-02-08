@@ -205,6 +205,10 @@
          </span>
          <ul>
 
+         <li>
+               [2022, Jan.] Our work <i>'On Distributed Adaptive Optimization with Gradient Compression'</i> has been accepted in The International Conference on Learning Representations (<a href="https://iclr.cc">ICLR 2022</a>). [<a target="_blank" href="https://openreview.net/pdf?id=CI-xXX9dg9l">pdf</a>], slides and presentation available soon -- <span style="color: green">New</span>
+            </li>
+
 
           <li>
                [2022, Jan.] Our work <i>'MISSO: Minimization by Incremental Stochastic Surrogate for large-scale nonconvex Optimization'</i> has been accepted in Algorithmic Learning Theory (<a href="http://algorithmiclearningtheory.org/alt2022/">ALT 2022</a>). [<a target="_blank" href="./assets/downloads/misso.pdf">pdf</a>], slides and presentation available soon -- <span style="color: green">New</span>
@@ -221,14 +225,14 @@
             </li>
 
             <li>
-               [2021, Jan.] Virtually presenting our work <i>'HWA: Hyperparameters Weight Averaging in Bayesian Neural Networks'</i>  on <a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">Youtube</a> for <a href="http://approximateinference.org/">AABI 2021</a> conference. [<a target="_blank" href="./assets/downloads/hwa_slides.pdf">slides</a>] and [<a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">video</a>].
+               [2021, Jan.] Virtually presenting our work <i>'HWA: Hyperparameters Weight Averaging in Bayesian Neural Networks'</i>  on <a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">Youtube</a> for (<a href="http://approximateinference.org/">AABI 2021</a>) conference. [<a target="_blank" href="./assets/downloads/hwa_slides.pdf">slides</a>] and [<a target="_blank" href="https://www.youtube.com/watch?v=tB_50k_utDI">video</a>].
             </li>
 
             <li>
                [2020, Nov.] Check out a way to accelerate AMSGrad for nonconvex optimization proposed in our paper <i>'An Optimistic Acceleration of AMSGrad for Nonconvex Optimization'</i> now on <a target="_blank" href="https://arxiv.org/abs/1903.01435">Arxiv</a>.
             </li>
             <li>
-               [2020, Sept.] Our work on improving generalization for adaptive gradient methods <i>'Towards Better Generalization of Adaptive Gradient Methods'</i> is accepted in <a target="_blank" href="https://neurips.cc/">NeurIPS 2020</a> (acceptance rate: 20.1%) [<a target="_blank" href="https://proceedings.neurips.cc/paper/2020/file/08fb104b0f2f838f3ce2d2b3741a12c2-Paper.pdf">pdf</a>]. 
+               [2020, Sept.] Our work on improving generalization for adaptive gradient methods <i>'Towards Better Generalization of Adaptive Gradient Methods'</i> is accepted in (<a target="_blank" href="https://neurips.cc/">NeurIPS 2020</a>) (acceptance rate: 20.1%) [<a target="_blank" href="https://proceedings.neurips.cc/paper/2020/file/08fb104b0f2f838f3ce2d2b3741a12c2-Paper.pdf">pdf</a>]. 
             </li>
             <li>
                [2020, Aug.] Our paper on communication-efficient Federated Learning <i>'FedSKETCH: Communication-Efficient and Private Federated Learning via Sketching'</i>  is now on <a target="_blank" href="https://arxiv.org/abs/2008.04975">Arxiv</a>. 
@@ -251,6 +255,32 @@
          </span>
          <table class="table table-hover">
             <tbody>
+
+
+         
+
+         <tr>
+                  <td width="30%"><img src="./assets/paperthumb/compams.png" width=230 height=100></td>
+                  <td>
+                     <strong> On Distributed Adaptive Optimization with Gradient Compression </strong>
+                     <br> Xiaoyun Li, <i>Belhal Karimi</i> and Ping Li.
+                     <br>  <b>The International Conference on Learning Representations  (<a href="https://iclr.cc">ICLR</a>), 2022.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;compams-abs&#39;)">abs</a>] [<a target="_blank" href="https://openreview.net/pdf?id=CI-xXX9dg9l">pdf</a>] 
+                     <div id="compams-abs" style="display:none">
+                        <p>
+                           We study COMP-AMS, a distributed optimization framework based on gradient
+                           averaging and adaptive AMSGrad algorithm. Gradient compression is applied
+to reduce the communication in the gradient transmission process, whose bias
+is corrected by the tool of error feedback. Our convergence analysis of COMPAMS shows that such gradient averaging strategy yields same convergence rate
+as standard AMSGrad, and also exhibits linear speedup effect w.r.t. the number of
+local workers. Compared with recently proposed protocols on distributed adaptive methods, COMP-AMSis simple and convenient. Numerical experiments are
+conducted to justify the theoretical findings, and demonstrate that the proposed
+method can achieve same test accuracy as full-gradient AMSGrad with substantial communication savings. With its simplicity and efficiency, COMP-AMScan
+serve as a useful distributed training framework for adaptive methods.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
 
 
 
@@ -342,12 +372,13 @@
                      </div>
                   </td>
                </tr>
-               <tr>
+               
+              <tr>
                   <td width="30%"><img src="./assets/paperthumb/fedsketch.png" width=230 height=100></td>
                   <td>
                      <strong> FedSKETCH: Communication-Efficient Federated Learning via Sketching </strong>
                      <br> Farzin Haddadpour, <i>Belhal Karimi</i>, Ping Li and Xiaoyun Li.
-                     <br> <b>Submitted, 2020.</b> 
+                     <br> <b>arXiv preprint arXiv:2008.04975, 2020.</b> 
                      <br> [<a href="javascript:none" onclick="display(&#39;fedsketch-abs&#39;)">abs</a>] [<a target="_blank" href="https://arxiv.org/abs/2008.04975">pdf</a>] [<a target="_blank" href="">code</a>] 
                      <div id="fedsketch-abs" style="display:none">
                         <p>
@@ -358,27 +389,12 @@
                   </td>
                </tr>
                <tr>
-                  <td width="30%"><img src="./assets/paperthumb/czi.png" width=230 height=100></td>
-                  <td>
-                     <strong> Scaling Saemix, a dedicated R package for nonlinear mixed effects modeling</strong>
-                     <br>  <i>Belhal Karimi</i> and Emmanuelle Comets.
-                     <br> <b>Chan Zuckerberg Intitiative Proposal (<a href="https://chanzuckerberg.com/rfa/essential-open-source-software-for-science/">CZI</a>), 2020.</b> 
-                     <br> [<a href="javascript:none" onclick="display(&#39;czi-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/czi.pdf">pdf</a>] [<a target="_blank" href="https://github.com/saemixdevelopment">code</a>] 
-                     <div id="czi-abs" style="display:none">
-                        <p>
-                           The saemix package for R (in CRAN) provides maximum likelihood estimates of parame- ters in nonlinear mixed effect models (NLMEM), using a modern and efficient estimation algorithm, the Stochastic Approximation of the Expectation-Maximisation (SAEM), introduced in Kuhn and Lavielle (2005). This algorithm is a state-of-the-art method for fitting, possibly nonlinear, models in agronomy, animal breeding or Pharmacokinetics- Pharmacodynamics (PKPD) analysis.
-                           This prpoposal aims to increase our visibility, our userbase and attract new contributors by extending and improving the saemix package features and to refresh the documentation with modern examples, ensure maintenance and reproducibility of the contributed experiments.
-                        </p>
-                     </div>
-                  </td>
-               </tr>
-               <tr>
-                  <td width="30%"><img src="./assets/paperthumb/fsaem.png" width=230 height=130></td>
+                  <td width="30%"><img src="./assets/paperthumb/fsaem.png" width=230 height=110></td>
                   <td>
                      <strong> f-SAEM: A fast Stochastic Approximation of the EM algorithm </strong>
                      <br> <i>Belhal Karimi</i>, Marc Lavielle and Eric Moulines.
                      <br> <b>Computational Statistics and Data Analysis (<a href="https://www.journals.elsevier.com/computational-statistics-and-data-analysis">CSDA</a>), vol. 141, p. 123-138, 2020. </b> 
-                     <br> <b>Accepted for a poster presentation at the <a href="https://bpy2018.wixsite.com/bpstochastics">Paris-Berlin Young Researchers Workshop : Stochastic Analysis with applications in Biology and Finance</a>.</b>
+                    <!--  <br> <b>Accepted for a poster presentation at the <a href="https://bpy2018.wixsite.com/bpstochastics">Paris-Berlin Young Researchers Workshop : Stochastic Analysis with applications in Biology and Finance</a>.</b> -->
                      <br> [<a href="javascript:none" onclick="display(&#39;fsaem-abs&#39;)">abs</a>] [<a target="_blank" href="https://hal.inria.fr/hal-01958248v1">pdf</a>] [<a target="_blank" href="https://github.com/belhal/saemix">code</a>] [<a target="_blank" href="./assets/downloads/parisberlin.pdf">poster</a>]
                      <div id="fsaem-abs" style="display:none">
                         <p>
@@ -387,21 +403,8 @@
                      </div>
                   </td>
                </tr>
-               <tr>
-                  <td width="30%"><img src="./assets/paperthumb/phd.png" width=230 height=100></td>
-                  <td>
-                     <strong> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications </strong>
-                     <br> <i>Belhal Karimi</i>.
-                     <br> <b>Ph.D. thesis, <a href="https://www.inria.fr/equipes/xpop" >Xpop</a> at INRIA and Ecole Polytechnique, 2019.</b> 
-                     <br> [<a href="javascript:none" onclick="display(&#39;phd-abs&#39;)">abs</a>] [<a target="_blank" href="https://tel.archives-ouvertes.fr/tel-02319140/document">pdf</a>] [<a target="_blank" href="./assets/downloads/slidesDefense.pdf">slides</a>] 
-                     <div id="phd-abs" style="display:none">
-                        <p>
-                           Many problems in machine learning pertain to tackling the minimization of a possibly non-convex and non-smooth function defined on a Many problems in machine learning pertain to tackling the minimization of a possibly non-convex and non-smooth function defined on a Euclidean space.Examples include topic models, neural networks or sparse logistic regression.Optimization methods, used to solve those problems, have been widely studied in the literature for convex objective functions and are extensively used in practice.However, recent breakthroughs in statistical modeling, such as deep learning, coupled with an explosion of data samples, require improvements of non-convex optimization procedure for large datasets.This thesis is an attempt to address those two challenges by developing algorithms with cheaper updates, ideally independent of the number of samples, and improving the theoretical understanding of non-convex optimization that remains rather limited.In this manuscript, we are interested in the minimization of such objective functions for latent data models, ie, when the data is partially observed which includes the conventional sense of missing data but is much broader than that.In the first part, we consider the minimization of a (possibly) non-convex and non-smooth objective function using incremental and online updates.To that end, we propose several algorithms exploiting the latent structure to efficiently optimize the objective and illustrate our findings with numerous applications.In the second part, we focus on the maximization of non-convex likelihood using the EM algorithm and its stochastic variants.We analyze several faster and cheaper algorithms and propose two new variants aiming at speeding the convergence of the estimated parameters.
-                        </p>
-                     </div>
-                  </td>
-               </tr>
-               <tr>
+
+                <tr>
                   <td width="30%"><img src="./assets/paperthumb/fiem.png" width=230 height=100></td>
                   <td>
                      <strong> On the Global Convergence of (Fast) Incremental Expectation Maximization Methods </strong>
@@ -425,6 +428,35 @@
                      <div id="nonasy-abs" style="display:none">
                         <p>
                            Stochastic approximation (SA) is a key method used in statistical learning. Recently, its non-asymptotic convergence analysis has been considered in many papers. However, most of the prior analyses are made under restrictive assumptions such as unbiased gradient estimates and convex objective function, which significantly limit their applications to sophisticated tasks such as online and reinforcement learning. These restrictions are all essentially relaxed in this work. In particular, we analyze a general SA scheme to minimize a non-convex, smooth objective function. We consider update procedure whose drift term depends on a state-dependent Markov chain and the mean field is not necessarily of gradient type, covering approximate second-order method and allowing asymptotic bias for the one-step updates. We illustrate these settings with the online EM algorithm and the policy-gradient method for average reward maximization in reinforcement learning.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/phd.png" width=230 height=100></td>
+                  <td>
+                     <strong> Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications </strong>
+                     <br> <i>Belhal Karimi</i>.
+                     <br> <b>Ph.D. thesis, <a href="https://www.inria.fr/equipes/xpop" >Xpop</a> at INRIA and Ecole Polytechnique, 2019.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;phd-abs&#39;)">abs</a>] [<a target="_blank" href="https://tel.archives-ouvertes.fr/tel-02319140/document">pdf</a>] [<a target="_blank" href="./assets/downloads/slidesDefense.pdf">slides</a>] 
+                     <div id="phd-abs" style="display:none">
+                        <p>
+                           Many problems in machine learning pertain to tackling the minimization of a possibly non-convex and non-smooth function defined on a Many problems in machine learning pertain to tackling the minimization of a possibly non-convex and non-smooth function defined on a Euclidean space.Examples include topic models, neural networks or sparse logistic regression.Optimization methods, used to solve those problems, have been widely studied in the literature for convex objective functions and are extensively used in practice.However, recent breakthroughs in statistical modeling, such as deep learning, coupled with an explosion of data samples, require improvements of non-convex optimization procedure for large datasets.This thesis is an attempt to address those two challenges by developing algorithms with cheaper updates, ideally independent of the number of samples, and improving the theoretical understanding of non-convex optimization that remains rather limited.In this manuscript, we are interested in the minimization of such objective functions for latent data models, ie, when the data is partially observed which includes the conventional sense of missing data but is much broader than that.In the first part, we consider the minimization of a (possibly) non-convex and non-smooth objective function using incremental and online updates.To that end, we propose several algorithms exploiting the latent structure to efficiently optimize the objective and illustrate our findings with numerous applications.In the second part, we focus on the maximization of non-convex likelihood using the EM algorithm and its stochastic variants.We analyze several faster and cheaper algorithms and propose two new variants aiming at speeding the convergence of the estimated parameters.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+               <tr>
+                  <td width="30%"><img src="./assets/paperthumb/czi.png" width=230 height=100></td>
+                  <td>
+                     <strong> Scaling Saemix, a dedicated R package for nonlinear mixed effects modeling</strong>
+                     <br>  <i>Belhal Karimi</i> and Emmanuelle Comets.
+                     <br> <b>Chan Zuckerberg Intitiative Proposal (<a href="https://chanzuckerberg.com/rfa/essential-open-source-software-for-science/">CZI</a>), 2019.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;czi-abs&#39;)">abs</a>] [<a target="_blank" href="./assets/downloads/czi.pdf">pdf</a>] [<a target="_blank" href="https://github.com/saemixdevelopment">code</a>] 
+                     <div id="czi-abs" style="display:none">
+                        <p>
+                           The saemix package for R (in CRAN) provides maximum likelihood estimates of parame- ters in nonlinear mixed effect models (NLMEM), using a modern and efficient estimation algorithm, the Stochastic Approximation of the Expectation-Maximisation (SAEM), introduced in Kuhn and Lavielle (2005). This algorithm is a state-of-the-art method for fitting, possibly nonlinear, models in agronomy, animal breeding or Pharmacokinetics- Pharmacodynamics (PKPD) analysis.
+                           This prpoposal aims to increase our visibility, our userbase and attract new contributors by extending and improving the saemix package features and to refresh the documentation with modern examples, ensure maintenance and reproducibility of the contributed experiments.
                         </p>
                      </div>
                   </td>
