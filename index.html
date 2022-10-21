@@ -274,6 +274,23 @@
          <table class="table table-hover">
             <tbody>
 
+
+            <tr>
+                  <td width="30%"><img src="./assets/paperthumb/featurebox.png" width=230 height=100></td>
+                  <td>
+                     <strong> FeatureBox: Feature Engineering on GPUs for Massive-Scale Ads Systems </strong>
+                     <br> Weijie Zhao, Xuewu Jiao, Xinsheng Luo, Jingxue Li, <i>Belhal Karimi</i> and Ping Li.
+                     <br> <b>arXiv preprint arXiv:2210.07768, 2022.</b> 
+                     <br> [<a href="javascript:none" onclick="display(&#39;featurebox-abs&#39;)">abs</a>] [<a target="_blank" href="https://arxiv.org/pdf/2210.07768.pdf">pdf</a>] [<a target="_blank" href="">code</a>] 
+                     <div id="featurebox-abs" style="display:none">
+                        <p>
+                           Deep learning has been widely deployed for online ads systems to predict Click-Through Rate (CTR). Machine learning researchers and practitioners frequently retrain CTR models to test their new extracted features. However, the CTR model training often relies on a large number of raw input data logs. Hence, the feature extraction can take a significant proportion of the training time for an industrial-level CTR model. In this paper, we propose FeatureBox, a novel end-toend training framework that pipelines the feature extraction and the training on GPU servers to save the intermediate I/O of the feature extraction. We rewrite computation-intensive feature extraction operators as GPU operators and leave the memoryintensive operator on CPUs. We introduce a layer-wise operator scheduling algorithm to schedule these heterogeneous operators. We present a light-weight GPU memory management algorithm that supports dynamic GPU memory allocation with minimal overhead. We experimentally evaluate FeatureBox and compare it with the previous in-production feature extraction framework on two real-world ads applications. The results confirm the effectiveness of our proposed method.
+                        </p>
+                     </div>
+                  </td>
+               </tr>
+
+
             <tr>
                   <td width="30%"><img src="./assets/paperthumb/dams.png" width=230 height=100></td>
                   <td>
