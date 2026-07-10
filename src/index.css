@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Clean White + Nike Black/Orange Theme */
+
+        /* Base Colors - Clean White Background */
+        --background: 0 0% 100%;
+        /* Pure White */
+        --foreground: 0 0% 10%;
+        /* Near Black text */
+
+        /* Cards - Clean White */
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 10%;
+
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 10%;
+
+        /* Primary - Nike Orange */
+        --primary: 25 95% 53%;
+        /* Vibrant Nike Orange */
+        --primary-foreground: 0 0% 100%;
+
+        /* Secondary - Black */
+        --secondary: 0 0% 10%;
+        --secondary-foreground: 0 0% 100%;
+
+        --muted: 0 0% 96%;
+        --muted-foreground: 0 0% 45%;
+
+        /* Accent - Nike Orange */
+        --accent: 25 95% 53%;
+        --accent-foreground: 0 0% 100%;
+
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+
+        --border: 0 0% 90%;
+        --input: 0 0% 90%;
+        --ring: 25 95% 53%;
+
+        --radius: 0.5rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased text-base md:text-lg;
+        /* Clean white background - no gradients */
+        background-color: hsl(var(--background));
+        font-family: 'Inter', sans-serif;
+        /* 80% Zoom as requested */
+        zoom: 0.8;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-display tracking-tight;
+        color: hsl(0 0% 10%);
+        font-family: 'Outfit', sans-serif;
+    }
+}
+
+@layer utilities {
+    .glass-card {
+        /* Clean minimal card - no heavy effects */
+        @apply bg-transparent border border-transparent transition-all duration-200;
+    }
+
+    .glass-card:hover {
+        /* Subtle hover - just a light border */
+        @apply border-gray-200 rounded-lg;
+    }
+
+    .glass-button {
+        @apply bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-200;
+    }
+
+    .text-gradient {
+        /* Nike Orange to Black gradient for accent text */
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-gray-900;
+    }
+}
+
+/* Custom Scrollbar - Light */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
