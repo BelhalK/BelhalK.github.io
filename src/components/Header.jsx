@@ -34,11 +34,10 @@ const Header = ({ activeTab, setActiveTab }) => {
                     {/* Brand */}
                     <button
                         onClick={() => handleSelect('about')}
-                        className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full hover:bg-muted/60 transition-colors shrink-0"
+                        className="flex items-center pl-2 pr-2 py-1 rounded-full hover:bg-muted/60 transition-colors shrink-0"
                         aria-label="Go to about"
                     >
-                        <span className="grid place-items-center h-7 w-7 rounded-full bg-primary text-primary-foreground text-xs font-bold font-display">B</span>
-                        <span className="font-display text-base font-semibold tracking-tight hidden sm:block">Belhal Karimi</span>
+                        <span className="grid place-items-center h-7 w-7 rounded-lg bg-primary text-primary-foreground text-xs font-bold font-display">BK</span>
                     </button>
 
                     {/* Desktop nav — icons + labels */}
