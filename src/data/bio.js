@@ -1,12 +1,12 @@
 export const bio = {
     name: "Belhal Karimi",
-    role: "Search | GenAI",
-    company: "Nike, Consumer Insights",
+    role: "Principal Data Scientist",
+    company: "Nike, Inc.",
     location: "Portland, OR, USA",
     email: "belhal.karimi@gmail.com",
     socials: {
         twitter: "https://twitter.com/BelhalK",
-        scholar: "https://scholar.google.com/citations?user=Xh_OIWkAAAAJ&hl=fr&oi=ao",
+        scholar: "https://scholar.google.com/citations?hl=en&user=Xh_OIWkAAAAJ",
         github: "https://github.com/BelhalK",
         linkedin: "https://www.linkedin.com/in/belhal-karimi-2baa71a5",
         soundcloud: "https://soundcloud.com/lalbe",

@@ -1,5 +1,12 @@
 export const papers = [
     {
+        title: "Extending the saemix package for R to fit non Gaussian outcomes",
+        authors: "Emmanuelle Comets, Maud Delattre, Belhal Karimi",
+        venue: "arXiv preprint arXiv:2603.03154, 2026",
+        links: { pdf: "https://arxiv.org/pdf/2603.03154" },
+        thumbnail: "/assets/industry/saemix.png"
+    },
+    {
         title: "STANLEY: Stochastic Gradient Anisotropic Langevin Dynamics for Learning Energy-Based Models",
         authors: "Belhal Karimi, Jianwen Xie, Ping Li",
         venue: "arXiv preprint arXiv:2310.12667, 2023",

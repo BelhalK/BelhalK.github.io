@@ -1,111 +1,126 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { FileText, Video, Github, AlignLeft } from 'lucide-react';
 import { papers } from '../data/papers';
 import SectionHeader from './SectionHeader';
 
-const PaperCard = ({ paper, index }) => {
+/* ---------- Compact research rows ---------- */
+
+const ActionLink = ({ href, icon: Icon, label }) => (
+    <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        title={label}
+        className="grid place-items-center h-8 w-8 rounded-lg bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+    >
+        <Icon size={15} />
+    </a>
+);
+
+const PaperRow = ({ paper, index }) => {
     const [isAbstractOpen, setIsAbstractOpen] = useState(false);
+    const reduce = useReducedMotion();
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className="group relative"
+            transition={{ delay: Math.min(index * 0.04, 0.3), duration: 0.4 }}
+            className="group"
         >
-            <div className="glass-card rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-300 h-full flex flex-col md:flex-row">
-                {/* Thumbnail - hidden on mobile */}
-                <div className="hidden md:flex md:w-64 shrink-0 bg-gray-50 p-6 items-center justify-center relative overflow-hidden border-r border-gray-200">
-                    <img
-                        src={paper.thumbnail}
-                        alt={paper.title}
-                        className="w-full h-auto object-contain transform group-hover:scale-105 transition-transform duration-500 z-10"
-                    />
-                </div>
+            <div
+                className={`rounded-xl border bg-card/60 backdrop-blur-sm transition-colors ${isAbstractOpen ? 'border-primary/40' : 'border-border/70 hover:border-primary/30'}`}
+            >
+                <div className="flex items-center gap-3 p-3 md:p-4">
+                    {/* Index */}
+                    <span className="hidden sm:grid place-items-center h-7 w-7 shrink-0 rounded-full bg-muted/60 text-xs font-mono text-muted-foreground">
+                        {String(index + 1).padStart(2, '0')}
+                    </span>
 
-                <div className="p-4 md:p-8 flex flex-col flex-1">
-                    <div className="flex-1 space-y-3 md:space-y-4">
-                        {/* Title and venue - stacked on mobile, side by side on desktop */}
-                        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 md:gap-4">
-                            <h3 className="text-xl md:text-3xl font-display font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
-                                {paper.title}
-                            </h3>
-                            <span className="self-start shrink-0 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-sm md:text-base font-bold font-mono tracking-wider bg-primary/10 text-primary border border-primary/20">
-                                {paper.venue}
-                            </span>
-                        </div>
-
-                        <p className="text-sm md:text-lg font-mono text-muted-foreground/80 leading-relaxed">
+                    {/* Title + authors */}
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-sm md:text-base font-display font-semibold text-foreground leading-snug group-hover:text-primary transition-colors truncate">
+                            {paper.title}
+                        </h3>
+                        <p className="text-xs font-mono text-muted-foreground truncate mt-0.5">
                             {paper.authors}
                         </p>
                     </div>
 
-                    <div className="flex gap-3 md:gap-4 mt-4 md:mt-8 pt-4 md:pt-6 border-t border-gray-200 flex-wrap">
+                    {/* Venue badge */}
+                    <span className="hidden md:inline-block shrink-0 px-2.5 py-1 rounded-full text-xs font-mono font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
+                        {paper.venue}
+                    </span>
+
+                    {/* Compact actions */}
+                    <div className="flex items-center gap-1.5 shrink-0">
                         {paper.abstract && (
                             <button
                                 onClick={() => setIsAbstractOpen(!isAbstractOpen)}
-                                className={`flex items-center gap-1.5 md:gap-2 text-sm md:text-base font-medium transition-colors ${isAbstractOpen ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-white"
-                                    }`}
+                                aria-expanded={isAbstractOpen}
+                                aria-label={`${isAbstractOpen ? 'Hide' : 'Show'} abstract for ${paper.title}`}
+                                title="Abstract"
+                                className={`grid place-items-center h-8 w-8 rounded-lg transition-colors ${isAbstractOpen ? 'bg-primary/10 text-primary' : 'bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary'}`}
                             >
-                                <AlignLeft size={16} className="md:w-[18px] md:h-[18px]" /> Abstract
+                                <AlignLeft size={15} />
                             </button>
                         )}
-                        {paper.links.pdf && (
-                            <a href={paper.links.pdf} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 md:gap-2 text-sm md:text-base font-medium text-muted-foreground hover:text-primary transition-colors">
-                                <FileText size={16} className="md:w-[18px] md:h-[18px]" /> PDF
-                            </a>
-                        )}
-                        {paper.links.code && (
-                            <a href={paper.links.code} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 md:gap-2 text-sm md:text-base font-medium text-muted-foreground hover:text-primary transition-colors">
-                                <Github size={16} className="md:w-[18px] md:h-[18px]" /> Code
-                            </a>
-                        )}
-                        {paper.links.video && (
-                            <a href={paper.links.video} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 md:gap-2 text-sm md:text-base font-medium text-muted-foreground hover:text-primary transition-colors">
-                                <Video size={16} className="md:w-[18px] md:h-[18px]" /> Video
-                            </a>
-                        )}
+                        {paper.links.pdf && <ActionLink href={paper.links.pdf} icon={FileText} label="PDF" />}
+                        {paper.links.code && <ActionLink href={paper.links.code} icon={Github} label="Code" />}
+                        {paper.links.video && <ActionLink href={paper.links.video} icon={Video} label="Video" />}
                     </div>
-
-                    <AnimatePresence>
-                        {isAbstractOpen && paper.abstract && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: 'auto' }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <p className="text-sm md:text-base text-muted-foreground leading-relaxed border-l-2 border-primary/30 pl-3 md:pl-4 py-3 md:py-4 mt-3 md:mt-4 bg-gray-50 rounded-r-lg">
-                                    {paper.abstract}
-                                </p>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
+
+                {/* Mobile venue badge (inline below title) */}
+                <div className="md:hidden px-3 pb-2 -mt-1">
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
+                        {paper.venue}
+                    </span>
+                </div>
+
+                {/* Expandable abstract */}
+                <AnimatePresence>
+                    {isAbstractOpen && paper.abstract && (
+                        <motion.div
+                            initial={reduce ? { height: 'auto' } : { opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={reduce ? { height: 0 } : { opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                        >
+                            <p className="text-sm text-foreground/70 leading-relaxed border-l-2 border-primary/40 ml-3 mr-3 mb-3 bg-muted/40 rounded-r-lg p-4">
+                                {paper.abstract}
+                            </p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </motion.div>
     );
 };
 
+/* ---------- Conference header (unchanged) ---------- */
+
 const ConferenceHeader = () => {
+    const reduce = useReducedMotion();
     const venues = [
-        "NeurIPS", "ICLR", "COLT", "UAI", "ACML",
+        "arXiv", "NeurIPS", "ICLR", "COLT", "UAI", "ACML",
         "SIGKDD", "ICME", "IEEE BigData", "ALT",
         "CSDA", "AABI", "BAYSM", "ISIT"
     ];
 
     return (
         <div className="mb-12 md:mb-16">
-            <p className="text-base md:text-lg font-mono text-primary tracking-widest uppercase mb-4 md:mb-6 text-center opacity-70">Published In</p>
-            <div className="flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-x-4 md:gap-x-6 gap-y-3 max-w-5xl mx-auto overflow-x-auto pb-2 px-2">
+            <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-5 text-center opacity-80">Published In</p>
+            <div className="flex flex-wrap justify-center gap-x-5 gap-y-3 max-w-4xl mx-auto">
                 {venues.map((venue, index) => (
                     <motion.span
                         key={venue}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.92 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="text-xl md:text-4xl font-display font-bold text-muted-foreground/30 hover:text-primary hover:scale-110 transition-all duration-200 cursor-default select-none whitespace-nowrap"
+                        transition={{ delay: Math.min(index * 0.03, 0.3) }}
+                        className="text-lg md:text-2xl font-display font-semibold text-muted-foreground/40 hover:text-primary hover:scale-105 transition-all duration-200 cursor-default select-none"
                     >
                         {venue}
                     </motion.span>
@@ -115,19 +130,23 @@ const ConferenceHeader = () => {
     );
 };
 
+/* ---------- Section ---------- */
+
 const Research = () => {
     return (
         <section>
             <SectionHeader
                 title="Research"
-                subtitle="Selected publications and research projects in Machine Learning and Artificial Intelligence."
+                eyebrow="Publications"
+                subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
+                subtitleClassName="md:max-w-none md:whitespace-nowrap"
             />
 
             <ConferenceHeader />
 
-            <div className="grid gap-10">
+            <div className="grid gap-2.5">
                 {papers.map((paper, index) => (
-                    <PaperCard key={index} paper={paper} index={index} />
+                    <PaperRow key={index} paper={paper} index={index} />
                 ))}
             </div>
         </section>

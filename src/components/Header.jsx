@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { User, FileText, Mic, Briefcase, Music, Laptop, Award, BookOpen, GraduationCap } from 'lucide-react';
 
 const navItems = [
@@ -15,40 +15,88 @@ const navItems = [
 ];
 
 const Header = ({ activeTab, setActiveTab }) => {
+    const reduce = useReducedMotion();
+
+    const handleSelect = (id) => {
+        setActiveTab(id);
+    };
+
     return (
         <motion.header
-            initial={{ y: -100, opacity: 0 }}
+            initial={reduce ? { opacity: 1 } : { y: -90, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="fixed top-6 left-0 right-0 z-50 flex justify-center px-4"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed top-0 left-0 right-0 z-50"
         >
-            <nav className="bg-white rounded-full px-2 py-2 flex items-center gap-1 md:gap-2 overflow-x-auto max-w-[95vw] no-scrollbar border-2 border-gray-900">
-                {navItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = activeTab === item.id;
-                    return (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id)}
-                            className={`relative px-4 py-2 rounded-full flex items-center gap-2 transition-all duration-200 outline-none select-none
-                                ${isActive ? 'text-white' : 'text-gray-900 [@media(hover:hover)]:hover:text-white [@media(hover:hover)]:hover:bg-primary'}
-                            `}
-                        >
-                            {isActive && (
-                                <motion.div
-                                    layoutId="activeTab"
-                                    className="absolute inset-0 bg-primary rounded-full"
-                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                />
-                            )}
-                            <span className="relative z-10 flex items-center gap-2">
-                                <Icon size={16} />
-                                <span className="text-sm font-medium hidden md:block">{item.label}</span>
-                            </span>
-                        </button>
-                    );
-                })}
-            </nav>
+            <div className="mx-auto max-w-[1240px] px-4 sm:px-8 lg:px-12 pt-4">
+                <div className="flex items-center justify-between gap-3 rounded-full border border-border/80 bg-card/70 backdrop-blur-md px-3 py-2 shadow-soft">
+                    {/* Brand */}
+                    <button
+                        onClick={() => handleSelect('about')}
+                        className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full hover:bg-muted/60 transition-colors shrink-0"
+                        aria-label="Go to about"
+                    >
+                        <span className="grid place-items-center h-7 w-7 rounded-full bg-primary text-primary-foreground text-xs font-bold font-display">B</span>
+                        <span className="font-display text-base font-semibold tracking-tight hidden sm:block">Belhal Karimi</span>
+                    </button>
+
+                    {/* Desktop nav — icons + labels */}
+                    <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = activeTab === item.id;
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleSelect(item.id)}
+                                    aria-current={isActive ? 'page' : undefined}
+                                    className={`relative px-3 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-colors outline-none
+                                        ${isActive ? 'text-primary' : 'text-foreground/70 hover:text-foreground hover:bg-muted/70'}`}
+                                >
+                                    {isActive && (
+                                        <motion.span
+                                            layoutId="activeTabPill"
+                                            className="absolute inset-0 rounded-full bg-primary/10 ring-1 ring-primary/30"
+                                            transition={reduce ? { duration: 0 } : { type: 'spring', bounce: 0.18, duration: 0.5 }}
+                                        />
+                                    )}
+                                    <span className="relative z-10 flex items-center gap-1.5">
+                                        <Icon size={15} />
+                                        {item.label}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </nav>
+
+                    {/* Mobile/tablet icon nav — directly accessible, horizontally scrollable */}
+                    <nav
+                        className="lg:hidden flex items-center gap-1 overflow-x-auto no-scrollbar -mr-1 pr-1"
+                        aria-label="Primary"
+                    >
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            const isActive = activeTab === item.id;
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => handleSelect(item.id)}
+                                    aria-current={isActive ? 'page' : undefined}
+                                    aria-label={item.label}
+                                    title={item.label}
+                                    className={`relative grid place-items-center h-9 w-9 rounded-full shrink-0 transition-colors outline-none
+                                        ${isActive ? 'text-primary' : 'text-foreground/70 hover:text-foreground hover:bg-muted/70'}`}
+                                >
+                                    {isActive && (
+                                        <span className="absolute inset-0 rounded-full bg-primary/10 ring-1 ring-primary/30" />
+                                    )}
+                                    <Icon size={17} className="relative z-10" />
+                                </button>
+                            );
+                        })}
+                    </nav>
+                </div>
+            </div>
         </motion.header>
     );
 };

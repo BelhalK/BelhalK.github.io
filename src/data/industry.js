@@ -1,7 +1,7 @@
 export const industry = [
     {
         company: "Nike",
-        role: "Search | GenAI",
+        role: "Principal Data Scientist",
         location: "Portland, OR, USA",
         description: "In charge of Matching, Ranking and GenAI initiatives for both Nike APP and Nike.com.",
         link: "https://jobs.nike.com/fr/insights-and-analytics",
@@ -38,6 +38,14 @@ export const industry = [
         description: "Scientific advisor. Damages detection using Mask R-CNN. Acquired by ACV Auctions.",
         link: "https://monk.ai/",
         logo: "/assets/industry/monk.png"
+    },
+    {
+        company: "INRIA",
+        role: "Ph.D. Candidate in Machine Learning",
+        location: "Paris, FR",
+        description: "Member of the XPOP team, a joint INRIA and Ecole Polytechnique CMAP group, focusing on statistical modelling and machine learning for life sciences.",
+        link: "https://team.inria.fr/xpop/fr/",
+        logo: "/assets/industry/inria.webp"
     },
     {
         company: "Agora",

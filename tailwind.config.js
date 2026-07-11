@@ -12,13 +12,14 @@ module.exports = {
             center: true,
             padding: "2rem",
             screens: {
-                "2xl": "1400px",
+                "2xl": "1320px",
             },
         },
         extend: {
             fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                display: ['Outfit', 'sans-serif'],
+                sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
+                display: ['"Fraunces"', 'Georgia', 'serif'],
+                mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
             },
             colors: {
                 border: "hsl(var(--border))",
@@ -60,6 +61,10 @@ module.exports = {
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
+            boxShadow: {
+                "soft": "0 1px 2px rgba(60, 50, 40, 0.04), 0 8px 24px -12px rgba(60, 50, 40, 0.12)",
+                "lift": "0 2px 4px rgba(60, 50, 40, 0.05), 0 18px 40px -18px rgba(120, 70, 40, 0.22)",
+            },
             keyframes: {
                 "accordion-down": {
                     from: { height: 0 },
@@ -81,16 +86,22 @@ module.exports = {
                 },
                 float: {
                     "0%, 100%": { transform: "translateY(0)" },
-                    "50%": { transform: "translateY(-10px)" },
-                }
+                    "50%": { transform: "translateY(-12px)" },
+                },
+                "drift": {
+                    "0%": { transform: "translate(0,0) scale(1)" },
+                    "50%": { transform: "translate(2%, -3%) scale(1.04)" },
+                    "100%": { transform: "translate(0,0) scale(1)" },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
-                "gradient-x": "gradient-x 15s ease infinite",
-                "float": "float 6s ease-in-out infinite",
+                "gradient-x": "gradient-x 18s ease infinite",
+                "float": "float 7s ease-in-out infinite",
+                "drift": "drift 22s ease-in-out infinite",
             },
         },
     },
     plugins: [require("tailwindcss-animate")],
-}
+};
