@@ -28,7 +28,7 @@ const advisoryData = [
         location: "Vancouver, BC, CA",
         description: "Scientific advisor. Developing AI-enabled at-home eye tests connected to remote optometrists.",
         link: "https://www.eyecarex.com/",
-        logo: "/assets/industry/eyecarex.jpeg",
+        logo: "/assets/industry/eyecarex.png",
         status: "Active"
     }
 ];
