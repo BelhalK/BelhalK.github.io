@@ -111,8 +111,8 @@ const ConferenceHeader = () => {
     ];
 
     return (
-        <div className="mb-12 md:mb-16">
-            <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-5 text-center opacity-80">Published In</p>
+        <div className="mb-6 md:mb-8">
+            <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3 text-center opacity-80">Published In</p>
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-3 max-w-4xl mx-auto">
                 {venues.map((venue, index) => (
                     <motion.span
@@ -166,39 +166,41 @@ const Research = () => {
     const filteredPapers = getFilteredPapers();
 
     return (
-        <section>
-            <SectionHeader
-                title="Research"
-                eyebrow="Publications"
-                subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
-                subtitleClassName="md:max-w-none md:whitespace-nowrap"
-            />
+        <div className="max-w-4xl mx-auto">
+            <section>
+                <SectionHeader
+                    title="Research"
+                    eyebrow="Publications"
+                    subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
+                    subtitleClassName="md:max-w-none md:whitespace-nowrap"
+                />
 
-            <ConferenceHeader />
+                <ConferenceHeader />
 
-            {/* Filter buttons */}
-            <div className="flex flex-wrap gap-2 pb-6 mb-6 border-b border-border/40 justify-center">
-                {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
-                    <button
-                        key={filter}
-                        onClick={() => setActiveFilter(filter)}
-                        className={`px-4 py-2 rounded-full text-xs font-mono tracking-tight font-medium transition-all ${
-                            activeFilter === filter 
-                                ? 'bg-primary text-primary-foreground font-semibold shadow-sm' 
-                                : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/80'
-                        }`}
-                    >
-                        {filter}
-                    </button>
-                ))}
-            </div>
+                {/* Filter buttons */}
+                <div className="flex flex-wrap gap-2 pb-6 mb-6 border-b border-border/40 justify-center">
+                    {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
+                        <button
+                            key={filter}
+                            onClick={() => setActiveFilter(filter)}
+                            className={`px-4 py-2 rounded-full text-xs font-mono tracking-tight font-medium transition-all ${
+                                activeFilter === filter 
+                                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm' 
+                                    : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/80'
+                            }`}
+                        >
+                            {filter}
+                        </button>
+                    ))}
+                </div>
 
-            <div className="grid gap-2.5">
-                {filteredPapers.map((paper, index) => (
-                    <PaperRow key={index} paper={paper} index={index} />
-                ))}
-            </div>
-        </section>
+                <div className="grid gap-2.5">
+                    {filteredPapers.map((paper, index) => (
+                        <PaperRow key={index} paper={paper} index={index} />
+                    ))}
+                </div>
+            </section>
+        </div>
     );
 };
 

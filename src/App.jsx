@@ -91,7 +91,7 @@ const App = () => {
             <Background />
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <main className="w-full max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-12 pt-28 md:pt-36 pb-24 min-h-screen flex flex-col">
+            <main className={`w-full max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-12 pb-24 min-h-screen flex flex-col ${activeTab === 'about' ? 'pt-28 md:pt-36' : 'pt-20 md:pt-24'}`}>
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
