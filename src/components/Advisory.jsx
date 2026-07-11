@@ -19,7 +19,7 @@ const advisoryData = [
         location: "Montreal, CA / Paris, FR",
         description: "Scientific advisor. Researched information retrieval in video streams and automatic trailer generation using Deep Learning. Acquired by Master The Monster.",
         link: "https://www.apollo.io/companies/brainattic/5a9e91cea6da98d94d907f4d?chart=count",
-        logo: "/assets/industry/grok.png",
+        logo: "/assets/industry/brainattic.png",
         status: "Acquired"
     },
     {
