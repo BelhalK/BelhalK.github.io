@@ -57,13 +57,13 @@ const AdvisoryCard = ({ card, index }) => {
 
                 {/* Logo & Company Title & Role */}
                 <div className="flex items-center gap-4 mb-5">
-                    <div className={`grid place-items-center h-16 w-16 rounded-xl bg-white border border-border shrink-0 shadow-sm overflow-hidden ${card.company === 'Brainattic' ? 'p-1' : 'p-2.5'}`}>
+                    <div className={`grid place-items-center h-16 w-16 rounded-xl bg-white border border-border shrink-0 shadow-sm overflow-hidden ${card.company === 'Brainattic' ? 'p-0' : 'p-2.5'}`}>
                         {card.logo ? (
                             <img
                                 src={card.logo}
                                 alt={`${card.company} logo`}
                                 loading="lazy"
-                                className="w-full h-full object-contain"
+                                className={`w-full h-full ${card.company === 'Brainattic' ? 'object-cover scale-[1.05]' : 'object-contain'}`}
                             />
                         ) : (
                             <Building2 size={28} className="text-muted-foreground" />
