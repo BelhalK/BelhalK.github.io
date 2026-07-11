@@ -11,7 +11,8 @@ const MusicSection = () => {
             <SectionHeader
                 title="Music"
                 eyebrow="Sonic Explorations"
-                subtitle="Curated playlists and original productions — a creative counterpoint to the research."
+                subtitle="Curated playlists and original productions, a creative counterpoint to the research."
+                subtitleClassName="md:max-w-none"
             />
 
             <div className="grid md:grid-cols-2 gap-10 lg:gap-14">

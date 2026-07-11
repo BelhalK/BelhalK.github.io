@@ -1,8 +1,74 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { talks } from '../data/talks';
-import { Video, FileText, MapPin, Calendar, MonitorPlay } from 'lucide-react';
+import { Video, FileText, MonitorPlay } from 'lucide-react';
 import SectionHeader from './SectionHeader';
+
+const ActionLink = ({ href, icon: Icon, label }) => (
+    <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={label}
+        title={label}
+        className="grid place-items-center h-8 w-8 rounded-lg bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+    >
+        <Icon size={15} />
+    </a>
+);
+
+const TalkRow = ({ talk, index }) => {
+    const reduce = useReducedMotion();
+
+    return (
+        <motion.div
+            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: Math.min(index * 0.04, 0.3), duration: 0.4 }}
+            className="group w-full min-w-0"
+        >
+            <div
+                className="rounded-xl border bg-card/60 backdrop-blur-sm border-border/70 hover:border-primary/30 transition-colors w-full min-w-0 overflow-hidden"
+            >
+                <div className="flex items-center gap-3 p-3 md:p-4 min-w-0 w-full">
+                    {/* Index */}
+                    <span className="hidden sm:grid place-items-center h-7 w-7 shrink-0 rounded-full bg-muted/60 text-xs font-mono text-muted-foreground">
+                        {String(index + 1).padStart(2, '0')}
+                    </span>
+
+                    {/* Title + details */}
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-sm md:text-base font-display font-semibold text-foreground leading-snug group-hover:text-primary transition-colors truncate">
+                            {talk.title}
+                        </h3>
+                        <p className="text-xs font-mono text-muted-foreground truncate mt-0.5">
+                            {talk.location} · {talk.date}
+                        </p>
+                    </div>
+
+                    {/* Venue badge */}
+                    <span className="hidden md:inline-block shrink-0 px-2.5 py-1 rounded-full text-xs font-mono font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
+                        {talk.venue}
+                    </span>
+
+                    {/* Compact actions */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        {talk.links.slides && <ActionLink href={talk.links.slides} icon={FileText} label="Slides" />}
+                        {talk.links.poster && <ActionLink href={talk.links.poster} icon={MonitorPlay} label="Poster" />}
+                        {talk.links.video && <ActionLink href={talk.links.video} icon={Video} label="Video" />}
+                    </div>
+                </div>
+
+                {/* Mobile venue badge */}
+                <div className="md:hidden px-3 pb-2 -mt-1 w-full min-w-0">
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
+                        {talk.venue}
+                    </span>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
 
 const CitiesHeader = () => {
     const reduce = useReducedMotion();
@@ -11,8 +77,8 @@ const CitiesHeader = () => {
     ];
 
     return (
-        <div className="mb-12">
-            <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-5 text-center opacity-80">Talks In</p>
+        <div className="mb-6 md:mb-8">
+            <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3 text-center opacity-80">Talks In</p>
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-3 max-w-4xl mx-auto">
                 {cities.map((city, index) => (
                     <motion.span
@@ -31,53 +97,20 @@ const CitiesHeader = () => {
 };
 
 const Talks = () => {
-    const reduce = useReducedMotion();
     return (
         <section>
             <SectionHeader
                 title="Speaking"
                 eyebrow="Talks"
                 subtitle="Conference presentations, research seminars, and invited talks around the world."
+                subtitleClassName="md:max-w-none"
             />
 
             <CitiesHeader />
 
-            <div className="grid gap-4">
-                {talks.map((item, index) => (
-                    <motion.div
-                        key={index}
-                        initial={reduce ? { opacity: 1 } : { opacity: 0, x: -12 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.45 }}
-                        className="glass-card p-5 md:p-6 md:flex md:items-center md:gap-6 group"
-                    >
-                        <div className="flex-1 space-y-2">
-                            <h3 className="text-lg md:text-xl font-display font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">{item.title}</h3>
-                            <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm font-mono text-muted-foreground">
-                                <span className="text-primary font-semibold">{item.venue}</span>
-                                <span className="flex items-center gap-1.5"><MapPin size={13} /> {item.location}</span>
-                                <span className="flex items-center gap-1.5"><Calendar size={13} /> {item.date}</span>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2 mt-4 md:mt-0 pt-4 md:pt-0 md:pl-4 border-t md:border-t-0 md:border-l border-border/70 shrink-0">
-                            {item.links.slides && (
-                                <a href={item.links.slides} target="_blank" rel="noopener noreferrer" className="grid place-items-center h-10 w-10 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary text-muted-foreground transition-colors" title="Slides" aria-label={`Slides for ${item.title}`}>
-                                    <FileText size={18} />
-                                </a>
-                            )}
-                            {item.links.poster && (
-                                <a href={item.links.poster} target="_blank" rel="noopener noreferrer" className="grid place-items-center h-10 w-10 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary text-muted-foreground transition-colors" title="Poster" aria-label={`Poster for ${item.title}`}>
-                                    <MonitorPlay size={18} />
-                                </a>
-                            )}
-                            {item.links.video && (
-                                <a href={item.links.video} target="_blank" rel="noopener noreferrer" className="grid place-items-center h-10 w-10 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary text-muted-foreground transition-colors" title="Video" aria-label={`Video for ${item.title}`}>
-                                    <Video size={18} />
-                                </a>
-                            )}
-                        </div>
-                    </motion.div>
+            <div className="grid gap-2.5 w-full min-w-0">
+                {talks.map((talk, index) => (
+                    <TalkRow key={index} talk={talk} index={index} />
                 ))}
             </div>
         </section>

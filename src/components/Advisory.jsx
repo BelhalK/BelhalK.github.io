@@ -110,6 +110,7 @@ const Advisory = () => {
                 title="Advisory"
                 eyebrow="Advisory Work"
                 subtitle="Advising high-potential technology startups on applying state-of-the-art computer vision and information retrieval models."
+                subtitleClassName="md:max-w-none"
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {advisoryData.map((card, index) => (

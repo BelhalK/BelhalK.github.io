@@ -82,6 +82,7 @@ const Industry = () => {
                 title="Experience"
                 eyebrow="Industry"
                 subtitle="Professional roles and entrepreneurial ventures across search, research, and applied AI."
+                subtitleClassName="md:max-w-none"
             />
             <div className="flex flex-col gap-4">
                 {filteredRoles.map((role, index) => (

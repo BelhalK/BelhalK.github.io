@@ -28,12 +28,12 @@ const PaperRow = ({ paper, index }) => {
             initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: Math.min(index * 0.04, 0.3), duration: 0.4 }}
-            className="group"
+            className="group w-full min-w-0"
         >
             <div
-                className={`rounded-xl border bg-card/60 backdrop-blur-sm transition-colors ${isAbstractOpen ? 'border-primary/40' : 'border-border/70 hover:border-primary/30'}`}
+                className={`rounded-xl border bg-card/60 backdrop-blur-sm transition-colors ${isAbstractOpen ? 'border-primary/40' : 'border-border/70 hover:border-primary/30'} w-full min-w-0 overflow-hidden`}
             >
-                <div className="flex items-center gap-3 p-3 md:p-4">
+                <div className="flex items-center gap-3 p-3 md:p-4 min-w-0 w-full">
                     {/* Index */}
                     <span className="hidden sm:grid place-items-center h-7 w-7 shrink-0 rounded-full bg-muted/60 text-xs font-mono text-muted-foreground">
                         {String(index + 1).padStart(2, '0')}
@@ -74,7 +74,7 @@ const PaperRow = ({ paper, index }) => {
                 </div>
 
                 {/* Mobile venue badge (inline below title) */}
-                <div className="md:hidden px-3 pb-2 -mt-1">
+                <div className="md:hidden px-3 pb-2 -mt-1 w-full min-w-0">
                     <span className="inline-block px-2 py-0.5 rounded-full text-[11px] font-mono font-semibold tracking-wide bg-primary/10 text-primary border border-primary/20">
                         {paper.venue}
                     </span>
@@ -87,7 +87,7 @@ const PaperRow = ({ paper, index }) => {
                             initial={reduce ? { height: 'auto' } : { opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={reduce ? { height: 0 } : { opacity: 0, height: 0 }}
-                            className="overflow-hidden"
+                            className="overflow-hidden w-full"
                         >
                             <p className="text-sm text-foreground/70 leading-relaxed border-l-2 border-primary/40 ml-3 mr-3 mb-3 bg-muted/40 rounded-r-lg p-4">
                                 {paper.abstract}
