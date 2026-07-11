@@ -41,13 +41,6 @@ const Header = ({ activeTab, setActiveTab }) => {
                         <span className="font-display text-base font-semibold tracking-tight hidden sm:block">Belhal Karimi</span>
                     </button>
 
-                    {/* Centered Brand Logos */}
-                    <div className="hidden md:flex items-center gap-5 px-4 py-1.5 bg-muted/40 rounded-full border border-border/40 shrink-0">
-                        <img src="/assets/img/Logo_NIKE.svg" alt="Nike" className="h-4 w-auto dark:invert opacity-70" />
-                        <img src="/assets/img/jumpman.svg" alt="Jumpman" className="h-5 w-auto dark:invert opacity-70" />
-                        <img src="/assets/img/converse.png" alt="Converse" className="h-5 w-auto dark:invert opacity-70" />
-                    </div>
-
                     {/* Desktop nav — icons + labels */}
                     <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">
                         {navItems.map((item) => {
