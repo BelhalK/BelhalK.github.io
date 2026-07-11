@@ -145,7 +145,7 @@ const Hero = ({ setActiveTab }) => {
                 initial={reduce ? { opacity: 1 } : { opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.34, duration: 0.5 }}
-                className="mt-14 md:mt-16 grid md:grid-cols-3 gap-5"
+                className="mt-14 md:mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
             >
                 {bio.about.map((item, i) => (
                     <div key={i} className="glass-card p-5">

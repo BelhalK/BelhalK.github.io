@@ -133,6 +133,38 @@ const ConferenceHeader = () => {
 /* ---------- Section ---------- */
 
 const Research = () => {
+    const [activeFilter, setActiveFilter] = useState('All');
+
+    const getFilteredPapers = () => {
+        if (activeFilter === 'All') return papers;
+        if (activeFilter === 'Optimization') {
+            return papers.filter(p => 
+                p.title.toLowerCase().includes('optimization') || 
+                p.title.toLowerCase().includes('convergence') ||
+                p.title.toLowerCase().includes('minimization') ||
+                p.title.toLowerCase().includes('gradient')
+            );
+        }
+        if (activeFilter === 'Federated Learning') {
+            return papers.filter(p => 
+                p.title.toLowerCase().includes('federated') || 
+                p.title.toLowerCase().includes('distributed') ||
+                p.title.toLowerCase().includes('decentralized')
+            );
+        }
+        if (activeFilter === 'Generative & EBMs') {
+            return papers.filter(p => 
+                p.title.toLowerCase().includes('langevin') || 
+                p.title.toLowerCase().includes('energy') ||
+                p.title.toLowerCase().includes('flow') ||
+                p.title.toLowerCase().includes('variational')
+            );
+        }
+        return papers;
+    };
+
+    const filteredPapers = getFilteredPapers();
+
     return (
         <section>
             <SectionHeader
@@ -144,8 +176,25 @@ const Research = () => {
 
             <ConferenceHeader />
 
+            {/* Filter buttons */}
+            <div className="flex flex-wrap gap-2 pb-6 mb-6 border-b border-border/40 justify-center">
+                {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
+                    <button
+                        key={filter}
+                        onClick={() => setActiveFilter(filter)}
+                        className={`px-4 py-2 rounded-full text-xs font-mono tracking-tight font-medium transition-all ${
+                            activeFilter === filter 
+                                ? 'bg-primary text-primary-foreground font-semibold shadow-sm' 
+                                : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/80'
+                        }`}
+                    >
+                        {filter}
+                    </button>
+                ))}
+            </div>
+
             <div className="grid gap-2.5">
-                {papers.map((paper, index) => (
+                {filteredPapers.map((paper, index) => (
                     <PaperRow key={index} paper={paper} index={index} />
                 ))}
             </div>

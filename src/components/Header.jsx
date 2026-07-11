@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { User, FileText, Mic, Briefcase, Music, Laptop, Award, BookOpen, GraduationCap } from 'lucide-react';
+import { User, FileText, Mic, Briefcase, Music, Laptop, Award, BookOpen, GraduationCap, Cpu } from 'lucide-react';
 
 const navItems = [
     { id: 'about', label: 'About', icon: User },
     { id: 'research', label: 'Research', icon: FileText },
     { id: 'talks', label: 'Talks', icon: Mic },
     { id: 'industry', label: 'Industry', icon: Briefcase },
+    { id: 'advisory', label: 'Advisory', icon: Cpu },
     { id: 'software', label: 'Software', icon: Laptop },
     { id: 'awards', label: 'Awards', icon: Award },
     { id: 'teaching', label: 'Teaching', icon: BookOpen },
@@ -39,6 +40,13 @@ const Header = ({ activeTab, setActiveTab }) => {
                         <span className="grid place-items-center h-7 w-7 rounded-full bg-primary text-primary-foreground text-xs font-bold font-display">B</span>
                         <span className="font-display text-base font-semibold tracking-tight hidden sm:block">Belhal Karimi</span>
                     </button>
+
+                    {/* Centered Brand Logos */}
+                    <div className="hidden md:flex items-center gap-5 px-4 py-1.5 bg-muted/40 rounded-full border border-border/40 shrink-0">
+                        <img src="/assets/img/Logo_NIKE.svg" alt="Nike" className="h-4 w-auto dark:invert opacity-70" />
+                        <img src="/assets/img/jumpman.svg" alt="Jumpman" className="h-5 w-auto dark:invert opacity-70" />
+                        <img src="/assets/img/converse.png" alt="Converse" className="h-5 w-auto dark:invert opacity-70" />
+                    </div>
 
                     {/* Desktop nav — icons + labels */}
                     <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">

@@ -66,15 +66,19 @@ const IndustryCard = ({ role, index }) => {
 };
 
 const Industry = () => {
+    const filteredRoles = industry.filter(role => 
+        !role.role.toLowerCase().includes('advisor')
+    );
+
     return (
         <section>
             <SectionHeader
                 title="Industry"
                 eyebrow="Experience"
-                subtitle="Professional roles, advisory work, and entrepreneurial ventures across search, research, and applied AI."
+                subtitle="Professional roles and entrepreneurial ventures across search, research, and applied AI."
             />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {industry.map((role, index) => (
+                {filteredRoles.map((role, index) => (
                     <IndustryCard key={index} role={role} index={index} />
                 ))}
             </div>

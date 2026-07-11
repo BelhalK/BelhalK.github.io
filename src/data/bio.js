@@ -14,16 +14,20 @@ export const bio = {
     },
     about: [
         {
-            title: "Current Role",
-            content: "I am currently working at Nike in the Search team, in charge of Matching, Ranking and GenAI initiatives for both Nike APP and Nike.com. Before that, I was a Research Scientist in the Cognitive Computing Lab at Baidu Research working with Dr. Ping Li."
+            title: "Nike Leadership",
+            content: "Led Generative AI integration in footwear & product design; previously Matching & Search ranking."
         },
         {
-            title: "Education",
-            content: "I obtained my Ph.D. in Machine Learning at Ecole Polytechnique (CMAP) and INRIA, under the supervision of Marc Lavielle and Eric Moulines. From October 2016 to October 2019, I was a member of the XPOP team, a joint team between INRIA and CMAP focussing on statistical modelling for life sciences."
+            title: "Research Publications",
+            content: "15+ papers in elite journals & conferences (ICLR, NeurIPS, UAI, ACML, COLT) in ML/Optimization."
         },
         {
-            title: "Past Experience",
-            content: "I had the opportunity to intern in the Samsung AI - HSE Lab (Moscow, RU, 2019), where I was working with Dr. Dmitry Vetrov on optimization methods for Bayesian Neural Networks and at MIT (Boston, USA, 2016), under the supervision of Dr. Vikash Mansinghka."
+            title: "Acquisitions",
+            content: "Advisory exits with Monk AI (acquired by ACV Auctions) and Brainattic (acquired by Master The Monster)."
+        },
+        {
+            title: "PhD & Academic Exits",
+            content: "PhD from Ecole Polytechnique & INRIA. Visiting scholar at MIT. Interned at Samsung AI."
         }
     ],
 

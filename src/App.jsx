@@ -6,6 +6,7 @@ import Research from './components/Research';
 import Software from './components/Software';
 import Talks from './components/Talks';
 import Industry from './components/Industry';
+import Advisory from './components/Advisory';
 import Awards from './components/Awards';
 import Teaching from './components/Teaching';
 import Education from './components/Education';
@@ -72,6 +73,7 @@ const App = () => {
             case 'software': return <Software />;
             case 'talks': return <Talks />;
             case 'industry': return <Industry />;
+            case 'advisory': return <Advisory />;
             case 'awards': return <Awards />;
             case 'teaching': return <Teaching />;
             case 'education': return <Education />;
