@@ -166,41 +166,39 @@ const Research = () => {
     const filteredPapers = getFilteredPapers();
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <section>
-                <SectionHeader
-                    title="Research"
-                    eyebrow="Publications"
-                    subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
-                    subtitleClassName="md:max-w-none md:whitespace-nowrap"
-                />
+        <section>
+            <SectionHeader
+                title="Research"
+                eyebrow="Publications"
+                subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
+                subtitleClassName="md:max-w-none md:whitespace-nowrap"
+            />
 
-                <ConferenceHeader />
+            <ConferenceHeader />
 
-                {/* Filter buttons */}
-                <div className="flex flex-wrap gap-2 pb-6 mb-6 border-b border-border/40 justify-center">
-                    {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
-                        <button
-                            key={filter}
-                            onClick={() => setActiveFilter(filter)}
-                            className={`px-4 py-2 rounded-full text-xs font-mono tracking-tight font-medium transition-all ${
-                                activeFilter === filter 
-                                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm' 
-                                    : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/80'
-                            }`}
-                        >
-                            {filter}
-                        </button>
-                    ))}
-                </div>
+            {/* Filter buttons */}
+            <div className="flex flex-wrap gap-2 pb-6 mb-6 border-b border-border/40 justify-center">
+                {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
+                    <button
+                        key={filter}
+                        onClick={() => setActiveFilter(filter)}
+                        className={`px-4 py-2 rounded-full text-xs font-mono tracking-tight font-medium transition-all ${
+                            activeFilter === filter 
+                                ? 'bg-primary text-primary-foreground font-semibold shadow-sm' 
+                                : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground border border-border/80'
+                        }`}
+                    >
+                        {filter}
+                    </button>
+                ))}
+            </div>
 
-                <div className="grid gap-2.5">
-                    {filteredPapers.map((paper, index) => (
-                        <PaperRow key={index} paper={paper} index={index} />
-                    ))}
-                </div>
-            </section>
-        </div>
+            <div className="grid gap-2.5">
+                {filteredPapers.map((paper, index) => (
+                    <PaperRow key={index} paper={paper} index={index} />
+                ))}
+            </div>
+        </section>
     );
 };
 
