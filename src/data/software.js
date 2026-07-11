@@ -6,7 +6,8 @@ export const software = [
         links: {
             git: "https://github.com/saemixr",
             web: "https://saemixr.github.io/",
-            bookdown: "https://saemixdevelopment.github.io/saemix_bookdown/index.html"
+            bookdown: "https://saemixdevelopment.github.io/saemix_bookdown/index.html",
+            latest: "https://arxiv.org/pdf/2603.03154"
         }
     }
 ];

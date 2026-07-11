@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { software } from '../data/software';
-import { Github, Globe, Book } from 'lucide-react';
+import { Github, Globe, Book, FileText } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 
 const Software = () => {
@@ -40,6 +40,11 @@ const Software = () => {
                                 {item.links.bookdown && (
                                     <a href={item.links.bookdown} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                                         <Book size={17} /> Documentation
+                                    </a>
+                                )}
+                                {item.links.latest && (
+                                    <a href={item.links.latest} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                                        <FileText size={17} /> Latest
                                     </a>
                                 )}
                             </div>
