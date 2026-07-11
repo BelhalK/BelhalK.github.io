@@ -1,19 +1,24 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
-const SectionHeader = ({ title, subtitle, align = 'left' }) => {
+const SectionHeader = ({ title, subtitle, eyebrow, align = 'left', subtitleClassName = '' }) => {
+    const reduce = useReducedMotion();
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`space-y-4 mb-12 pt-8 md:pt-0 ${align === 'center' ? 'text-center' : 'text-left'}`}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className={`mb-10 md:mb-14 ${align === 'center' ? 'text-center' : 'text-left'}`}
         >
-            <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight text-foreground relative inline-block">
+            {eyebrow && (
+                <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3">{eyebrow}</p>
+            )}
+            <h2 className="font-display font-semibold tracking-tight text-foreground text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.05] relative inline-block">
                 {title}
-                <div className="absolute -bottom-2 left-0 w-1/3 h-1 bg-gradient-to-r from-primary to-transparent rounded-full" />
+                <span className="absolute -bottom-1 left-0 h-[3px] w-16 rounded-full bg-gradient-to-r from-primary to-transparent" />
             </h2>
             {subtitle && (
-                <p className="text-lg text-muted-foreground md:whitespace-nowrap">
+                <p className={`mt-4 text-base md:text-lg text-foreground/65 max-w-2xl leading-relaxed ${subtitleClassName}`}>
                     {subtitle}
                 </p>
             )}

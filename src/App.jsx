@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Research from './components/Research';
@@ -12,17 +12,57 @@ import Education from './components/Education';
 import MusicSection from './components/MusicSection';
 import { bio } from './data/bio';
 
-const App = () => {
-    const [activeTab, setIsActiveTab] = useState('about');
-    const [isLoaded, setIsLoaded] = useState(false);
+const Background = () => {
+    const reduce = useReducedMotion();
+    return (
+        <div aria-hidden="true" className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+            {/* warm paper base */}
+            <div className="absolute inset-0 bg-background" />
+            {/* soft radial wash */}
+            <div
+                className="absolute inset-0 opacity-80"
+                style={{
+                    background:
+                        'radial-gradient(120% 80% at 80% -10%, hsl(28 70% 92% / 0.9) 0%, transparent 55%), radial-gradient(90% 60% at -10% 30%, hsl(200 40% 90% / 0.5) 0%, transparent 50%)',
+                }}
+            />
+            {/* floating orbs */}
+            <div
+                className={`absolute -top-24 right-[8%] h-[26rem] w-[26rem] rounded-full blur-3xl ${reduce ? '' : 'animate-drift'}`}
+                style={{ background: 'radial-gradient(circle at 30% 30%, hsl(18 75% 62% / 0.32), transparent 65%)' }}
+            />
+            <div
+                className={`absolute top-[40%] -left-24 h-[22rem] w-[22rem] rounded-full blur-3xl ${reduce ? '' : 'animate-float'}`}
+                style={{ background: 'radial-gradient(circle at 60% 40%, hsl(28 80% 70% / 0.28), transparent 65%)' }}
+            />
+            <div
+                className={`absolute bottom-[-8%] right-[20%] h-[20rem] w-[20rem] rounded-full blur-3xl ${reduce ? '' : 'animate-drift'}`}
+                style={{ background: 'radial-gradient(circle at 50% 50%, hsl(200 45% 70% / 0.22), transparent 65%)' }}
+            />
+            {/* fine grid */}
+            <div
+                className="absolute inset-0 opacity-[0.04]"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(to right, hsl(220 18% 14%) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 18% 14%) 1px, transparent 1px)',
+                    backgroundSize: '64px 64px',
+                    maskImage: 'radial-gradient(120% 90% at 50% 0%, black 30%, transparent 75%)',
+                    WebkitMaskImage: 'radial-gradient(120% 90% at 50% 0%, black 30%, transparent 75%)',
+                }}
+            />
+            {/* paper grain */}
+            <div className="absolute inset-0 grain opacity-[0.035] mix-blend-multiply" />
+        </div>
+    );
+};
 
-    useEffect(() => {
-        setIsLoaded(true);
-    }, []);
+const App = () => {
+    const [activeTab, setActiveTabState] = useState('about');
+    const reduce = useReducedMotion();
 
     const setActiveTab = (tab) => {
-        window.scrollTo({ top: 0, behavior: 'instant' });
-        setIsActiveTab(tab);
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+        setActiveTabState(tab);
     };
 
     const renderContent = () => {
@@ -40,19 +80,24 @@ const App = () => {
         }
     };
 
+    const pageVariants = reduce
+        ? { initial: { opacity: 1 }, animate: { opacity: 1 }, exit: { opacity: 1 } }
+        : { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 } };
+
     return (
         <div className="min-h-screen text-foreground font-sans selection:bg-primary selection:text-white overflow-x-hidden">
+            <Background />
             <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            {/* Seamless Layout: Wider container, fluid margins */}
-            <main className="w-full max-w-[1600px] mx-auto px-6 md:px-12 pt-20 md:pt-32 pb-24 min-h-screen flex flex-col">
-                <AnimatePresence mode="popLayout">
+            <main className="w-full max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-12 pt-28 md:pt-36 pb-24 min-h-screen flex flex-col">
+                <AnimatePresence mode="wait">
                     <motion.div
                         key={activeTab}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
+                        variants={pageVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
                         className="flex-grow"
                     >
                         {renderContent()}
@@ -60,9 +105,12 @@ const App = () => {
                 </AnimatePresence>
             </main>
 
-            <footer className="py-8 text-center mt-auto">
-                <div className="w-full max-w-[1600px] mx-auto px-6 text-sm text-muted-foreground">
-                    <p>© {new Date().getFullYear()} {bio.name}. All rights reserved.</p>
+            <footer className="relative pb-10 pt-6">
+                <div className="w-full max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-12">
+                    <div className="border-t border-border/70 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
+                        <p>© {new Date().getFullYear()} {bio.name}</p>
+                        <p className="font-mono text-xs tracking-wide uppercase">{bio.role} · {bio.company}</p>
+                    </div>
                 </div>
             </footer>
         </div>

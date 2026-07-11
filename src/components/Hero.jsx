@@ -1,119 +1,195 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { bio } from '../data/bio';
-import { ArrowRight, Github, Linkedin, Mail, Twitter, Music, Sparkles, FileText } from 'lucide-react';
+import { ArrowRight, Github, Linkedin, Mail, Twitter, Music, FileText } from 'lucide-react';
 
-const SocialLink = ({ href, icon: Icon, delay }) => (
-    <motion.a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay, duration: 0.5 }}
-        className="p-3 glass-button rounded-full text-muted-foreground hover:text-primary hover:scale-110"
+const SocialLink = ({ href, icon: Icon, label, delay }) => {
+    const reduce = useReducedMotion();
+    return (
+        <motion.a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="grid place-items-center h-10 w-10 glass-button text-foreground/70 hover:text-primary"
+        >
+            <Icon size={17} />
+        </motion.a>
+    );
+};
+
+const ScholarIcon = ({ size = 17 }) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
     >
-        <Icon size={20} />
-    </motion.a>
+        <path d="M12 3 3 8l9 5 9-5-9-5Z" />
+        <path d="M6.5 10.2V15c0 2.2 2.5 4 5.5 4s5.5-1.8 5.5-4v-4.8" />
+        <path d="M21 8v7" />
+        <path d="M21 15.5v.5" />
+    </svg>
 );
 
-const Hero = ({ setActiveTab }) => {
+const ScholarSocialLink = ({ href, label, delay }) => {
+    const reduce = useReducedMotion();
     return (
-        <section className="min-h-[85vh] flex flex-col justify-center relative overflow-hidden pt-20">
-            {/* Clean background - no heavy effects */}
+        <motion.a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="grid place-items-center h-10 w-10 glass-button text-foreground/70 hover:text-primary"
+        >
+            <ScholarIcon />
+        </motion.a>
+    );
+};
 
-            <div className="max-w-6xl mx-auto w-full flex flex-col md:flex-row items-center gap-12 text-center md:text-left">
-                {/* Text Content */}
-                <div className="flex-1 space-y-10">
-                    <motion.div>
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-6xl md:text-8xl font-display font-bold tracking-tight leading-tight"
-                        >
-                            Hello, I'm <br />
-                            <span className="text-gradient hover:opacity-80 transition-opacity duration-300">{bio.name}</span>
-                        </motion.h1>
+const Hero = ({ setActiveTab }) => {
+    const reduce = useReducedMotion();
+    const fade = () => reduce ? { opacity: 1 } : { opacity: 0, y: 14 };
 
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="mt-6 text-xl md:text-2xl text-muted-foreground font-light leading-relaxed"
-                        >
-                            {bio.role} at <span className="text-foreground font-medium">{bio.company}</span>.
-                            <br />
-                            <span className="text-primary font-medium">Applied AI & Machine Learning</span>, from research to production.
-                        </motion.p>
+    return (
+        <section className="relative">
+            {/* Compact intro — no portrait, no abstract motif */}
+            <div className="grid gap-8 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+                <div className="max-w-3xl space-y-6">
+                    <motion.div
+                        initial={fade()} animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 backdrop-blur-md px-3 py-1 text-xs font-mono uppercase tracking-widest text-muted-foreground"
+                    >
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                        {bio.location}
                     </motion.div>
 
+                    <motion.h1
+                        initial={fade()} animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                        className="font-display font-semibold leading-tight tracking-tight text-[clamp(2rem,5vw,3.25rem)]"
+                    >
+                        Belhal Karimi
+                    </motion.h1>
+
+                    <motion.p
+                        initial={fade()} animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.18, duration: 0.5 }}
+                        className="text-base md:text-lg text-foreground/70 leading-relaxed max-w-xl"
+                    >
+                        <span className="font-medium text-foreground">{bio.role}</span> at {bio.company}{' '}
+                        Building search, ranking, and GenAI systems. Moving applied machine learning from research to production.
+                    </motion.p>
+
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex flex-col md:flex-row items-center gap-6 justify-center md:justify-start"
+                        initial={fade()} animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.26, duration: 0.5 }}
+                        className="flex flex-wrap items-center gap-4"
                     >
                         <button
                             onClick={() => setActiveTab('research')}
-                            className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all hover:scale-105 flex items-center gap-2"
+                            className="group inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium shadow-soft hover:bg-[hsl(14_64%_43%)] transition-all hover:gap-2.5"
                         >
-                            View Research <ArrowRight size={18} />
+                            View Research
+                            <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
                         </button>
 
-                        <div className="flex items-center gap-3">
-                            <SocialLink href={bio.socials.github} icon={Github} delay={0.4} />
-                            <SocialLink href={bio.socials.linkedin} icon={Linkedin} delay={0.5} />
-                            <SocialLink href={bio.socials.twitter} icon={Twitter} delay={0.6} />
-                            <SocialLink href={bio.socials.soundcloud} icon={Music} delay={0.7} />
-                            <SocialLink href={`mailto:${bio.email}`} icon={Mail} delay={0.8} />
+                        <div className="flex items-center gap-2">
+                            <SocialLink href={bio.socials.github} icon={Github} label="GitHub" delay={0.32} />
+                            <ScholarSocialLink href={bio.socials.scholar} label="Google Scholar" delay={0.36} />
+                            <SocialLink href={bio.socials.linkedin} icon={Linkedin} label="LinkedIn" delay={0.4} />
+                            <SocialLink href={bio.socials.twitter} icon={Twitter} label="Twitter" delay={0.44} />
+                            <SocialLink href={bio.socials.soundcloud} icon={Music} label="SoundCloud" delay={0.48} />
+                            <SocialLink href={`mailto:${bio.email}`} icon={Mail} label="Email" delay={0.52} />
                         </div>
                     </motion.div>
                 </div>
 
-                {/* Profile Picture */}
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9, rotate: 5 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="relative shrink-0 w-64 h-64 md:w-80 md:h-80"
+                    initial={reduce ? { opacity: 1 } : { opacity: 0, x: 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.22, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="hidden md:flex justify-end"
                 >
-                    <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-gray-200 rotate-3 hover:rotate-0 transition-all duration-500 z-10 group">
-                        <img
-                            src="/assets/img/belhal.PNG"
-                            alt={bio.name}
-                            className="w-full h-full object-cover transform scale-105 group-hover:scale-110 transition-transform duration-700"
-                        />
+                    <div className="flex items-center justify-end gap-7 lg:gap-9">
+                        {[
+                            { src: '/assets/img/Logo_NIKE.svg', alt: 'Nike logo' },
+                            { src: '/assets/img/jumpman.svg', alt: 'Jumpman logo' },
+                            { src: '/assets/img/converse.png', alt: 'Converse logo' },
+                        ].map((logo) => (
+                            <img
+                                key={logo.src}
+                                src={logo.src}
+                                alt={logo.alt}
+                                className="h-10 w-20 object-contain opacity-80 lg:h-12 lg:w-24"
+                            />
+                        ))}
                     </div>
                 </motion.div>
             </div>
 
-            {/* News Ticker */}
+            {/* About / bio paragraphs */}
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
-                className="pt-12 mt-12 border-t border-border/40 w-full max-w-6xl mx-auto"
+                initial={reduce ? { opacity: 1 } : { opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.34, duration: 0.5 }}
+                className="mt-14 md:mt-16 grid md:grid-cols-3 gap-5"
             >
-                <p className="text-sm font-mono text-muted-foreground mb-6 uppercase tracking-widest text-center md:text-left">Latest Updates</p>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {bio.about.map((item, i) => (
+                    <div key={i} className="glass-card p-5">
+                        <h3 className="text-xs font-mono uppercase tracking-widest text-primary mb-2.5">{item.title}</h3>
+                        <p className="text-sm text-foreground/75 leading-relaxed">{item.content}</p>
+                    </div>
+                ))}
+            </motion.div>
+
+            {/* Latest updates */}
+            <motion.div
+                initial={reduce ? { opacity: 1 } : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.42, duration: 0.5 }}
+                className="mt-12 pt-8 border-t border-border/70"
+            >
+                <div className="flex items-center gap-2 mb-5">
+                    <FileText size={14} className="text-primary" />
+                    <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Latest Updates</p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {bio.news.map((item, i) => (
-                        <div key={i} className="p-4 md:p-5 rounded-xl flex flex-col gap-3 hover:bg-gray-50 transition-colors border border-gray-200">
-                            <div className="flex items-start gap-3">
-                                <span className="text-xs font-bold text-primary whitespace-nowrap pt-0.5 bg-primary/10 px-2 py-0.5 rounded border border-primary/20">{item.date}</span>
-                            </div>
-                            <div className="text-sm text-foreground/90 leading-relaxed font-medium flex-1">{item.text}</div>
+                        <motion.div
+                            key={i}
+                            initial={reduce ? { opacity: 1 } : { opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: Math.min(0.42 + i * 0.05, 0.7), duration: 0.4 }}
+                            className="glass-card p-5 flex flex-col gap-3"
+                        >
+                            <span className="self-start text-[11px] font-mono font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                                {item.date}
+                            </span>
+                            <p className="text-sm text-foreground/85 leading-relaxed flex-1">{item.text}</p>
                             {item.link && (
                                 <a
                                     href={item.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors self-start mt-1"
+                                    className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors self-start"
                                 >
-                                    <FileText size={14} /> View Paper
+                                    <FileText size={13} /> View paper
                                 </a>
                             )}
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </motion.div>

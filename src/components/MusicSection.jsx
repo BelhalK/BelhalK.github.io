@@ -1,62 +1,76 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { playlists, production } from '../data/music';
-import { Disc, Music, Headphones } from 'lucide-react';
+import { Disc, Headphones, ExternalLink } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 
 const MusicSection = () => {
+    const reduce = useReducedMotion();
     return (
-        <section className="space-y-16">
+        <section className="space-y-14">
             <SectionHeader
                 title="Music"
-                subtitle="Curated playlists and original productions. Sonic explorations."
+                eyebrow="Sonic Explorations"
+                subtitle="Curated playlists and original productions — a creative counterpoint to the research."
             />
 
-            <div className="grid md:grid-cols-2 gap-12">
+            <div className="grid md:grid-cols-2 gap-10 lg:gap-14">
                 {/* Produced */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-2 mb-6 text-primary">
-                        <Disc size={24} />
-                        <h3 className="text-2xl font-display font-bold">Original Production</h3>
+                <div className="space-y-5">
+                    <div className="flex items-center gap-2.5 text-primary">
+                        <Disc size={22} />
+                        <h3 className="text-xl md:text-2xl font-display font-semibold">Original Production</h3>
                     </div>
                     <div className="space-y-4">
                         {production.map((track, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, x: -20 }}
+                                initial={reduce ? { opacity: 1 } : { opacity: 0, x: -16 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="rounded-xl overflow-hidden glass-card hover:border-primary/50 transition-colors"
+                                transition={{ delay: Math.min(i * 0.08, 0.3), duration: 0.45 }}
+                                className="rounded-2xl overflow-hidden glass-card"
                             >
                                 <iframe
+                                    title={`SoundCloud player — ${track.title} by ${track.artist}`}
                                     width="100%"
-                                    height="160"
+                                    height="166"
                                     scrolling="no"
                                     frameBorder="no"
                                     allow="autoplay"
-                                    src={`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${track.soundcloudId}&color=%23a855f7&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`}
-                                ></iframe>
+                                    src={`https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${track.soundcloudId}&color=%23c2570f&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`}
+                                />
+                                {track.link && (
+                                    <a
+                                        href={track.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-mono uppercase tracking-wide text-muted-foreground hover:text-primary transition-colors border-t border-border/70"
+                                    >
+                                        <ExternalLink size={12} /> Open on SoundCloud
+                                    </a>
+                                )}
                             </motion.div>
                         ))}
                     </div>
                 </div>
 
                 {/* Playlists */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-2 mb-6 text-secondary">
-                        <Headphones size={24} />
-                        <h3 className="text-2xl font-display font-bold">Curated Playlists</h3>
+                <div className="space-y-5">
+                    <div className="flex items-center gap-2.5 text-secondary">
+                        <Headphones size={22} />
+                        <h3 className="text-xl md:text-2xl font-display font-semibold">Curated Playlists</h3>
                     </div>
                     <div className="grid gap-4">
                         {playlists.map((playlist, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ opacity: 0, x: 20 }}
+                                initial={reduce ? { opacity: 1 } : { opacity: 0, x: 16 }}
                                 animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                                className="rounded-xl overflow-hidden glass-card hover:border-secondary/50 transition-colors"
+                                transition={{ delay: Math.min(i * 0.08, 0.3), duration: 0.45 }}
+                                className="rounded-2xl overflow-hidden glass-card"
                             >
                                 <iframe
+                                    title={`Spotify player — ${playlist.title} playlist`}
                                     style={{ borderRadius: '12px' }}
                                     src={`https://open.spotify.com/embed/playlist/${playlist.spotifyId}?utm_source=generator&theme=0`}
                                     width="100%"
@@ -65,7 +79,7 @@ const MusicSection = () => {
                                     allowFullScreen=""
                                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                                     loading="lazy"
-                                ></iframe>
+                                />
                             </motion.div>
                         ))}
                     </div>
