@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { ExternalLink, MapPin } from 'lucide-react';
+import { ExternalLink, MapPin, Building2 } from 'lucide-react';
 import SectionHeader from './SectionHeader';
 
 const advisoryData = [
@@ -10,6 +10,7 @@ const advisoryData = [
         location: "Paris, FR",
         description: "Scientific advisor. Built damage detection models using Mask R-CNN. Acquired by ACV Auctions.",
         link: "https://monk.ai/",
+        logo: "/assets/industry/monk.png",
         status: "Acquired"
     },
     {
@@ -18,6 +19,7 @@ const advisoryData = [
         location: "Montreal, CA / Paris, FR",
         description: "Scientific advisor. Researched information retrieval in video streams and automatic trailer generation using Deep Learning. Acquired by Master The Monster.",
         link: "https://www.apollo.io/companies/brainattic/5a9e91cea6da98d94d907f4d?chart=count",
+        logo: "/assets/industry/grok.png",
         status: "Acquired"
     },
     {
@@ -26,6 +28,7 @@ const advisoryData = [
         location: "Vancouver, BC, CA",
         description: "Scientific advisor. Developing AI-enabled at-home eye tests connected to remote optometrists.",
         link: "https://www.eyecarex.com/",
+        logo: "/assets/industry/eyecarex.jpeg",
         status: "Active"
     }
 ];
@@ -52,9 +55,22 @@ const AdvisoryCard = ({ card, index }) => {
                     </a>
                 )}
 
-                <div className="flex items-start justify-between mb-4">
-                    <div>
-                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold tracking-wide border mb-2.5 ${
+                {/* Logo & Company Title & Role */}
+                <div className="flex items-center gap-4 mb-5">
+                    <div className="grid place-items-center h-16 w-16 rounded-xl bg-white border border-border p-2.5 shrink-0 shadow-sm">
+                        {card.logo ? (
+                            <img
+                                src={card.logo}
+                                alt={`${card.company} logo`}
+                                loading="lazy"
+                                className="w-full h-full object-contain"
+                            />
+                        ) : (
+                            <Building2 size={28} className="text-muted-foreground" />
+                        )}
+                    </div>
+                    <div className="pr-9">
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold tracking-wide border mb-1.5 ${
                             card.status === 'Acquired' 
                                 ? 'bg-primary/10 text-primary border-primary/20' 
                                 : 'bg-[hsl(180_65%_35%)]/10 text-[hsl(180_65%_35%)] border-[hsl(180_65%_35%)]/20'
@@ -70,10 +86,11 @@ const AdvisoryCard = ({ card, index }) => {
                     </div>
                 </div>
 
+                {/* Body Details */}
                 <div className="space-y-3 flex-1">
                     {card.location && (
                         <div className="flex items-center gap-1.5 text-sm font-mono text-muted-foreground">
-                            <MapPin size={13} />
+                            <MapPin size={13} className="text-primary" />
                             {card.location}
                         </div>
                     )}
