@@ -168,8 +168,8 @@ const Research = () => {
     return (
         <section>
             <SectionHeader
-                title="Research"
-                eyebrow="Publications"
+                title="Publications"
+                eyebrow="Research"
                 subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
                 subtitleClassName="md:max-w-none md:whitespace-nowrap"
             />

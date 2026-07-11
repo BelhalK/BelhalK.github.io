@@ -9,8 +9,8 @@ const Awards = () => {
     return (
         <section>
             <SectionHeader
-                title="Awards"
-                eyebrow="Honors"
+                title="Honors"
+                eyebrow="Awards"
                 subtitle="Grants, travel awards, and recognitions."
             />
 

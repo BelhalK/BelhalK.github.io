@@ -11,7 +11,7 @@ const SectionHeader = ({ title, subtitle, eyebrow, align = 'left', subtitleClass
             className={`mb-10 md:mb-14 ${align === 'center' ? 'text-center' : 'text-left'}`}
         >
             {eyebrow && (
-                <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3">{eyebrow}</p>
+                <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3 invisible select-none">{eyebrow}</p>
             )}
             <h2 className="font-display font-semibold tracking-tight text-foreground text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.05] relative inline-block">
                 {title}

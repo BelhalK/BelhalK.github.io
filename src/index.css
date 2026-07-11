@@ -19,9 +19,9 @@
         --popover: 40 50% 99%;
         --popover-foreground: 220 18% 14%;
 
-        /* Primary — refined clay / terracotta */
-        --primary: 14 64% 47%;
-        --primary-foreground: 40 50% 99%;
+        /* Primary — refined eggplant purple */
+        --primary: 272 45% 26%;
+        --primary-foreground: 270 30% 98%;
 
         /* Secondary — deep ink */
         --secondary: 220 22% 16%;
@@ -30,16 +30,16 @@
         --muted: 38 30% 93%;
         --muted-foreground: 220 10% 42%;
 
-        /* Accent — warm clay */
-        --accent: 14 64% 47%;
-        --accent-foreground: 40 50% 99%;
+        /* Accent — refined eggplant purple */
+        --accent: 272 45% 26%;
+        --accent-foreground: 270 30% 98%;
 
         --destructive: 4 70% 52%;
         --destructive-foreground: 40 50% 99%;
 
         --border: 36 28% 86%;
         --input: 36 28% 86%;
-        --ring: 14 64% 47%;
+        --ring: 272 45% 26%;
 
         --radius: 0.9rem;
     }
@@ -82,24 +82,24 @@
     /* Frosted, warm glass card surface */
     .glass-card {
         @apply bg-card/70 border border-border/80 rounded-2xl backdrop-blur-md transition-all duration-300;
-        box-shadow: 0 1px 2px rgba(60, 50, 40, 0.04), 0 10px 28px -16px rgba(120, 70, 40, 0.14);
+        box-shadow: 0 1px 2px rgba(40, 20, 50, 0.03), 0 10px 28px -16px rgba(40, 20, 50, 0.08);
     }
     .glass-card:hover {
         @apply border-primary/40;
-        box-shadow: 0 2px 6px rgba(60, 50, 40, 0.06), 0 22px 44px -20px rgba(150, 80, 45, 0.26);
+        box-shadow: 0 2px 6px rgba(40, 20, 50, 0.05), 0 22px 44px -20px rgba(40, 15, 60, 0.15);
     }
 
     .glass-button {
         @apply bg-white/70 border border-border rounded-full transition-all duration-200 backdrop-blur-md;
-        box-shadow: 0 1px 2px rgba(60, 50, 40, 0.05);
+        box-shadow: 0 1px 2px rgba(40, 20, 50, 0.04);
     }
     .glass-button:hover {
         @apply border-primary/50 text-primary;
-        box-shadow: 0 6px 18px -8px rgba(150, 80, 45, 0.3);
+        box-shadow: 0 6px 18px -8px rgba(40, 15, 60, 0.18);
     }
 
     .text-gradient {
-        @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-[hsl(20_70%_50%)] to-foreground;
+        @apply bg-clip-text text-transparent bg-gradient-to-br from-primary via-[hsl(272_35%_42%)] to-foreground;
     }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -119,7 +119,7 @@
     border-radius: 999px;
     border: 2px solid hsl(var(--background));
 }
-::-webkit-scrollbar-thumb:hover { background: hsl(14 40% 65%); }
+::-webkit-scrollbar-thumb:hover { background: hsl(272 30% 48%); }
 
 /* Respect reduced motion globally */
 @media (prefers-reduced-motion: reduce) {

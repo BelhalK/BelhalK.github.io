@@ -9,8 +9,8 @@ const Software = () => {
     return (
         <section>
             <SectionHeader
-                title="Software"
-                eyebrow="Open Source"
+                title="Open Source"
+                eyebrow="Software"
                 subtitle="Open source contributions and research software tools."
             />
 

@@ -9,8 +9,8 @@ const Education = () => {
     return (
         <section>
             <SectionHeader
-                title="Education"
-                eyebrow="Academic Background"
+                title="Academic Background"
+                eyebrow="Education"
                 subtitle="Degrees, research visits, and academic foundations."
             />
 

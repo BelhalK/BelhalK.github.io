@@ -24,21 +24,21 @@ const Background = () => {
                 className="absolute inset-0 opacity-80"
                 style={{
                     background:
-                        'radial-gradient(120% 80% at 80% -10%, hsl(28 70% 92% / 0.9) 0%, transparent 55%), radial-gradient(90% 60% at -10% 30%, hsl(200 40% 90% / 0.5) 0%, transparent 50%)',
+                        'radial-gradient(120% 80% at 80% -10%, hsl(272 30% 94% / 0.7) 0%, transparent 55%), radial-gradient(90% 60% at -10% 30%, hsl(250 25% 91% / 0.4) 0%, transparent 50%)',
                 }}
             />
             {/* floating orbs */}
             <div
                 className={`absolute -top-24 right-[8%] h-[26rem] w-[26rem] rounded-full blur-3xl ${reduce ? '' : 'animate-drift'}`}
-                style={{ background: 'radial-gradient(circle at 30% 30%, hsl(18 75% 62% / 0.32), transparent 65%)' }}
+                style={{ background: 'radial-gradient(circle at 30% 30%, hsl(272 40% 60% / 0.16), transparent 65%)' }}
             />
             <div
                 className={`absolute top-[40%] -left-24 h-[22rem] w-[22rem] rounded-full blur-3xl ${reduce ? '' : 'animate-float'}`}
-                style={{ background: 'radial-gradient(circle at 60% 40%, hsl(28 80% 70% / 0.28), transparent 65%)' }}
+                style={{ background: 'radial-gradient(circle at 60% 40%, hsl(255 45% 70% / 0.12), transparent 65%)' }}
             />
             <div
                 className={`absolute bottom-[-8%] right-[20%] h-[20rem] w-[20rem] rounded-full blur-3xl ${reduce ? '' : 'animate-drift'}`}
-                style={{ background: 'radial-gradient(circle at 50% 50%, hsl(200 45% 70% / 0.22), transparent 65%)' }}
+                style={{ background: 'radial-gradient(circle at 50% 50%, hsl(280 35% 75% / 0.1), transparent 65%)' }}
             />
             {/* fine grid */}
             <div

@@ -35,8 +35,8 @@ const Talks = () => {
     return (
         <section>
             <SectionHeader
-                title="Talks"
-                eyebrow="Speaking"
+                title="Speaking"
+                eyebrow="Talks"
                 subtitle="Conference presentations, research seminars, and invited talks around the world."
             />
 

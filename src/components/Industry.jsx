@@ -79,8 +79,8 @@ const Industry = () => {
     return (
         <section>
             <SectionHeader
-                title="Industry"
-                eyebrow="Experience"
+                title="Experience"
+                eyebrow="Industry"
                 subtitle="Professional roles and entrepreneurial ventures across search, research, and applied AI."
             />
             <div className="flex flex-col gap-4">

@@ -107,8 +107,8 @@ const Advisory = () => {
     return (
         <section>
             <SectionHeader
-                title="Advisory Work"
-                eyebrow="Advisory"
+                title="Advisory"
+                eyebrow="Advisory Work"
                 subtitle="Advising high-potential technology startups on applying state-of-the-art computer vision and information retrieval models."
             />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">

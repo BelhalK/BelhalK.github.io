@@ -9,7 +9,7 @@ const Teaching = () => {
     return (
         <section>
             <SectionHeader
-                title="Teaching"
+                title="Teaching Duties"
                 eyebrow="Academic"
                 subtitle="University courses, graduate programs, and executive education."
             />
