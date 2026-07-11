@@ -15,7 +15,7 @@ export const bio = {
     about: [
         {
             title: "Nike Leadership",
-            content: "Led Generative AI integration in footwear & product design; previously Matching & Search ranking."
+            content: "Led Generative AI integration in footwear & product design; previously Search Match & Rank."
         },
         {
             title: "Research Publications",
