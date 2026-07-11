@@ -57,7 +57,7 @@ const AdvisoryCard = ({ card, index }) => {
 
                 {/* Logo & Company Title & Role */}
                 <div className="flex items-center gap-4 mb-5">
-                    <div className="grid place-items-center h-16 w-16 rounded-xl bg-white border border-border p-2.5 shrink-0 shadow-sm">
+                    <div className={`grid place-items-center h-16 w-16 rounded-xl bg-white border border-border shrink-0 shadow-sm overflow-hidden ${card.company === 'Brainattic' ? 'p-1' : 'p-2.5'}`}>
                         {card.logo ? (
                             <img
                                 src={card.logo}
