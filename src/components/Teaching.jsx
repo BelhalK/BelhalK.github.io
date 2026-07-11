@@ -14,24 +14,32 @@ const Teaching = () => {
                 subtitle="University courses, graduate programs, and executive education."
             />
 
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex flex-col gap-4">
                 {teaching.map((item, index) => (
                     <motion.div
                         key={index}
-                        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 18 }}
+                        initial={reduce ? { opacity: 1 } : { opacity: 0, y: 15 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: Math.min(index * 0.07, 0.35), duration: 0.45 }}
-                        className="glass-card p-6 group"
+                        transition={{ delay: Math.min(index * 0.05, 0.3), duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                        className="w-full"
                     >
-                        <div className="flex items-center gap-2.5 mb-3">
-                            <BookOpen className="text-primary group-hover:scale-110 transition-transform" size={20} />
-                            <h3 className="text-sm font-mono uppercase tracking-wide text-foreground/65 group-hover:text-primary transition-colors">
-                                {item.role}
-                            </h3>
+                        <div className="glass-card p-5 w-full flex items-center gap-4 relative overflow-hidden group">
+                            
+                            {/* Icon Box */}
+                            <div className="grid place-items-center h-12 w-12 rounded-xl bg-primary/10 text-primary shrink-0 transition-transform group-hover:scale-105">
+                                <BookOpen size={20} />
+                            </div>
+
+                            {/* Details */}
+                            <div>
+                                <h3 className="text-lg md:text-xl font-display font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
+                                    {item.course}
+                                </h3>
+                                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wide mt-1">
+                                    {item.role}
+                                </p>
+                            </div>
                         </div>
-                        <p className="text-lg md:text-xl font-display font-semibold text-foreground leading-tight">
-                            {item.course}
-                        </p>
                     </motion.div>
                 ))}
             </div>
