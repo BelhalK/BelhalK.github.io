@@ -27,28 +27,42 @@ const Education = () => {
                         className="relative sm:pl-12"
                     >
                         {/* Timeline dot */}
-                        <div className="absolute left-6 top-7 -translate-x-1/2 h-4 w-4 rounded-full bg-primary ring-4 ring-background hidden sm:block" />
+                        <div className="absolute left-6 top-[28px] -translate-x-1/2 h-4 w-4 rounded-full bg-primary ring-4 ring-background hidden sm:block" />
 
-                        <div className="glass-card p-6 group">
-                            <div className="flex items-center justify-between mb-4 gap-3">
-                                <div className="grid place-items-center h-11 w-11 rounded-xl bg-primary/10 text-primary">
-                                    <GraduationCap size={22} />
-                                </div>
-                                <div className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                                    <Calendar size={12} />
-                                    {item.date}
-                                </div>
+                        <div className="glass-card p-4 group flex items-start gap-4">
+                            <div className="grid place-items-center h-10 w-10 rounded-xl bg-white border border-border shrink-0 shadow-sm overflow-hidden">
+                                {item.logo ? (
+                                    <img
+                                        src={item.logo}
+                                        alt={`${item.institution} logo`}
+                                        loading="lazy"
+                                        className={`w-full h-full object-contain ${
+                                            item.institution === 'Ecole Polytechnique' ? 'p-1.5' : 'p-0.5'
+                                        }`}
+                                    />
+                                ) : (
+                                    <div className="grid place-items-center h-full w-full bg-primary/10 text-primary rounded-lg">
+                                        <GraduationCap size={20} />
+                                    </div>
+                                )}
                             </div>
-
-                            <h3 className="text-xl md:text-2xl font-display font-semibold mb-1.5 group-hover:text-primary transition-colors">
-                                {item.institution}
-                            </h3>
-                            <p className="text-base font-medium text-primary mb-3">
-                                {item.degree}
-                            </p>
-                            <p className="text-sm text-foreground/70 leading-relaxed">
-                                {item.details}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-1">
+                                    <h3 className="text-lg font-display font-semibold group-hover:text-primary transition-colors leading-tight">
+                                        {item.institution}
+                                    </h3>
+                                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full w-fit shrink-0">
+                                        <Calendar size={10} />
+                                        {item.date}
+                                    </div>
+                                </div>
+                                <p className="text-sm font-medium text-primary mb-1">
+                                    {item.degree}
+                                </p>
+                                <p className="text-xs md:text-sm text-foreground/70 leading-relaxed">
+                                    {item.details}
+                                </p>
+                            </div>
                         </div>
                     </motion.div>
                 ))}

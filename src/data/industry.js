@@ -8,6 +8,14 @@ export const industry = [
         logo: "/assets/icons/nike.png" // Assuming logo exists or will use placeholder
     },
     {
+        company: "Presti",
+        role: "Lead Research Scientist",
+        location: "Paris, FR",
+        description: "Leading the finetuning efforts of the latest diffusion models (SDXL, SD3, FLUX) for Presti’s usecases. Automated Dataset Generation Pipeline for finetuning Presti models.",
+        link: "https://presti.ai/",
+        logo: "/assets/industry/presti.png"
+    },
+    {
         company: "Baidu",
         role: "Research Scientist",
         location: "Seattle, WA, USA",
@@ -41,7 +49,7 @@ export const industry = [
     },
     {
         company: "INRIA",
-        role: "Ph.D. Candidate in Machine Learning",
+        role: "Ph.D. Candidate in ML",
         location: "Paris, FR",
         description: "Member of the XPOP team, a joint INRIA and Ecole Polytechnique CMAP group, focusing on statistical modelling and machine learning for life sciences.",
         link: "https://team.inria.fr/xpop/fr/",
@@ -60,7 +68,7 @@ export const industry = [
         role: "Research Intern",
         location: "Moscow, RU",
         description: "Optimization for Bayesian Neural Networks with Dr. Dmitry Vetrov.",
-        link: "https://cs.hse.ru/big-data/bayeslab/samsunglab/",
+        link: "https://cs.hse.ru/en/iai/bayeslab/",
         logo: "/assets/industry/samsung.png"
     },
     {
@@ -68,7 +76,7 @@ export const industry = [
         role: "Freelance",
         location: "Paris, FR",
         description: "Damages detection using Deep Learning (Mask R-CNN).",
-        link: "https://www.ouicar.fr/",
+        link: "https://turo.com/fr/fr/location-voiture/france/ouicar-devient-turo",
         logo: "/assets/industry/ouicar.png"
     },
     {
@@ -76,7 +84,7 @@ export const industry = [
         role: "Freelance",
         location: "New York, NY, USA",
         description: "Predict the Category and Price of any given listing based on their pictures.",
-        link: "https://www.mypopsy.com/",
+        link: "https://www.popsy.app/en-sa?srsltid=AfmBOorcX3lN2jYYpzHGok1-gQ-BEcTPFBY8V4iX2aadkZ8-AYVNT-jw",
         logo: "/assets/industry/popsy.webp"
     },
     {

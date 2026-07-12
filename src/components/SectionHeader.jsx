@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
-const SectionHeader = ({ title, subtitle, eyebrow, align = 'left', subtitleClassName = '' }) => {
+const SectionHeader = ({ title, subtitle, eyebrow, align = 'left', subtitleClassName = '', className = 'mb-10 md:mb-14' }) => {
     const reduce = useReducedMotion();
     return (
         <motion.div
             initial={reduce ? { opacity: 1 } : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            className={`mb-10 md:mb-14 ${align === 'center' ? 'text-center' : 'text-left'}`}
+            className={`${className} ${align === 'center' ? 'text-center' : 'text-left'}`}
         >
             {eyebrow && (
                 <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3 invisible select-none">{eyebrow}</p>

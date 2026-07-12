@@ -105,22 +105,21 @@ const PaperRow = ({ paper, index }) => {
 const ConferenceHeader = () => {
     const reduce = useReducedMotion();
     const venues = [
-        "arXiv", "NeurIPS", "ICLR", "COLT", "UAI", "ACML",
-        "SIGKDD", "ICME", "IEEE BigData", "ALT",
-        "CSDA", "AABI", "BAYSM", "ISIT"
+        "NeurIPS", "ICLR", "COLT", "UAI", "ACML", "SIGKDD",
+        "ICME", "IEEE BigData", "ALT", "CSDA", "AABI", "ISIT"
     ];
 
     return (
         <div className="mb-6 md:mb-8">
             <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3 text-center opacity-80">Published In</p>
-            <div className="flex flex-wrap justify-center gap-x-5 gap-y-3 max-w-4xl mx-auto">
+            <div className="flex flex-nowrap overflow-x-auto no-scrollbar justify-start md:justify-center gap-x-4 max-w-none mx-auto pb-2 w-full">
                 {venues.map((venue, index) => (
                     <motion.span
                         key={venue}
                         initial={reduce ? { opacity: 1 } : { opacity: 0, scale: 0.92 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: Math.min(index * 0.03, 0.3) }}
-                        className="text-lg md:text-2xl font-display font-semibold text-muted-foreground/40 hover:text-primary hover:scale-105 transition-all duration-200 cursor-default select-none"
+                        className="text-lg md:text-2xl font-display font-semibold text-muted-foreground/40 hover:text-primary hover:scale-105 transition-all duration-200 cursor-default select-none whitespace-nowrap"
                     >
                         {venue}
                     </motion.span>
@@ -172,6 +171,7 @@ const Research = () => {
                 eyebrow="Research"
                 subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
                 subtitleClassName="md:max-w-none md:whitespace-nowrap"
+                className="mb-6 md:mb-8"
             />
 
             <ConferenceHeader />

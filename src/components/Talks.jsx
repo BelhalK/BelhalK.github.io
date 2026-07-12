@@ -104,6 +104,7 @@ const Talks = () => {
                 eyebrow="Talks"
                 subtitle="Conference presentations, research seminars, and invited talks around the world."
                 subtitleClassName="md:max-w-none"
+                className="mb-6 md:mb-8"
             />
 
             <CitiesHeader />
