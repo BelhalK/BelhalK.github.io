@@ -15,19 +15,19 @@ export const bio = {
     about: [
         {
             title: "Nike Leadership",
-            content: "Led Generative AI integration in footwear & product design; previously Search Match & Rank."
+            content: "Led <strong>Generative AI</strong> integration in footwear & product design; previously Search <strong>Match</strong> & <strong>Rank</strong>."
         },
         {
             title: "Research Publications",
-            content: "15+ papers in elite journals & conferences (ICLR, NeurIPS, UAI, ACML, COLT) in ML/Optimization."
+            content: "15+ papers in elite journals & conferences (<strong>ICLR</strong>, <strong>NeurIPS</strong>, <strong>UAI</strong>, <strong>ACML</strong>, <strong>COLT</strong>) in ML/Optimization."
         },
         {
             title: "Acquisitions",
-            content: "Advisory exits with Monk AI (acquired by ACV Auctions) and Brainattic (acquired by Master The Monster)."
+            content: "Advisory <strong>exits</strong> with <strong>Monk AI</strong> (acquired by ACV Auctions) and <strong>Brainattic</strong> (acquired by Master The Monster)."
         },
         {
             title: "PhD & Academic Exits",
-            content: "PhD from Ecole Polytechnique & INRIA. Visiting scholar at MIT. Interned at Samsung AI."
+            content: "PhD from <strong>Ecole Polytechnique</strong> & <strong>INRIA</strong>. Visiting scholar at <strong>MIT</strong>. Interned at <strong>Samsung AI</strong>."
         }
     ],
 

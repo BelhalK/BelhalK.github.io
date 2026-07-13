@@ -150,7 +150,7 @@ const Hero = ({ setActiveTab }) => {
                 {bio.about.map((item, i) => (
                     <div key={i} className="glass-card p-5">
                         <h3 className="text-xs font-mono uppercase tracking-widest text-primary mb-2.5">{item.title}</h3>
-                        <p className="text-sm text-foreground/75 leading-relaxed">{item.content}</p>
+                        <p className="text-sm text-foreground/75 leading-relaxed" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </div>
                 ))}
             </motion.div>
