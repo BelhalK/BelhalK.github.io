@@ -13,7 +13,7 @@ const SectionHeader = ({ title, subtitle, eyebrow, align = 'left', subtitleClass
             {eyebrow && (
                 <p className="text-xs font-mono uppercase tracking-[0.2em] text-primary mb-3 invisible select-none">{eyebrow}</p>
             )}
-            <h2 className="font-display font-semibold tracking-tight text-foreground text-[clamp(2.25rem,5vw,3.5rem)] leading-[1.05] relative inline-block">
+            <h2 className="font-display font-semibold tracking-tight text-foreground text-[clamp(1.75rem,4vw,2.5rem)] leading-[1.05] relative inline-block">
                 {title}
                 <span className="absolute -bottom-1 left-0 h-[3px] w-16 rounded-full bg-gradient-to-r from-primary to-transparent" />
             </h2>
