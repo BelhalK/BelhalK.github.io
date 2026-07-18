@@ -169,7 +169,7 @@ const Research = () => {
             <SectionHeader
                 title="Publications"
                 eyebrow="Research"
-                subtitle="Selected publications and research projects in ML and AI — from optimization theory to production systems."
+                subtitle="Selected publications and research projects in ML and AI."
                 subtitleClassName="md:max-w-none md:whitespace-nowrap"
                 className="mb-6 md:mb-8"
             />
