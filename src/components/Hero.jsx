@@ -246,7 +246,7 @@ const Hero = ({ setActiveTab }) => {
                 initial={reduce ? { opacity: 1 } : { opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.42, duration: 0.5 }}
-                className="mt-12 pt-8 border-t border-border/70"
+                className="mt-12 pt-4"
             >
                 <div className="flex items-center gap-2 mb-5">
                     <FileText size={14} className="text-primary" />
