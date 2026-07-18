@@ -117,13 +117,13 @@ export default function App() {
 
     const sections = [
         { id: 'about', label: 'About', icon: User },
-        { id: 'highlights', label: 'Key Highlights', icon: Target },
-        { id: 'experience', label: 'Career Journey', icon: Briefcase },
-        { id: 'research', label: 'Research Hub', icon: FileText },
-        { id: 'advisory', label: 'Advisory & Exits', icon: Cpu },
-        { id: 'skills', label: 'Skills & Tech', icon: Laptop },
-        { id: 'talks', label: 'Talks & Teaching', icon: Mic },
-        { id: 'music', label: 'Creative Work', icon: Music },
+        { id: 'highlights', label: 'Highlights', icon: Target },
+        { id: 'toolbox', label: 'Toolbox', icon: Laptop },
+        { id: 'experience', label: 'Timeline', icon: Briefcase },
+        { id: 'research', label: 'Publications', icon: FileText },
+        { id: 'advisory', label: 'Advisory', icon: Cpu },
+        { id: 'talks', label: 'Talks & Lectures', icon: Mic },
+        { id: 'music', label: 'Creative', icon: Music },
     ];
 
     const sectionIds = sections.map(s => s.id);
@@ -210,702 +210,707 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen text-foreground transition-colors duration-300 relative">
-            {/* Ambient Background Grid Overlay */}
+        <div className="min-h-screen text-ink bg-background transition-colors duration-300 relative selection:bg-accent/10 selection:text-accent">
+            {/* Ambient Background Grid Overlay (inspired by tangvu.dev) */}
             <div className="fixed inset-0 pointer-events-none -z-10 bg-background transition-colors duration-300">
-                <div className="absolute inset-0 grain-overlay opacity-[0.4]" />
-                <div className="absolute top-0 right-0 w-[40vw] h-[40vw] rounded-full blur-[140px] opacity-[0.08] dark:opacity-[0.15] bg-primary pointer-events-none" />
-                <div className="absolute bottom-20 left-0 w-[35vw] h-[35vw] rounded-full blur-[120px] opacity-[0.06] dark:opacity-[0.1] bg-academic pointer-events-none" />
+                <div 
+                    aria-hidden="true" 
+                    className="absolute inset-0 opacity-[0.4] dark:opacity-[0.25] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" 
+                    style={{
+                        backgroundImage: `radial-gradient(circle at 1px 1px, #d9d9d4 1.5px, transparent 0)`,
+                        backgroundSize: '22px 22px'
+                    }}
+                />
+                <div className="absolute top-0 right-0 w-[40vw] h-[40vw] rounded-full blur-[140px] opacity-[0.06] dark:opacity-[0.12] bg-accent pointer-events-none" />
+                <div className="absolute bottom-20 left-0 w-[35vw] h-[35vw] rounded-full blur-[120px] opacity-[0.04] dark:opacity-[0.08] bg-award pointer-events-none" />
             </div>
 
             {/* --- HEADER --- */}
-            <header className="fixed top-0 left-0 right-0 z-40 border-b border-border/40 bg-background/80 backdrop-blur-md transition-colors duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 grid grid-cols-3 items-center">
+            <header className="sticky top-0 z-50 border-b border-line bg-paper/85 backdrop-blur-md transition-colors duration-300">
+                <nav className="container-page flex h-16 items-center justify-between">
+                    <a 
+                        href="#top" 
+                        onClick={(e) => { e.preventDefault(); scrollToSection('about'); }}
+                        className="flex items-center gap-2.5 font-display text-[0.95rem] font-bold tracking-tight"
+                    >
+                        <span className="grid h-7 w-7 place-items-center rounded-md bg-ink font-mono text-[0.7rem] font-bold text-paper">BK</span>
+                        <span className="hidden sm:inline text-ink">{bio.name}</span>
+                    </a>
                     
-                    {/* Left: BK badge */}
-                    <div className="justify-self-start">
-                        <button 
-                            onClick={() => scrollToSection('about')}
-                            className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
-                            aria-label="BK Home"
-                        >
-                            BK
-                        </button>
+                    <div className="hidden items-center gap-6 md:flex">
+                        {sections.map((s) => (
+                            <a
+                                key={s.id}
+                                href={`#${s.id}`}
+                                onClick={(e) => { e.preventDefault(); scrollToSection(s.id); }}
+                                className={`link-underline text-xs font-semibold uppercase tracking-wider transition-colors hover:text-accent ${
+                                    activeSection === s.id ? 'text-accent' : 'text-muted'
+                                }`}
+                            >
+                                {s.label}
+                            </a>
+                        ))}
                     </div>
 
-                    {/* Center: Brand logos (Nike, Jumpman, Converse) */}
-                    <div className="justify-self-center flex items-center gap-6 sm:gap-8">
-                        <img 
-                            src="/assets/img/Logo_NIKE.svg" 
-                            alt="Nike" 
-                            className="h-4 sm:h-5 w-auto dark:invert opacity-70 hover:opacity-100 transition-opacity" 
-                        />
-                        <img 
-                            src="/assets/img/jumpman.svg" 
-                            alt="Jumpman" 
-                            className="h-5 sm:h-6 w-auto dark:invert opacity-70 hover:opacity-100 transition-opacity" 
-                        />
-                        <img 
-                            src="/assets/img/converse.png" 
-                            alt="Converse" 
-                            className="h-5 sm:h-6 w-auto dark:invert opacity-70 hover:opacity-100 transition-opacity" 
-                        />
-                    </div>
-
-                    {/* Right: theme & mobile toggle */}
-                    <div className="justify-self-end flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                         <button
                             onClick={toggleTheme}
-                            className="p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                            className="p-2 rounded-lg hover:bg-panel text-muted hover:text-ink transition-colors"
                             aria-label="Toggle Theme"
                         >
-                            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
                         </button>
                         
+                        <a 
+                            href={`mailto:${bio.email}`}
+                            className="hidden sm:inline-block rounded-full border border-line bg-ink px-4 py-1.5 text-xs font-medium text-paper transition-transform hover:-translate-y-0.5"
+                        >
+                            Get in touch
+                        </a>
+
                         <button
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="lg:hidden p-2 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                            aria-label="Open navigation menu"
+                            className="md:hidden p-2 rounded-lg hover:bg-panel text-muted hover:text-ink transition-colors"
+                            aria-label="Open menu"
                         >
                             {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
                         </button>
                     </div>
-                </div>
+                </nav>
             </header>
 
             {/* Mobile Nav Drawer */}
             <AnimatePresence>
                 {mobileMenuOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
+                        exit={{ opacity: 0, y: -10 }}
                         transition={{ duration: 0.2 }}
-                        className="fixed inset-x-0 top-16 z-30 bg-background border-b border-border/80 p-6 flex flex-col gap-3 shadow-lg lg:hidden"
+                        className="fixed inset-x-0 top-16 z-40 bg-paper border-b border-line p-6 flex flex-col gap-3 shadow-lg md:hidden"
                     >
-                        {sections.map((s) => {
-                            const Icon = s.icon;
-                            return (
-                                <button
-                                    key={s.id}
-                                    onClick={() => scrollToSection(s.id)}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                                        activeSection === s.id 
-                                            ? 'bg-primary/10 text-primary border border-primary/20' 
-                                            : 'hover:bg-muted/50 text-muted-foreground hover:text-foreground'
-                                    }`}
-                                >
-                                    <Icon size={16} />
-                                    {s.label}
-                                </button>
-                            );
-                        })}
+                        {sections.map((s) => (
+                            <button
+                                key={s.id}
+                                onClick={() => scrollToSection(s.id)}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors ${
+                                    activeSection === s.id 
+                                        ? 'bg-accent/10 text-accent' 
+                                        : 'hover:bg-panel text-muted hover:text-ink'
+                                }`}
+                            >
+                                {s.label}
+                            </button>
+                        ))}
+                        <a 
+                            href={`mailto:${bio.email}`}
+                            className="mt-2 text-center rounded-lg bg-ink py-3 text-sm font-semibold text-paper"
+                        >
+                            Get in touch
+                        </a>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* --- MAIN PAGE CONTAINER --- */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-24">
-                <div className="lg:grid lg:grid-cols-[250px_1fr] lg:gap-16 lg:items-start">
-                    
-                    {/* --- DESKTOP STICKY SIDEBAR --- */}
-                    <aside className="hidden lg:block sticky top-28 w-full space-y-8 select-none">
-                        {/* Profile Info */}
-                        <div className="space-y-4">
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-card/60 backdrop-blur-sm text-xs font-mono text-muted-foreground uppercase tracking-widest">
-                                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                                {bio.location}
-                            </div>
-                            <h2 className="font-display text-2xl font-bold tracking-tight">{bio.name}</h2>
-                            <p className="text-sm text-muted-foreground font-mono leading-relaxed">
-                                {bio.role} @ <span className="text-foreground font-semibold">{bio.company}</span>
+            {/* --- HERO / TOP --- */}
+            <section id="about" className="relative overflow-hidden pt-12 pb-16 sm:pt-20 sm:pb-24 border-b border-line">
+                <div className="container-page">
+                    <div className="grid items-start gap-12 lg:grid-cols-[1.6fr_1fr]">
+                        {/* Hero Info */}
+                        <div>
+                            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-panel px-3 py-1 text-xs font-semibold text-muted">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+                                    <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+                                </span>
+                                {bio.role} @ {bio.company}
+                            </span>
+                            
+                            <h1 className="mt-6 font-display text-[clamp(2.5rem,7vw,4.75rem)] font-bold leading-[0.95] tracking-[-0.03em] text-ink">
+                                {bio.name}
+                            </h1>
+                            
+                            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted">
+                                I design, model, and deploy production ML systems. Currently leading generative AI search matching & ranking at <span className="text-ink font-semibold">Nike</span>, with an academic foundation in optimization theory and federated learning.
                             </p>
-                        </div>
-
-                        {/* Navigation Index */}
-                        <nav className="space-y-1.5 flex flex-col">
-                            {sections.map((s) => {
-                                const Icon = s.icon;
-                                const isActive = activeSection === s.id;
-                                return (
-                                    <button
-                                        key={s.id}
-                                        onClick={() => scrollToSection(s.id)}
-                                        className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium tracking-tight text-left relative transition-all group ${
-                                            isActive 
-                                                ? 'text-primary bg-primary/5 font-semibold border border-primary/10 shadow-sm' 
-                                                : 'text-muted-foreground hover:text-foreground hover:bg-muted/30'
-                                        }`}
-                                    >
-                                        <Icon size={16} className={`${isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
-                                        {s.label}
-                                    </button>
-                                );
-                            })}
-                        </nav>
-
-                        {/* Social Links */}
-                        <div className="pt-4 border-t border-border/40">
-                            <div className="flex flex-wrap gap-2.5">
+                            
+                            <div className="mt-8 flex flex-wrap items-center gap-3">
                                 <a 
-                                    href={bio.socials.github} 
-                                    target="_blank" 
-                                    rel="noreferrer" 
-                                    className="p-2.5 rounded-lg bg-card hover:bg-muted border border-border/60 text-muted-foreground hover:text-foreground transition-all"
-                                    title="GitHub"
+                                    href={`mailto:${bio.email}`} 
+                                    className="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-paper shadow-sm transition-transform hover:-translate-y-0.5"
                                 >
-                                    <Github size={16} />
+                                    Get in touch
                                 </a>
                                 <a 
                                     href={bio.socials.scholar} 
                                     target="_blank" 
-                                    rel="noreferrer" 
-                                    className="p-2.5 rounded-lg bg-card hover:bg-muted border border-border/60 text-muted-foreground hover:text-foreground transition-all flex items-center justify-center"
-                                    title="Google Scholar"
+                                    rel="noopener noreferrer" 
+                                    className="rounded-full border border-line px-6 py-3 text-sm font-semibold text-ink hover:bg-panel transition-all"
                                 >
-                                    <ScholarIcon size={16} />
+                                    Google Scholar ↗
                                 </a>
-                                <a 
-                                    href={bio.socials.linkedin} 
-                                    target="_blank" 
-                                    rel="noreferrer" 
-                                    className="p-2.5 rounded-lg bg-card hover:bg-muted border border-border/60 text-muted-foreground hover:text-foreground transition-all"
-                                    title="LinkedIn"
-                                >
-                                    <Linkedin size={16} />
-                                </a>
-                                <a 
-                                    href={bio.socials.twitter} 
-                                    target="_blank" 
-                                    rel="noreferrer" 
-                                    className="p-2.5 rounded-lg bg-card hover:bg-muted border border-border/60 text-muted-foreground hover:text-foreground transition-all"
-                                    title="Twitter"
-                                >
-                                    <Twitter size={16} />
-                                </a>
-                                <a 
-                                    href={`mailto:${bio.email}`}
-                                    className="p-2.5 rounded-lg bg-card hover:bg-muted border border-border/60 text-muted-foreground hover:text-foreground transition-all"
-                                    title="Email"
-                                >
-                                    <Mail size={16} />
-                                </a>
+                            </div>
+
+                            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 font-mono text-xs text-faint">
+                                <a href={bio.socials.github} target="_blank" rel="noopener noreferrer" className="link-underline hover:text-ink">GitHub</a>
+                                <a href={bio.socials.linkedin} target="_blank" rel="noopener noreferrer" className="link-underline hover:text-ink">LinkedIn</a>
+                                <a href={bio.socials.twitter} target="_blank" rel="noopener noreferrer" className="link-underline hover:text-ink">Twitter / X</a>
+                                <a href={bio.socials.soundcloud} target="_blank" rel="noopener noreferrer" className="link-underline hover:text-ink">SoundCloud</a>
+                                <a href={bio.socials.instagram} target="_blank" rel="noopener noreferrer" className="link-underline hover:text-ink">Instagram</a>
                             </div>
                         </div>
-                    </aside>
 
-                    {/* --- SCROLLABLE MAIN CONTENT --- */}
-                    <main className="space-y-32 lg:pl-4">
-                        
-                        {/* SECTION: ABOUT & HERO */}
-                        <section id="about" className="space-y-8 scroll-mt-24">
-                            <div className="space-y-6">
-                                <h1 className="font-display font-bold leading-tight tracking-tight text-3xl sm:text-4xl lg:text-5xl text-foreground">
-                                    Principal Data Scientist & ML Researcher.
-                                </h1>
-                                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">
-                                    I am a <span className="text-foreground font-semibold">Principal Data Scientist at Nike</span> leading generative AI integrations in Footwear and Apparel design. 
-                                    With a background in deep statistical modeling and optimization from <span className="text-foreground font-semibold">MIT, Polytechnique, INRIA, and Baidu Research</span>, 
-                                    my career focuses on moving machine learning from mathematical foundations to industry scale.
-                                </p>
-                            </div>
-
-                            {/* Mobile Info & Socials (hidden on desktop) */}
-                            <div className="block lg:hidden space-y-6 border-t border-b border-border/60 py-6">
-                                <div className="flex flex-wrap gap-y-2 gap-x-4 text-sm font-mono text-muted-foreground">
-                                    <span className="flex items-center gap-1.5">
-                                        <MapPin size={14} className="text-primary" /> {bio.location}
-                                    </span>
-                                    <span className="flex items-center gap-1.5">
-                                        <Briefcase size={14} className="text-primary" /> {bio.role} @ {bio.company}
-                                    </span>
+                        {/* Whoami Sidebar Card */}
+                        <aside className="rounded-2xl border border-line bg-panel/60 p-6 backdrop-blur-sm shadow-soft">
+                            <p className="font-mono text-[0.68rem] uppercase tracking-[0.18em] text-faint">// whoami</p>
+                            <dl className="mt-4 divide-y divide-line">
+                                <div className="flex items-baseline justify-between gap-4 py-3">
+                                    <dt className="font-mono text-[0.7rem] uppercase tracking-wider text-faint">Status</dt>
+                                    <dd className="flex items-center gap-2 text-right text-sm font-semibold text-ink">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse"></span>
+                                        Principal Scientist
+                                    </dd>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                    <a href={bio.socials.github} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border text-xs font-mono font-medium hover:text-primary transition-all">
-                                        <Github size={14} /> Github
-                                    </a>
-                                    <a href={bio.socials.scholar} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border text-xs font-mono font-medium hover:text-primary transition-all">
-                                        <ScholarIcon size={14} /> Scholar
-                                    </a>
-                                    <a href={bio.socials.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border text-xs font-mono font-medium hover:text-primary transition-all">
-                                        <Linkedin size={14} /> LinkedIn
-                                    </a>
-                                    <a href={`mailto:${bio.email}`} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border text-xs font-mono font-medium hover:text-primary transition-all">
-                                        <Mail size={14} /> Email
-                                    </a>
+                                <div className="flex items-baseline justify-between gap-4 py-3">
+                                    <dt className="font-mono text-[0.7rem] uppercase tracking-wider text-faint">Location</dt>
+                                    <dd className="text-right text-sm font-semibold text-ink">{bio.location}</dd>
                                 </div>
-                            </div>
+                                <div className="flex items-baseline justify-between gap-4 py-3">
+                                    <dt className="font-mono text-[0.7rem] uppercase tracking-wider text-faint">Focus</dt>
+                                    <dd className="text-right text-sm font-semibold text-ink">GenAI · Ranking · Optimization</dd>
+                                </div>
+                                <div className="flex items-baseline justify-between gap-4 py-3">
+                                    <dt className="font-mono text-[0.7rem] uppercase tracking-wider text-faint">Flagship</dt>
+                                    <dd className="text-right text-sm font-semibold text-ink">Nike App Search Engine</dd>
+                                </div>
+                                <div className="flex items-baseline justify-between gap-4 py-3">
+                                    <dt className="font-mono text-[0.7rem] uppercase tracking-wider text-faint">Academic</dt>
+                                    <dd className="text-right text-sm font-semibold text-ink">Ph.D. Polytechnique & INRIA</dd>
+                                </div>
+                            </dl>
+                        </aside>
+                    </div>
 
-                            {/* Core Philosophy Paragraphs */}
-                            <div className="grid md:grid-cols-3 gap-6 pt-4">
-                                {bio.about.map((item, idx) => (
-                                    <div key={idx} className="editorial-card p-6 flex flex-col gap-3 bg-card/40 backdrop-blur-sm">
-                                        <h3 className="text-[11px] font-mono uppercase tracking-widest text-primary font-semibold">{item.title}</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed flex-grow">{item.content}</p>
+                    {/* Stats Dashboard */}
+                    <dl className="mt-16 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
+                        <div className="bg-paper px-5 py-6">
+                            <dt className="font-display text-3xl font-bold tracking-tight sm:text-4xl">15+</dt>
+                            <dd className="mt-1 text-sm font-semibold text-ink">Core Publications</dd>
+                            <dd className="text-xs text-faint">ICLR, NeurIPS, UAI, COLT</dd>
+                        </div>
+                        <div className="bg-paper px-5 py-6">
+                            <dt className="font-display text-3xl font-bold tracking-tight sm:text-4xl">2</dt>
+                            <dd className="mt-1 text-sm font-semibold text-ink">Advisory Exits</dd>
+                            <dd className="text-xs text-faint">Monk AI & Brainattic</dd>
+                        </div>
+                        <div className="bg-paper px-5 py-6">
+                            <dt className="font-display text-3xl font-bold tracking-tight sm:text-4xl">10+</dt>
+                            <dd className="mt-1 text-sm font-semibold text-ink">Years Building</dd>
+                            <dd className="text-xs text-faint">industry & academic ML</dd>
+                        </div>
+                        <div className="bg-paper px-5 py-6">
+                            <dt className="font-display text-3xl font-bold tracking-tight sm:text-4xl">1</dt>
+                            <dd className="mt-1 text-sm font-semibold text-ink">Open Source Package</dd>
+                            <dd className="text-xs text-faint">saemix developer</dd>
+                        </div>
+                    </dl>
+                </div>
+            </section>
+
+            {/* --- SECTION 01: ABOUT EXPANDED --- */}
+            <section className="py-20 border-b border-line">
+                <div className="container-page">
+                    <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+                        <div>
+                            <p className="eyebrow">01 / About</p>
+                            <h2 className="section-title mt-3">A researcher who builds at scale.</h2>
+                        </div>
+                        <div className="space-y-6">
+                            <p className="text-xl leading-relaxed text-muted font-medium">
+                                I specialize in connecting the mathematical rigor of machine learning models with real-world, high-traffic consumer experiences.
+                            </p>
+                            <p className="leading-relaxed text-muted">
+                                From leading Generative AI matching, retrieval, and ranking algorithms at <span className="font-semibold text-ink">Nike</span> to researching federated learning and non-convex optimization at elite international institutions (<span className="font-semibold text-ink">Polytechnique, INRIA, MIT, Baidu Research</span>), I ensure complex pipelines deliver accurate results with fast response times.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-12 grid gap-5 md:grid-cols-3">
+                        <article className="group rounded-2xl border border-line bg-panel/60 p-6 transition-all hover:border-accent/30 hover:shadow-soft">
+                            <span className="font-mono text-xs text-accent">01</span>
+                            <h3 className="mt-3 font-display text-xl font-bold tracking-tight text-ink">Industry & GenAI</h3>
+                            <p className="mt-2.5 text-sm leading-relaxed text-muted">
+                                Overseeing Generative AI, product discovery search matching, and personalization ranking algorithms behind Nike app and Nike.com.
+                            </p>
+                        </article>
+                        <article className="group rounded-2xl border border-line bg-panel/60 p-6 transition-all hover:border-accent/30 hover:shadow-soft">
+                            <span className="font-mono text-xs text-accent">02</span>
+                            <h3 className="mt-3 font-display text-xl font-bold tracking-tight text-ink">Mathematical Theory</h3>
+                            <p className="mt-2.5 text-sm leading-relaxed text-muted">
+                                Deep expertise in non-convex stochastic gradient convergence, Langevin dynamics, MCMC algorithms, and federated optimization.
+                            </p>
+                        </article>
+                        <article className="group rounded-2xl border border-line bg-panel/60 p-6 transition-all hover:border-accent/30 hover:shadow-soft">
+                            <span className="font-mono text-xs text-accent">03</span>
+                            <h3 className="mt-3 font-display text-xl font-bold tracking-tight text-ink">Advisory & Exits</h3>
+                            <p className="mt-2.5 text-sm leading-relaxed text-muted">
+                                Scientific advisor guiding startups through engineering milestones, leading to acquisitions by ACV Auctions and Master The Monster.
+                            </p>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 02: HIGHLIGHTS MATRIX --- */}
+            <section id="highlights" className="py-20 border-b border-line bg-panel/30">
+                <div className="container-page">
+                    <p className="eyebrow">02 / Highlights</p>
+                    <h2 className="section-title mt-3">Strategic Accomplishments</h2>
+                    
+                    <div className="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div className="rounded-xl border border-line bg-paper p-6 border-l-4 border-l-accent flex flex-col justify-between h-44 shadow-soft">
+                            <span className="text-xs font-mono text-faint uppercase tracking-wider">Nike Leadership</span>
+                            <p className="text-sm font-semibold leading-snug text-ink">Led GenAI product discovery & search relevance rankings for multi-platform customer channels.</p>
+                        </div>
+                        <div className="rounded-xl border border-line bg-paper p-6 border-l-4 border-l-award flex flex-col justify-between h-44 shadow-soft">
+                            <span className="text-xs font-mono text-faint uppercase tracking-wider">Core Research</span>
+                            <p className="text-sm font-semibold leading-snug text-ink">15+ papers in top-tier conferences (NeurIPS, ICLR, UAI, ACML, COLT) focusing on optimization.</p>
+                        </div>
+                        <div className="rounded-xl border border-line bg-paper p-6 border-l-4 border-l-accent flex flex-col justify-between h-44 shadow-soft">
+                            <span className="text-xs font-mono text-faint uppercase tracking-wider">M&A Outcomes</span>
+                            <p className="text-sm font-semibold leading-snug text-ink">Advisor for Monk AI (acquired by ACV Auctions) and Brainattic (acquired by Master The Monster).</p>
+                        </div>
+                        <div className="rounded-xl border border-line bg-paper p-6 border-l-4 border-l-award flex flex-col justify-between h-44 shadow-soft">
+                            <span className="text-xs font-mono text-faint uppercase tracking-wider">Institutions</span>
+                            <p className="text-sm font-semibold leading-snug text-ink">Ph.D. from Ecole Polytechnique & INRIA; visiting scholar at MIT and interned at Samsung AI.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 03: TOOLBOX --- */}
+            <section id="toolbox" className="py-20 border-b border-line">
+                <div className="container-page">
+                    <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+                        <div>
+                            <p className="eyebrow">03 / Toolbox</p>
+                            <h2 className="section-title mt-3">The stack I reach for.</h2>
+                            <p className="mt-4 text-sm text-muted">A spectrum of theoretical research toolkits alongside robust engineering frameworks.</p>
+                        </div>
+                        <div className="grid gap-6 sm:grid-cols-2">
+                            <div>
+                                <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-faint">
+                                    <span className="h-px w-4 bg-accent"></span>Research Core
+                                </h3>
+                                <ul className="mt-3 flex flex-wrap gap-1.5">
+                                    {['Non-convex optimization', 'Langevin dynamics', 'MCMC', 'Federated Learning', 'Energy-Based Models', 'Bayesian neural network solvers'].map((item) => (
+                                        <li key={item} className="rounded-lg border border-line bg-paper px-2.5 py-1.5 text-xs text-ink font-semibold">{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-faint">
+                                    <span className="h-px w-4 bg-accent"></span>Applied Engineering
+                                </h3>
+                                <ul className="mt-3 flex flex-wrap gap-1.5">
+                                    {['Generative AI Pipelines', 'Information Retrieval', 'Semantic Search', 'PyTorch', 'JAX', 'TensorFlow', 'GPU kernels'].map((item) => (
+                                        <li key={item} className="rounded-lg border border-line bg-paper px-2.5 py-1.5 text-xs text-ink font-semibold">{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-faint">
+                                    <span className="h-px w-4 bg-accent"></span>Languages
+                                </h3>
+                                <ul className="mt-3 flex flex-wrap gap-1.5">
+                                    {['Python', 'R', 'C / C++', 'SQL', 'Bash', 'JavaScript'].map((item) => (
+                                        <li key={item} className="rounded-lg border border-line bg-paper px-2.5 py-1.5 text-xs text-ink font-semibold">{item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div>
+                                <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-faint">
+                                    <span className="h-px w-4 bg-accent"></span>Open Source
+                                </h3>
+                                <ul className="mt-3 flex flex-wrap gap-1.5">
+                                    <li className="rounded-lg border border-line bg-paper px-2.5 py-1.5 text-xs text-ink font-semibold">saemix developer (R package)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 04: EXPERIENCE TIMELINE --- */}
+            <section id="experience" className="py-20 border-b border-line bg-panel/30">
+                <div className="container-page">
+                    <p className="eyebrow">04 / Journey</p>
+                    <h2 className="section-title mt-3">Where I've been building.</h2>
+
+                    <div className="mt-12 relative border-l border-line ml-4 space-y-12">
+                        {industry.map((role, idx) => (
+                            <div key={idx} className="relative pl-8 group">
+                                <div className="absolute -left-1.5 top-1.5 h-3.5 w-3.5 rounded-full border border-line bg-background group-hover:border-accent group-hover:bg-accent transition-all duration-300" />
+                                
+                                <div className="grid md:grid-cols-[1fr_2fr] gap-4">
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-display font-bold text-lg text-ink group-hover:text-accent transition-colors">
+                                                {role.company}
+                                            </h3>
+                                            {role.link && (
+                                                <a href={role.link} target="_blank" rel="noopener noreferrer" className="text-faint hover:text-accent transition-colors">
+                                                    <ArrowUpRight size={14} />
+                                                </a>
+                                            )}
+                                        </div>
+                                        <p className="text-xs font-mono text-accent font-bold uppercase tracking-wider mt-0.5">
+                                            {role.role}
+                                        </p>
+                                        <p className="text-xs font-mono text-faint flex items-center gap-1 mt-1">
+                                            <MapPin size={10} /> {role.location}
+                                        </p>
                                     </div>
-                                ))}
-                            </div>
-                        </section>
 
-                        {/* SECTION: HIGHLIGHTS MATRIX */}
-                        <section id="highlights" className="scroll-mt-28 space-y-8">
-                            <div className="space-y-2">
-                                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Dashboard</span>
-                                <h2 className="font-display text-3xl font-bold tracking-tight">Key Highlights</h2>
-                            </div>
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                                <div className="editorial-card p-6 bg-card/60 backdrop-blur-sm border-l-4 border-l-primary flex flex-col justify-between h-40">
-                                    <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Nike Leadership</span>
-                                    <p className="text-sm font-medium leading-snug">Led Generative AI integration in footwear & product design; previously Matching & Search ranking.</p>
-                                </div>
-                                <div className="editorial-card p-6 bg-card/60 backdrop-blur-sm border-l-4 border-l-academic flex flex-col justify-between h-40">
-                                    <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Research Publications</span>
-                                    <p className="text-sm font-medium leading-snug">15+ papers in elite journals & conferences (ICLR, NeurIPS, UAI, ACML, COLT) in ML/Optimization.</p>
-                                </div>
-                                <div className="editorial-card p-6 bg-card/60 backdrop-blur-sm border-l-4 border-l-primary flex flex-col justify-between h-40">
-                                    <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Acquisitions</span>
-                                    <p className="text-sm font-medium leading-snug">Advisory exits with Monk AI (acquired by ACV Auctions) and Brainattic (acquired by Master The Monster).</p>
-                                </div>
-                                <div className="editorial-card p-6 bg-card/60 backdrop-blur-sm border-l-4 border-l-academic flex flex-col justify-between h-40">
-                                    <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">PhD & Academic Exits</span>
-                                    <p className="text-sm font-medium leading-snug">PhD from Ecole Polytechnique & INRIA. Visiting scholar at MIT. Interned at Samsung AI.</p>
+                                    <div>
+                                        <p className="text-sm text-muted leading-relaxed">
+                                            {role.description}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </section>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
-                        {/* SECTION: EXPERIENCE TIMELINE */}
-                        <section id="experience" className="scroll-mt-28 space-y-10">
-                            <div className="space-y-2">
-                                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Career History</span>
-                                <h2 className="font-display text-3xl font-bold tracking-tight">Timeline</h2>
-                            </div>
-
-                            <div className="relative border-l border-border/80 ml-4 space-y-12">
-                                {industry.map((role, idx) => (
-                                    <div key={idx} className="relative pl-8 group">
-                                        <div className="absolute -left-1.5 top-1.5 h-3.5 w-3.5 rounded-full border border-border bg-background group-hover:border-primary group-hover:bg-primary transition-all duration-300" />
-                                        
-                                        <div className="grid md:grid-cols-[1fr_2fr] gap-4">
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="font-display font-bold text-lg text-foreground group-hover:text-primary transition-colors">
-                                                        {role.company}
-                                                    </h3>
-                                                    {role.link && (
-                                                        <a href={role.link} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                                                            <ArrowUpRight size={14} />
-                                                        </a>
-                                                    )}
-                                                </div>
-                                                <p className="text-xs font-mono text-primary font-semibold uppercase tracking-wider">
-                                                    {role.role}
-                                                </p>
-                                                <p className="text-xs font-mono text-muted-foreground flex items-center gap-1">
-                                                    <MapPin size={10} /> {role.location}
-                                                </p>
-                                            </div>
-
-                                            <div>
-                                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                                    {role.description}
-                                                </p>
+            {/* --- SECTION 05: PUBLICATIONS --- */}
+            <section id="research" className="py-20 border-b border-line">
+                <div className="container-page">
+                    <div className="flex flex-wrap items-end justify-between gap-4">
+                        <div>
+                            <p className="eyebrow">05 / Publications</p>
+                            <h2 className="section-title mt-3">Research Hub</h2>
+                        </div>
+                        <div className="flex flex-wrap gap-2 pb-2">
+                            {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
+                                <button
+                                    key={filter}
+                                    onClick={() => {
+                                        setPaperFilter(filter);
+                                        setExpandedPaper(null);
+                                    }}
+                                    className={`px-3 py-1.5 rounded-full text-xs font-mono font-medium transition-all ${
+                                        paperFilter === filter 
+                                            ? 'bg-accent text-paper font-semibold shadow-sm' 
+                                            : 'bg-panel hover:bg-line text-muted hover:text-ink border border-line'
+                                    }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="mt-10 space-y-4">
+                        {getFilteredPapers().map((paper, idx) => {
+                            const isExpanded = expandedPaper === idx;
+                            return (
+                                <div 
+                                    key={idx}
+                                    className={`rounded-2xl border transition-all duration-300 bg-paper ${
+                                        isExpanded ? 'border-accent/40 shadow-soft ring-1 ring-accent/5' : 'border-line'
+                                    }`}
+                                >
+                                    <div 
+                                        onClick={() => setExpandedPaper(isExpanded ? null : idx)}
+                                        className="p-5 flex items-start gap-4 cursor-pointer select-none"
+                                    >
+                                        <div className="hidden sm:grid place-items-center h-8 w-8 rounded-lg bg-panel text-xs font-mono font-semibold text-faint">
+                                            {String(idx + 1).padStart(2, '0')}
+                                        </div>
+                                        <div className="flex-grow space-y-1 min-w-0">
+                                            <h3 className="font-display font-bold text-base md:text-lg text-ink hover:text-accent transition-colors leading-snug">
+                                                {paper.title}
+                                            </h3>
+                                            <p className="text-xs text-muted font-mono truncate">
+                                                {paper.authors}
+                                            </p>
+                                            <div className="flex items-center gap-2 pt-1">
+                                                <span className="px-2 py-0.5 rounded bg-accent-soft text-accent border border-accent/15 text-[10px] font-mono font-semibold">
+                                                    {paper.venue}
+                                                </span>
                                             </div>
                                         </div>
+                                        <div className="text-faint self-center">
+                                            {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        </section>
 
-                        {/* SECTION: RESEARCH HUB */}
-                        <section id="research" className="scroll-mt-28 space-y-10">
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Publications</span>
-                                    <h2 className="font-display text-3xl font-bold tracking-tight">Research Hub</h2>
-                                </div>
-                                <p className="text-sm text-muted-foreground max-w-2xl">
-                                    Explore peer-reviewed publications. Click any paper to view its abstract, citation snippets (BibTeX), and downloadable PDFs.
-                                </p>
-
-                                <div className="flex flex-wrap gap-2 pb-2 border-b border-border/40">
-                                    {['All', 'Generative & EBMs', 'Federated Learning', 'Optimization'].map((filter) => (
-                                        <button
-                                            key={filter}
-                                            onClick={() => {
-                                                setPaperFilter(filter);
-                                                setExpandedPaper(null);
-                                            }}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-mono tracking-tight font-medium transition-all ${
-                                                paperFilter === filter 
-                                                    ? 'bg-primary text-primary-foreground font-semibold shadow-sm' 
-                                                    : 'bg-card hover:bg-muted text-muted-foreground hover:text-foreground'
-                                            }`}
-                                        >
-                                            {filter}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                {getFilteredPapers().map((paper, idx) => {
-                                    const isExpanded = expandedPaper === idx;
-                                    return (
-                                        <div 
-                                            key={idx}
-                                            className={`editorial-card bg-card/40 hover:bg-card/75 border transition-all duration-300 ${
-                                                isExpanded ? 'border-primary/40 shadow-md ring-1 ring-primary/5' : 'border-border/60'
-                                            }`}
-                                        >
-                                            <div 
-                                                onClick={() => setExpandedPaper(isExpanded ? null : idx)}
-                                                className="p-5 flex items-start gap-4 cursor-pointer select-none"
+                                    <AnimatePresence>
+                                        {isExpanded && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="border-t border-line bg-panel/30 overflow-hidden"
                                             >
-                                                <div className="hidden sm:grid place-items-center h-8 w-8 rounded-lg bg-muted text-xs font-mono font-semibold text-muted-foreground">
-                                                    {String(idx + 1).padStart(2, '0')}
-                                                </div>
-                                                <div className="flex-grow space-y-1 min-w-0">
-                                                    <h3 className="font-display font-bold text-base md:text-lg text-foreground hover:text-primary transition-colors leading-snug">
-                                                        {paper.title}
-                                                    </h3>
-                                                    <p className="text-xs text-muted-foreground font-mono truncate">
-                                                        {paper.authors}
-                                                    </p>
-                                                    <div className="flex items-center gap-2 pt-1">
-                                                        <span className="px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 text-[10px] font-mono font-semibold">
-                                                            {paper.venue}
-                                                        </span>
+                                                <div className="p-5 space-y-6">
+                                                    {paper.abstract && (
+                                                        <div className="space-y-2">
+                                                            <h4 className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">Abstract</h4>
+                                                            <p className="text-sm text-muted leading-relaxed">
+                                                                {paper.abstract}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center justify-between">
+                                                            <h4 className="text-[10px] font-mono uppercase tracking-wider text-accent font-semibold">BibTeX Citation</h4>
+                                                            <button 
+                                                                onClick={() => handleCopyBibtex(paper, idx)}
+                                                                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-paper hover:bg-panel border border-line text-[10px] font-mono hover:text-accent transition-colors"
+                                                            >
+                                                                {copiedPaper === idx ? (
+                                                                    <>
+                                                                        <Check size={11} className="text-accent" /> Copied
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Copy size={11} /> Copy BibTeX
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                        </div>
+                                                        <pre className="p-4 rounded-lg bg-paper border border-line font-mono text-xs overflow-x-auto text-muted whitespace-pre select-all no-scrollbar">
+                                                            {generateBibtex(paper)}
+                                                        </pre>
+                                                    </div>
+
+                                                    <div className="flex flex-wrap gap-2 pt-2">
+                                                        {paper.links.pdf && (
+                                                            <a 
+                                                                href={paper.links.pdf} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-accent text-paper text-xs font-mono font-semibold hover:opacity-90 transition-all shadow-sm"
+                                                            >
+                                                                <FileText size={13} /> PDF Document
+                                                            </a>
+                                                        )}
+                                                        {paper.links.code && (
+                                                            <a 
+                                                                href={paper.links.code} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-paper border border-line hover:bg-panel text-xs font-mono font-semibold transition-all"
+                                                            >
+                                                                <Github size={13} /> Code Repository
+                                                            </a>
+                                                        )}
+                                                        {paper.links.video && (
+                                                            <a 
+                                                                href={paper.links.video} 
+                                                                target="_blank" 
+                                                                rel="noopener noreferrer"
+                                                                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-paper border border-line hover:bg-panel text-xs font-mono font-semibold transition-all"
+                                                            >
+                                                                <Mic size={13} /> Presentation Video
+                                                            </a>
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div className="text-muted-foreground self-center">
-                                                    {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                                                </div>
-                                            </div>
-
-                                            <AnimatePresence>
-                                                {isExpanded && (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, height: 0 }}
-                                                        animate={{ opacity: 1, height: 'auto' }}
-                                                        exit={{ opacity: 0, height: 0 }}
-                                                        transition={{ duration: 0.25 }}
-                                                        className="border-t border-border/50 bg-muted/20 overflow-hidden"
-                                                    >
-                                                        <div className="p-5 space-y-6">
-                                                            {paper.abstract && (
-                                                                <div className="space-y-2">
-                                                                    <h4 className="text-[11px] font-mono uppercase tracking-wider text-primary font-semibold">Abstract</h4>
-                                                                    <p className="text-sm text-muted-foreground leading-relaxed">
-                                                                        {paper.abstract}
-                                                                    </p>
-                                                                </div>
-                                                            )}
-
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-center justify-between">
-                                                                    <h4 className="text-[11px] font-mono uppercase tracking-wider text-primary font-semibold">BibTeX Citation</h4>
-                                                                    <button 
-                                                                        onClick={() => handleCopyBibtex(paper, idx)}
-                                                                        className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-card hover:bg-muted border border-border text-[10px] font-mono hover:text-primary transition-colors"
-                                                                    >
-                                                                        {copiedPaper === idx ? (
-                                                                            <>
-                                                                                <Check size={11} className="text-green-500" /> Copied
-                                                                            </>
-                                                                        ) : (
-                                                                            <>
-                                                                                <Copy size={11} /> Copy BibTeX
-                                                                            </>
-                                                                        )}
-                                                                    </button>
-                                                                </div>
-                                                                <pre className="p-4 rounded-lg bg-card/80 border border-border/80 font-mono text-xs overflow-x-auto text-muted-foreground whitespace-pre select-all no-scrollbar">
-                                                                    {generateBibtex(paper)}
-                                                                </pre>
-                                                            </div>
-
-                                                            <div className="flex flex-wrap gap-2 pt-2">
-                                                                {paper.links.pdf && (
-                                                                    <a 
-                                                                        href={paper.links.pdf} 
-                                                                        target="_blank" 
-                                                                        rel="noreferrer"
-                                                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-mono font-medium hover:opacity-90 transition-all shadow-sm"
-                                                                    >
-                                                                        <FileText size={13} /> PDF Document
-                                                                    </a>
-                                                                )}
-                                                                {paper.links.code && (
-                                                                    <a 
-                                                                        href={paper.links.code} 
-                                                                        target="_blank" 
-                                                                        rel="noreferrer"
-                                                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border hover:bg-muted text-xs font-mono font-medium transition-all"
-                                                                    >
-                                                                        <Github size={13} /> Code Repository
-                                                                    </a>
-                                                                )}
-                                                                {paper.links.video && (
-                                                                    <a 
-                                                                        href={paper.links.video} 
-                                                                        target="_blank" 
-                                                                        rel="noreferrer"
-                                                                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card border border-border hover:bg-muted text-xs font-mono font-medium transition-all"
-                                                                    >
-                                                                        <Mic size={13} /> Presentation Video
-                                                                    </a>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </section>
-
-                        {/* SECTION: ADVISORY & EXITS */}
-                        <section id="advisory" className="scroll-mt-28 space-y-10">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Startup Exits</span>
-                                    <h2 className="font-display text-3xl font-bold tracking-tight">Advisory Work</h2>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
-                                <p className="text-sm text-muted-foreground max-w-2xl">
-                                    Advising high-potential technology startups on applying state-of-the-art computer vision and information retrieval models.
-                                </p>
-                            </div>
-
-                            <div className="grid sm:grid-cols-3 gap-6">
-                                <div className="editorial-card p-6 bg-card/40 backdrop-blur-sm flex flex-col justify-between gap-6 hover:border-primary/40 transition-all">
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-start">
-                                            <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[10px] font-mono font-semibold text-primary uppercase">Acquired</span>
-                                            <span className="text-xs text-muted-foreground font-mono">Paris, FR</span>
-                                        </div>
-                                        <h3 className="font-display font-bold text-xl">Monk AI</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            Scientific advisor. Built damage detection models using Mask R-CNN. Acquired by ACV Auctions.
-                                        </p>
-                                    </div>
-                                    <a href="https://monk.ai/" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-mono font-semibold hover:text-primary transition-all">
-                                        Visit Monk AI <ArrowUpRight size={13} />
-                                    </a>
-                                </div>
-
-                                <div className="editorial-card p-6 bg-card/40 backdrop-blur-sm flex flex-col justify-between gap-6 hover:border-primary/40 transition-all">
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-start">
-                                            <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[10px] font-mono font-semibold text-primary uppercase">Acquired</span>
-                                            <span className="text-xs text-muted-foreground font-mono">Paris, FR</span>
-                                        </div>
-                                        <h3 className="font-display font-bold text-xl">Brainattic</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            Scientific advisor. Researched information retrieval in video streams and automatic trailer generation using Deep Learning. Acquired by Master The Monster.
-                                        </p>
-                                    </div>
-                                    <span className="text-xs font-mono text-muted-foreground uppercase">Acquisition Complete</span>
-                                </div>
-
-                                <div className="editorial-card p-6 bg-card/40 backdrop-blur-sm flex flex-col justify-between gap-6 hover:border-primary/40 transition-all">
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between items-start">
-                                            <span className="px-2 py-0.5 rounded bg-academic/10 border border-academic/20 text-[10px] font-mono font-semibold text-academic uppercase">Active</span>
-                                            <span className="text-xs text-muted-foreground font-mono">Vancouver, CA</span>
-                                        </div>
-                                        <h3 className="font-display font-bold text-xl">EyeCareX</h3>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            Scientific advisor. Developing AI-enabled at-home eye tests connected to remote optometrists.
-                                        </p>
-                                    </div>
-                                    <a href="https://www.eyecarex.com/" target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-mono font-semibold hover:text-primary transition-all">
-                                        Visit EyeCareX <ArrowUpRight size={13} />
-                                    </a>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* SECTION: SKILLS & SOFTWARE */}
-                        <section id="skills" className="scroll-mt-28 space-y-10">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Expertise</span>
-                                    <h2 className="font-display text-3xl font-bold tracking-tight">Skills & Open Source</h2>
-                                </div>
-                                <p className="text-sm text-muted-foreground max-w-2xl">
-                                    Core programming competencies and mathematical frameworks developed through research and production environments.
-                                </p>
-                            </div>
-
-                            <div className="grid md:grid-cols-[1fr_2fr] gap-6">
-                                <div className="editorial-card p-6 bg-card/40 backdrop-blur-sm flex flex-col justify-between gap-6">
-                                    <div className="space-y-3">
-                                        <span className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[10px] font-mono font-semibold text-primary uppercase">Open Source</span>
-                                        <h3 className="font-display font-bold text-xl">saemix</h3>
-                                        <p className="text-xs text-muted-foreground font-mono">R Package Development</p>
-                                        <p className="text-sm text-muted-foreground leading-relaxed">
-                                            R package for maximum likelihood estimation of parameters in nonlinear mixed effect models using Stochastic Approximation EM (SAEM).
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <a href="https://github.com/saemixr" target="_blank" rel="noreferrer" className="p-2.5 rounded-lg bg-card hover:bg-muted border border-border/80 text-muted-foreground hover:text-foreground transition-all">
-                                            <Github size={14} />
-                                        </a>
-                                        <a href="https://saemixr.github.io/" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-card hover:bg-muted border border-border text-xs font-mono font-semibold text-muted-foreground hover:text-foreground transition-all">
-                                            Web docs <ArrowUpRight size={13} />
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <div className="editorial-card p-6 bg-card/40 backdrop-blur-sm grid sm:grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <h4 className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold">Research Core</h4>
-                                        <ul className="space-y-1.5 text-sm text-muted-foreground list-disc list-inside">
-                                            <li>Non-convex optimization</li>
-                                            <li>Langevin dynamics (MCMC)</li>
-                                            <li>Federated & Distributed Learning</li>
-                                            <li>Energy-Based Modeling (EBMs)</li>
-                                            <li>Bayesian neural network solvers</li>
-                                        </ul>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <h4 className="text-[11px] font-mono uppercase tracking-wider text-primary font-bold">Applied Engineering</h4>
-                                        <ul className="space-y-1.5 text-sm text-muted-foreground list-disc list-inside">
-                                            <li>Generative AI Pipelines</li>
-                                            <li>Semantic Search & Ranking</li>
-                                            <li>PyTorch, JAX, TensorFlow</li>
-                                            <li>Statistical modeling (R, Python)</li>
-                                            <li>GPU kernels (FeatureBox)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* SECTION: TALKS & TEACHING */}
-                        <section id="talks" className="scroll-mt-28 space-y-10">
-                            <div className="space-y-2">
-                                <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Community & Academy</span>
-                                <h2 className="font-display text-3xl font-bold tracking-tight">Talks & Lectures</h2>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-8">
-                                <div className="space-y-4">
-                                    <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                                        <BookOpen size={16} className="text-primary" /> Teaching & Seminars
-                                    </h3>
-                                    <div className="space-y-3">
-                                        {teaching.map((t, idx) => (
-                                            <div key={idx} className="p-3.5 rounded-lg bg-card/30 border border-border/50 text-sm flex justify-between gap-4">
-                                                <span className="font-semibold">{t.course}</span>
-                                                <span className="text-xs font-mono text-muted-foreground self-center shrink-0">{t.role}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                                        <Mic size={16} className="text-primary" /> Presentation Highlights
-                                    </h3>
-                                    <div className="max-h-[350px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
-                                        {talks.map((talk, idx) => (
-                                            <div key={idx} className="p-3.5 rounded-lg bg-card/30 border border-border/50 space-y-1.5">
-                                                <div className="flex justify-between items-start gap-4">
-                                                    <h4 className="font-bold text-sm leading-tight text-foreground">{talk.title}</h4>
-                                                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
-                                                        {talk.date}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between items-center text-xs text-muted-foreground font-mono">
-                                                    <span>{talk.venue} · {talk.location}</span>
-                                                    {talk.links?.slides && (
-                                                        <a href={talk.links.slides} target="_blank" rel="noreferrer" className="flex items-center gap-0.5 hover:text-primary transition-colors">
-                                                            Slides <ArrowUpRight size={10} />
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* SECTION: MUSIC */}
-                        <section id="music" className="scroll-mt-28 space-y-10">
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-primary font-semibold">Sound alias: Lalbe</span>
-                                    <h2 className="font-display text-3xl font-bold tracking-tight">Creative Dimensions</h2>
-                                </div>
-                                <p className="text-sm text-muted-foreground max-w-2xl">
-                                    Beyond machine learning, I produce house and soulful music under the alias <span className="text-foreground font-semibold">Lalbe</span>. Here are some of my productions and curated sets.
-                                </p>
-                            </div>
-
-                            <div className="grid md:grid-cols-[2fr_1fr] gap-8">
-                                <div className="space-y-4">
-                                    <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                                        <Music size={16} className="text-primary" /> Audio Productions
-                                    </h3>
-                                    <div className="space-y-4">
-                                        {production.map((track, idx) => (
-                                            <div key={idx} className="editorial-card p-4 bg-card/40 backdrop-blur-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                                <div>
-                                                    <h4 className="font-bold text-sm text-foreground">{track.title}</h4>
-                                                    <p className="text-xs text-muted-foreground font-mono">Artist: {track.artist}</p>
-                                                </div>
-                                                <a 
-                                                    href={track.link} 
-                                                    target="_blank" 
-                                                    rel="noreferrer"
-                                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border text-xs font-mono font-medium hover:text-primary transition-all self-start sm:self-auto"
-                                                >
-                                                    Listen on SoundCloud <ArrowUpRight size={12} />
-                                                </a>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h3 className="font-display font-bold text-xl text-foreground flex items-center gap-2 border-b border-border/40 pb-2">
-                                        Curated Playlists
-                                    </h3>
-                                    <div className="space-y-3">
-                                        {playlists.map((playlist, idx) => (
-                                            <div key={idx} className="p-3.5 rounded-lg bg-card/30 border border-border/50 space-y-1">
-                                                <div className="flex justify-between items-center">
-                                                    <h4 className="font-bold text-sm">{playlist.title}</h4>
-                                                    <span className="text-[10px] font-mono text-muted-foreground">{playlist.duration}</span>
-                                                </div>
-                                                <a 
-                                                    href={playlist.link} 
-                                                    target="_blank" 
-                                                    rel="noreferrer"
-                                                    className="inline-flex items-center gap-0.5 text-xs font-mono text-muted-foreground hover:text-primary transition-colors"
-                                                >
-                                                    Open Spotify <ArrowUpRight size={11} />
-                                                </a>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-
-                    </main>
+                            );
+                        })}
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            {/* --- SECTION 06: ADVISORY --- */}
+            <section id="advisory" className="py-20 border-b border-line bg-panel/30">
+                <div className="container-page">
+                    <p className="eyebrow">06 / Advisory</p>
+                    <h2 className="section-title mt-3">Exits & Consultations</h2>
+                    <p className="mt-4 text-sm text-muted max-w-xl">
+                        Scientific advisor guiding artificial intelligence, computer vision, and predictive analytics startups through critical architectures.
+                    </p>
+
+                    <div className="mt-10 grid sm:grid-cols-3 gap-6">
+                        <div className="rounded-2xl border border-line bg-paper p-6 flex flex-col justify-between gap-6 hover:border-accent/40 transition-all shadow-soft">
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <span className="px-2 py-0.5 rounded bg-accent-soft border border-accent/20 text-[10px] font-mono font-semibold text-accent uppercase">Acquired</span>
+                                    <span className="text-xs text-faint font-mono">Paris, FR</span>
+                                </div>
+                                <h3 className="font-display font-bold text-xl text-ink">Monk AI</h3>
+                                <p className="text-sm text-muted leading-relaxed">
+                                    Built object damage detection models using Mask R-CNN. Acquired by ACV Auctions.
+                                </p>
+                            </div>
+                            <a href="https://monk.ai/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-mono font-semibold text-accent hover:underline">
+                                Visit Monk AI <ArrowUpRight size={13} />
+                            </a>
+                        </div>
+
+                        <div className="rounded-2xl border border-line bg-paper p-6 flex flex-col justify-between gap-6 hover:border-accent/40 transition-all shadow-soft">
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <span className="px-2 py-0.5 rounded bg-accent-soft border border-accent/20 text-[10px] font-mono font-semibold text-accent uppercase">Acquired</span>
+                                    <span className="text-xs text-faint font-mono">Paris, FR</span>
+                                </div>
+                                <h3 className="font-display font-bold text-xl text-ink">Brainattic</h3>
+                                <p className="text-sm text-muted leading-relaxed">
+                                    Researched video-based information retrieval and automated summary clip generators. Acquired by Master The Monster.
+                                </p>
+                            </div>
+                            <span className="text-xs font-mono text-faint uppercase tracking-wider">Acquisition Complete</span>
+                        </div>
+
+                        <div className="rounded-2xl border border-line bg-paper p-6 flex flex-col justify-between gap-6 hover:border-accent/40 transition-all shadow-soft">
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <span className="px-2 py-0.5 rounded bg-award-soft border border-award/25 text-[10px] font-mono font-semibold text-award uppercase">Active</span>
+                                    <span className="text-xs text-faint font-mono">Vancouver, CA</span>
+                                </div>
+                                <h3 className="font-display font-bold text-xl text-ink">EyeCareX</h3>
+                                <p className="text-sm text-muted leading-relaxed">
+                                    Co-developing proprietary AI diagnostics for remote optometry and clinical eye tests.
+                                </p>
+                            </div>
+                            <a href="https://www.eyecarex.com/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-mono font-semibold text-accent hover:underline">
+                                Visit EyeCareX <ArrowUpRight size={13} />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 07: TALKS & TEACHING --- */}
+            <section id="talks" className="py-20 border-b border-line">
+                <div className="container-page">
+                    <p className="eyebrow">07 / Academy</p>
+                    <h2 className="section-title mt-3">Talks & Lectures</h2>
+
+                    <div className="mt-12 grid md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <h3 className="font-display font-bold text-xl text-ink flex items-center gap-2 border-b border-line pb-2">
+                                <BookOpen size={16} className="text-accent" /> Teaching & Seminars
+                            </h3>
+                            <div className="space-y-3">
+                                {teaching.map((t, idx) => (
+                                    <div key={idx} className="p-4 rounded-xl bg-panel/40 border border-line text-sm flex justify-between gap-4">
+                                        <span className="font-bold text-ink">{t.course}</span>
+                                        <span className="text-xs font-mono text-muted self-center shrink-0">{t.role}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="font-display font-bold text-xl text-ink flex items-center gap-2 border-b border-line pb-2">
+                                <Mic size={16} className="text-accent" /> Presentations
+                            </h3>
+                            <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
+                                {talks.map((talk, idx) => (
+                                    <div key={idx} className="p-4 rounded-xl bg-panel/40 border border-line space-y-1.5">
+                                        <div className="flex justify-between items-start gap-4">
+                                            <h4 className="font-bold text-sm leading-tight text-ink">{talk.title}</h4>
+                                            <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded bg-accent-soft text-accent border border-accent/15 shrink-0">
+                                                {talk.date}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center text-xs text-muted font-mono">
+                                            <span>{talk.venue} · {talk.location}</span>
+                                            {talk.links?.slides && (
+                                                <a href={talk.links.slides} target="_blank" rel="noopener noreferrer" className="flex items-center gap-0.5 hover:text-accent transition-colors">
+                                                    Slides <ArrowUpRight size={10} />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* --- SECTION 08: CREATIVE --- */}
+            <section id="music" className="py-20 border-b border-line bg-panel/30">
+                <div className="container-page">
+                    <p className="eyebrow">08 / Creative</p>
+                    <h2 className="section-title mt-3">House & Soul: Lalbe</h2>
+                    <p className="mt-4 text-sm text-muted max-w-xl">
+                        Outside of machine learning theory, I write and release music under the moniker <span className="text-ink font-semibold">Lalbe</span>, focusing on deep house and soulful tracks.
+                    </p>
+
+                    <div className="mt-12 grid md:grid-cols-[1.6fr_1fr] gap-8">
+                        <div className="space-y-4">
+                            <h3 className="font-display font-bold text-xl text-ink flex items-center gap-2 border-b border-line pb-2">
+                                <Music size={16} className="text-accent" /> Track Releases
+                            </h3>
+                            <div className="space-y-3">
+                                {production.map((track, idx) => (
+                                    <div key={idx} className="rounded-xl border border-line bg-paper p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-soft">
+                                        <div>
+                                            <h4 className="font-bold text-sm text-ink">{track.title}</h4>
+                                            <p className="text-xs text-faint font-mono">Artist: {track.artist}</p>
+                                        </div>
+                                        <a 
+                                            href={track.link} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-panel border border-line text-xs font-mono font-semibold text-ink hover:text-accent transition-all self-start sm:self-auto"
+                                        >
+                                            SoundCloud <ArrowUpRight size={12} />
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="font-display font-bold text-xl text-ink flex items-center gap-2 border-b border-line pb-2">
+                                Spotify Playlists
+                            </h3>
+                            <div className="space-y-3">
+                                {playlists.map((playlist, idx) => (
+                                    <div key={idx} className="p-4 rounded-xl bg-paper border border-line space-y-1 shadow-soft">
+                                        <div className="flex justify-between items-center">
+                                            <h4 className="font-bold text-sm text-ink">{playlist.title}</h4>
+                                            <span className="text-[10px] font-mono text-faint">{playlist.duration}</span>
+                                        </div>
+                                        <a 
+                                            href={playlist.link} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-0.5 text-xs font-mono text-muted hover:text-accent transition-colors"
+                                        >
+                                            Spotify <ArrowUpRight size={11} />
+                                        </a>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* --- FOOTER --- */}
-            <footer className="border-t border-border/40 py-12 bg-card/20 transition-colors duration-300">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-muted-foreground">
+            <footer className="py-12 bg-paper transition-colors duration-300">
+                <div className="container-page flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-faint">
                     <p>© {new Date().getFullYear()} {bio.name}. All rights reserved.</p>
+                    <div className="flex gap-4">
+                        <a href={bio.socials.github} target="_blank" rel="noopener noreferrer" className="hover:text-ink">GitHub</a>
+                        <a href={bio.socials.linkedin} target="_blank" rel="noopener noreferrer" className="hover:text-ink">LinkedIn</a>
+                        <a href={`mailto:${bio.email}`} className="hover:text-ink">Email</a>
+                    </div>
                 </div>
             </footer>
         </div>

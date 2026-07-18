@@ -27,6 +27,12 @@ module.exports = {
                 ring: "hsl(var(--ring))",
                 background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
+                paper: "hsl(var(--paper))",
+                panel: "hsl(var(--panel))",
+                line: "hsl(var(--line))",
+                ink: "hsl(var(--ink))",
+                muted: "hsl(var(--muted))",
+                faint: "hsl(var(--faint))",
                 primary: {
                     DEFAULT: "hsl(var(--primary))",
                     foreground: "hsl(var(--primary-foreground))",
@@ -39,14 +45,16 @@ module.exports = {
                     DEFAULT: "hsl(var(--destructive))",
                     foreground: "hsl(var(--destructive-foreground))",
                 },
-                muted: {
-                    DEFAULT: "hsl(var(--muted))",
-                    foreground: "hsl(var(--muted-foreground))",
-                },
                 accent: {
                     DEFAULT: "hsl(var(--accent))",
                     foreground: "hsl(var(--accent-foreground))",
                 },
+                "accent-soft": "hsl(var(--accent-soft))",
+                award: {
+                    DEFAULT: "hsl(var(--award))",
+                    foreground: "hsl(var(--award-foreground))",
+                },
+                "award-soft": "hsl(var(--award-soft))",
                 popover: {
                     DEFAULT: "hsl(var(--popover))",
                     foreground: "hsl(var(--popover-foreground))",

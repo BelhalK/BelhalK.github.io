@@ -34,6 +34,19 @@
         --ring: 14 75% 48%;
 
         --radius: 0.75rem;
+
+        /* Tangvu inspired palettes */
+        --paper: 40 40% 98%;
+        --panel: 38 22% 94%;
+        --line: 38 18% 88%;
+        --ink: 220 20% 12%;
+        --muted: 220 10% 44%;
+        --faint: 220 10% 60%;
+        --accent: 14 75% 48%;
+        --accent-soft: 14 75% 95%;
+        --award: 185 65% 35%;
+        --award-soft: 185 65% 95%;
+        --award-foreground: 185 65% 35%;
     }
 
     .dark {
@@ -63,6 +76,19 @@
         --border: 222 15% 16%;
         --input: 222 15% 16%;
         --ring: 14 85% 55%;
+
+        /* Tangvu inspired dark palettes */
+        --paper: 222 20% 10%;
+        --panel: 222 20% 6%;
+        --line: 222 15% 15%;
+        --ink: 210 15% 92%;
+        --muted: 210 10% 64%;
+        --faint: 210 10% 48%;
+        --accent: 14 85% 55%;
+        --accent-soft: 14 85% 15%;
+        --award: 180 75% 50%;
+        --award-soft: 180 75% 12%;
+        --award-foreground: 180 75% 90%;
     }
 }
 
@@ -134,6 +160,23 @@
     }
     .dark .grain-overlay {
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+    }
+
+    /* tangvu.dev inspired utility classes */
+    .container-page {
+        @apply mx-auto max-w-6xl px-4 sm:px-6 lg:px-8;
+    }
+
+    .eyebrow {
+        @apply font-mono text-[0.7rem] font-bold uppercase tracking-[0.18em] text-accent;
+    }
+
+    .section-title {
+        @apply font-display text-[clamp(1.8rem,4vw,2.75rem)] font-semibold leading-[1.1] tracking-tight text-ink;
+    }
+
+    .link-underline {
+        @apply relative inline-block after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:origin-bottom-right after:scale-x-0 after:bg-current after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100;
     }
 }
 
