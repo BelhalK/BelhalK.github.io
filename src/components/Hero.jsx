@@ -155,6 +155,92 @@ const Hero = ({ setActiveTab }) => {
                 ))}
             </motion.div>
 
+            {/* Toolbox / Stack Section adapted to Belhal's ML & Optimization background */}
+            <div className="w-screen relative left-1/2 -ml-[50vw] mt-16 py-12 bg-card/60 border-y border-border/70">
+                <div className="w-full max-w-[1240px] mx-auto px-6 sm:px-8 lg:px-12">
+                    <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-4 mb-10">
+                        <h2 className="font-display font-semibold text-2xl md:text-3xl tracking-tight text-foreground shrink-0">The stack I reach for.</h2>
+                        <p className="text-sm leading-relaxed text-foreground/75 md:text-right md:whitespace-nowrap">
+                            Bridging rigorous mathematical optimization with production AI systems at scale.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+                        {/* Row 1 - Column 1 */}
+                        <div>
+                            <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                <span className="h-px w-3 bg-primary" />Search (Match and Rank)
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5">
+                                {['Multimodal Retrieval', 'Neural Ranking', 'RAG', 'Embedding modeling', 'Learn-to-Rank'].map((tech) => (
+                                    <span key={tech} className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">{tech}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Row 1 - Column 2 */}
+                        <div>
+                            <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                <span className="h-px w-3 bg-primary" />Generative AI & CV
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5">
+                                {['FLUX / SDXL / SD3', 'Diffusers / Fine-tuning', 'Generative Design', 'Object Detection', '3D AI (Trellis)'].map((tech) => (
+                                    <span key={tech} className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">{tech}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Row 1 - Column 3 */}
+                        <div>
+                            <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                <span className="h-px w-3 bg-primary" />Data & AI
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5">
+                                {['LLM fine-tuning', 'RAG', 'Databricks', 'Spark', 'Hadoop', 'ONNX kernel optimization'].map((tech) => (
+                                    <span key={tech} className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">{tech}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Row 2 - Column 1 */}
+                        <div>
+                            <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                <span className="h-px w-3 bg-primary" />Core Languages and Frameworks
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5">
+                                {['Python', 'R', 'SQL', 'PyTorch / TensorFlow'].map((tech) => (
+                                    <span key={tech} className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">{tech}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Row 2 - Column 2 */}
+                        <div>
+                            <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                <span className="h-px w-3 bg-primary" />Optimization Algorithms
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5">
+                                {['Convex Optimization', 'Adaptive Gradients', 'Bayesian Networks', 'Gradient Algorithms'].map((tech) => (
+                                    <span key={tech} className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">{tech}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Row 2 - Column 3 */}
+                        <div>
+                            <h3 className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground mb-3">
+                                <span className="h-px w-3 bg-primary" />Distributed & Federated Systems
+                            </h3>
+                            <div className="flex flex-wrap gap-1.5">
+                                {['Federated Learning', 'Compression Algorithms', 'Decentralized Training', 'Scalable Systems'].map((tech) => (
+                                    <span key={tech} className="rounded-lg border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground">{tech}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* Latest updates */}
             <motion.div
                 initial={reduce ? { opacity: 1 } : { opacity: 0 }}

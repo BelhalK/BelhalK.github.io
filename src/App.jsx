@@ -14,45 +14,18 @@ import MusicSection from './components/MusicSection';
 import { bio } from './data/bio';
 
 const Background = () => {
-    const reduce = useReducedMotion();
     return (
-        <div aria-hidden="true" className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-            {/* warm paper base */}
-            <div className="absolute inset-0 bg-background" />
-            {/* soft radial wash */}
+        <div aria-hidden="true" className="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-background">
+            {/* Dotted grid pattern matching tangvu.dev */}
             <div
-                className="absolute inset-0 opacity-80"
+                className="absolute inset-0 opacity-40"
                 style={{
-                    background:
-                        'radial-gradient(120% 80% at 80% -10%, hsl(14 75% 96% / 0.7) 0%, transparent 55%), radial-gradient(90% 60% at -10% 30%, hsl(20 75% 93% / 0.4) 0%, transparent 50%)',
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, #d9d9d4 1.2px, transparent 0)',
+                    backgroundSize: '22px 22px',
+                    maskImage: 'linear-gradient(to bottom, black 50%, transparent 95%)',
+                    WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 95%)',
                 }}
             />
-            {/* floating orbs */}
-            <div
-                className={`absolute -top-24 right-[8%] h-[26rem] w-[26rem] rounded-full blur-3xl ${reduce ? '' : 'animate-drift'}`}
-                style={{ background: 'radial-gradient(circle at 30% 30%, hsl(14 75% 60% / 0.12), transparent 65%)' }}
-            />
-            <div
-                className={`absolute top-[40%] -left-24 h-[22rem] w-[22rem] rounded-full blur-3xl ${reduce ? '' : 'animate-float'}`}
-                style={{ background: 'radial-gradient(circle at 60% 40%, hsl(22 75% 70% / 0.08), transparent 65%)' }}
-            />
-            <div
-                className={`absolute bottom-[-8%] right-[20%] h-[20rem] w-[20rem] rounded-full blur-3xl ${reduce ? '' : 'animate-drift'}`}
-                style={{ background: 'radial-gradient(circle at 50% 50%, hsl(10 75% 75% / 0.08), transparent 65%)' }}
-            />
-            {/* fine grid */}
-            <div
-                className="absolute inset-0 opacity-[0.04]"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(to right, hsl(220 18% 14%) 1px, transparent 1px), linear-gradient(to bottom, hsl(220 18% 14%) 1px, transparent 1px)',
-                    backgroundSize: '64px 64px',
-                    maskImage: 'radial-gradient(120% 90% at 50% 0%, black 30%, transparent 75%)',
-                    WebkitMaskImage: 'radial-gradient(120% 90% at 50% 0%, black 30%, transparent 75%)',
-                }}
-            />
-            {/* paper grain */}
-            <div className="absolute inset-0 grain opacity-[0.035] mix-blend-multiply" />
         </div>
     );
 };

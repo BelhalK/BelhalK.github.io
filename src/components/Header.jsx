@@ -30,7 +30,7 @@ const Header = ({ activeTab, setActiveTab }) => {
             className="fixed top-0 left-0 right-0 z-50"
         >
             <div className="mx-auto max-w-[1240px] px-4 sm:px-8 lg:px-12 pt-4">
-                <div className="flex items-center justify-center gap-3 rounded-full border border-border/80 bg-card/70 backdrop-blur-md px-4 py-2 shadow-soft">
+                <div className="flex w-fit mx-auto items-center justify-center gap-3 rounded-full border border-border/80 bg-card/70 backdrop-blur-md px-4 py-2 shadow-soft">
                     {/* Desktop nav — icons + labels */}
                     <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">
                         {navItems.map((item) => {
