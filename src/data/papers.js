@@ -4,7 +4,8 @@ export const papers = [
         authors: "Emmanuelle Comets, Maud Delattre, Belhal Karimi",
         venue: "arXiv preprint arXiv:2603.03154, 2026",
         links: { pdf: "https://arxiv.org/pdf/2603.03154" },
-        thumbnail: "/assets/industry/saemix.png"
+        thumbnail: "/assets/industry/saemix.png",
+        abstract: "Background and Objectives: Longitudinal data are increasingly collected in clinical trials to enhance the information on treatment action and disease evolution. The trajectory of continuous biomarkers such as target hormone concentrations or viral loads can then be modelled in relationship to the occurrence of events such as recovery or hospitalisation. However many other types of longitudinal data can be collected, such as pain scores (categorical or binary), number of episodes (count) or occurrence of events (survival). The statistical analysis of choice for longitudinal data is non-linear mixed-effect models (NLMEM), as these can naturally handle individual differences in trajectories while modelling the underlying population evolution. While there are several commercial packages available to estimate the parameters of these models, such as Nonmem and Monolix, the saemix package for R is one of the few open-source solutions and the most flexible. In this paper, we present an extended version of the package that accommodates a variety of models for non-Gaussian data."
     },
     {
         title: "STANLEY: Stochastic Gradient Anisotropic Langevin Dynamics for Learning Energy-Based Models",

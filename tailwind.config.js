@@ -17,8 +17,8 @@ module.exports = {
         },
         extend: {
             fontFamily: {
-                sans: ['"Hanken Grotesk"', 'system-ui', 'sans-serif'],
-                display: ['"Fraunces"', 'Georgia', 'serif'],
+                sans: ['"Inter"', 'system-ui', 'sans-serif'],
+                display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
                 mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
             },
             colors: {

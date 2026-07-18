@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,40 +6,40 @@
 
 @layer base {
     :root {
-        /* Warm editorial / scientific portfolio — paper + ink + clay */
+        /* Clean minimalist developer profile - paper + ink + line */
 
-        /* Base — warm cream paper */
-        --background: 38 44% 97%;
-        --foreground: 220 18% 14%;
+        /* Base — white paper */
+        --background: 0 0% 100%;
+        --foreground: 240 8% 10%;
 
-        /* Cards — soft warm white */
-        --card: 40 50% 99%;
-        --card-foreground: 220 18% 14%;
+        /* Cards — light slate panel */
+        --card: 60 7% 96.5%;
+        --card-foreground: 240 8% 10%;
 
-        --popover: 40 50% 99%;
-        --popover-foreground: 220 18% 14%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 8% 10%;
 
-        /* Primary — Nike Orange */
-        --primary: 14 75% 48%;
-        --primary-foreground: 40 50% 99%;
+        /* Primary — Navy Blue accent */
+        --primary: 222 75% 35%;
+        --primary-foreground: 0 0% 100%;
 
-        /* Secondary — deep ink */
-        --secondary: 220 22% 16%;
-        --secondary-foreground: 40 50% 98%;
+        /* Secondary — Slate grey */
+        --secondary: 240 5% 35%;
+        --secondary-foreground: 0 0% 100%;
 
-        --muted: 38 30% 93%;
-        --muted-foreground: 220 10% 42%;
+        --muted: 60 7% 96.5%;
+        --muted-foreground: 240 5% 35%;
 
-        /* Accent — Nike Orange */
-        --accent: 14 75% 48%;
-        --accent-foreground: 40 50% 99%;
+        /* Accent — Navy Blue */
+        --accent: 222 75% 35%;
+        --accent-foreground: 0 0% 100%;
 
         --destructive: 4 70% 52%;
-        --destructive-foreground: 40 50% 99%;
+        --destructive-foreground: 0 0% 100%;
 
-        --border: 36 28% 86%;
-        --input: 36 28% 86%;
-        --ring: 14 75% 48%;
+        --border: 60 4% 89%;
+        --input: 60 4% 89%;
+        --ring: 222 75% 35%;
 
         --radius: 0.9rem;
     }
@@ -52,14 +52,13 @@
 
     html {
         scroll-behavior: smooth;
-        font-size: 18px;
+        scroll-padding-top: 5rem;
     }
 
     body {
         @apply bg-background text-foreground font-sans antialiased;
         background-color: hsl(var(--background));
-        font-family: '"Hanken Grotesk"', system-ui, sans-serif;
-        /* Responsive layout — no global zoom override */
+        font-family: '"Inter"', system-ui, sans-serif;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
     }
@@ -67,8 +66,7 @@
     h1, h2, h3, h4, h5, h6 {
         @apply font-display tracking-tight;
         color: hsl(var(--foreground));
-        font-family: '"Fraunces"', Georgia, serif;
-        font-optical-sizing: auto;
+        font-family: '"Space Grotesk"', system-ui, sans-serif;
     }
 
     /* Visible, accessible focus states */
