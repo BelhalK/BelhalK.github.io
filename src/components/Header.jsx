@@ -30,7 +30,7 @@ const Header = ({ activeTab, setActiveTab }) => {
             className="fixed top-0 left-0 right-0 z-50"
         >
             <div className="mx-auto max-w-[1240px] px-4 sm:px-8 lg:px-12 pt-4">
-                <div className="flex w-fit mx-auto items-center justify-center gap-3 rounded-full border border-border/80 bg-card/70 backdrop-blur-md px-4 py-2 shadow-soft">
+                <div className="flex w-fit max-w-full mx-auto items-center justify-center gap-3 rounded-full border border-border/80 bg-card/70 backdrop-blur-md px-4 py-2 shadow-soft">
                     {/* Desktop nav — icons + labels */}
                     <nav className="hidden lg:flex items-center gap-0.5" aria-label="Primary">
                         {navItems.map((item) => {
@@ -43,7 +43,7 @@ const Header = ({ activeTab, setActiveTab }) => {
                                     aria-current={isActive ? 'page' : undefined}
                                     className={`relative px-3 py-2 rounded-full flex items-center gap-2 text-sm font-medium transition-colors outline-none
                                         ${isActive ? 'text-primary' : 'text-foreground/70 hover:text-foreground hover:bg-muted/70'}`}
-                                >
+                                  >
                                     {isActive && (
                                         <motion.span
                                             layoutId="activeTabPill"
@@ -62,7 +62,7 @@ const Header = ({ activeTab, setActiveTab }) => {
 
                     {/* Mobile/tablet icon nav — directly accessible, horizontally scrollable */}
                     <nav
-                        className="lg:hidden flex items-center gap-1 overflow-x-auto no-scrollbar -mr-1 pr-1"
+                        className="lg:hidden flex items-center gap-1 overflow-x-auto no-scrollbar -mr-1 pr-1 w-full min-w-0"
                         aria-label="Primary"
                     >
                         {navItems.map((item) => {
