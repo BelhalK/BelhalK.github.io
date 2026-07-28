@@ -85,8 +85,8 @@ function renderHeader(h) {
 
     const links = el("div", "rz-links");
     links.innerHTML = h.links.map(l =>
-	`${ICONS[l.icon] || ""}<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`
-    ).join('<span class="sep">|</span>');
+	`<span class="rz-link-wrapper">${ICONS[l.icon] || ""}<a href="${l.url}" target="_blank" rel="noopener">${l.label}</a></span>`
+    ).join(' ');
     head.appendChild(links);
     return head;
 }
