@@ -113,6 +113,7 @@ const Hero = ({ setActiveTab }) => {
                             <SocialLink href={bio.socials.twitter} icon={Twitter} label="Twitter" delay={0.44} />
                             <SocialLink href={bio.socials.soundcloud} icon={Music} label="SoundCloud" delay={0.48} />
                             <SocialLink href={`mailto:${bio.email}`} icon={Mail} label="Email" delay={0.52} />
+                            <SocialLink href="/resume/index.html" icon={FileText} label="Resume" delay={0.56} />
                         </div>
                     </motion.div>
                 </div>

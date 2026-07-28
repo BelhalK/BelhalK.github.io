@@ -1,0 +1,12 @@
+{
+  "name": "Belhal Karimi",
+  "location": "Portland, OR, USA",
+  "phone": "+1 (206) 427-8295",
+  "email": "belhal.karimi@gmail.com",
+  "links": [
+    { "icon": "globe", "label": "belhal.github.io", "url": "https://belhal.github.io" },
+    { "icon": "github", "label": "github.com/BelhalK", "url": "https://github.com/BelhalK" },
+    { "icon": "linkedin", "label": "linkedin/in/belhal", "url": "https://linkedin.com/in/belhal" },
+    { "icon": "scholar", "label": "Google Scholar", "url": "https://scholar.google.com/citations?hl=en&user=Xh_OIWkAAAAJ" }
+  ]
+}

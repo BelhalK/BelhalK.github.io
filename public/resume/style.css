@@ -1,0 +1,344 @@
+/* ===== Palette (from main.tex) ===== */
+:root {
+ --primary: #0F172A; /* Slate 900 */
+ --secondary: #2563EB; /* Blue 600 */
+ --text: #334155; /* Slate 700 */
+ --lighttext: #64748B; /* Slate 500 */
+ --divider: #E2E8F0; /* Slate 200 */
+ --page-w: 8.5in;
+ --page-h: 11in;
+ --mx: 0.65in;
+ --my: 0.6in;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+ margin: 0;
+ padding: 0;
+ background: #64748b22;
+ font-family: "Helvetica Neue", Helvetica, Arial, "Segoe UI", sans-serif;
+ color: var(--text);
+ -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Toolbar ===== */
+#toolbar {
+ position: sticky;
+ top: 0;
+ z-index: 100;
+ display: flex;
+ gap: 10px;
+ align-items: center;
+ padding: 12px 20px;
+ background: var(--primary);
+ color: #fff;
+ box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+#toolbar .brand {
+ font-weight: 700;
+ letter-spacing: .5px;
+ margin-right: auto;
+ font-size: 15px;
+}
+#toolbar button {
+ font: inherit;
+ font-size: 13px;
+ font-weight: 600;
+ border: none;
+ border-radius: 6px;
+ padding: 8px 14px;
+ cursor: pointer;
+ background: var(--secondary);
+ color: #fff;
+ transition: filter .15s ease, background .15s ease;
+}
+#toolbar button:hover { filter: brightness(1.1); }
+#toolbar button.ghost {
+ background: transparent;
+ border: 1px solid #ffffff55;
+}
+#toolbar button.active {
+ background: #16a34a;
+}
+
+/* ===== Page (US Letter) ===== */
+.page-wrap {
+ display: flex;
+ justify-content: center;
+ padding: 24px 12px 60px;
+}
+.sheet {
+ width: var(--page-w);
+ min-height: var(--page-h);
+ background: #fff;
+ padding: var(--my) var(--mx);
+ box-shadow: 0 6px 24px rgba(15,23,42,.18);
+ font-size: 9.6pt;
+ line-height: 1.34;
+ color: var(--text);
+}
+
+/* ===== Header ===== */
+.rz-header { text-align: center; margin-bottom: 4px; }
+.rz-name {
+ font-size: 26pt;
+ font-weight: 800;
+ color: var(--primary);
+ letter-spacing: -.3px;
+ margin: 0 0 7px;
+}
+.rz-contact {
+ color: var(--lighttext);
+ font-size: 9pt;
+}
+.rz-contact .sep { margin: 0 6px; color: var(--divider); }
+.rz-links {
+ color: var(--secondary);
+ font-size: 9pt;
+ margin-top: 3px;
+}
+.rz-links a { color: var(--secondary); text-decoration: none; }
+.rz-links a:hover { text-decoration: underline; }
+.rz-contact a { color: var(--secondary); text-decoration: none; }
+/* Lucide SVG icons: neat black stroke, aligned with text */
+.ico {
+ color: var(--primary);
+ width: 13px;
+ height: 13px;
+ vertical-align: -2px;
+ margin-right: 4px;
+ flex: none;
+}
+.rz-links .ico { margin-left: 2px; }
+
+/* ===== Sections ===== */
+.rz-section { margin-top: 12px; }
+.rz-section-titlerow { display: flex; align-items: baseline; gap: 8px; }
+
+/* Section reorder controls (edit mode only) */
+.section-order { align-items: center; gap: 4px; margin-left: auto; }
+.section-order .sord {
+ font: inherit;
+ font-size: 13px;
+ line-height: 1;
+ width: 24px;
+ height: 22px;
+ padding: 0;
+ border: 1px solid var(--divider);
+ background: #fff;
+ color: var(--primary);
+ border-radius: 5px;
+ cursor: pointer;
+}
+.section-order .sord:hover:not(:disabled) { background: #eff6ff; border-color: var(--secondary); }
+.section-order .sord:disabled { opacity: .3; cursor: not-allowed; }
+.section-order .sord-pos {
+ font-size: 11px;
+ color: var(--lighttext);
+ min-width: 34px;
+ text-align: center;
+ user-select: none;
+}
+.rz-section:first-of-type { margin-top: 8px; }
+.rz-section-title {
+ color: var(--primary);
+ font-size: 12.5pt;
+ font-weight: 700;
+ margin: 0 0 5px;
+ padding: 0;
+}
+.rz-rule {
+ border: none;
+ border-top: 1.25pt solid var(--secondary);
+ margin: 0 0 6px;
+}
+
+/* Text block */
+.rz-text { margin: 0; text-align: justify; }
+
+/* Skills table */
+.rz-skills { width: 100%; border-collapse: collapse; }
+.rz-skills td { vertical-align: top; padding: 2.5pt 0; }
+.rz-skills .cat {
+ color: var(--primary);
+ font-weight: 700;
+ white-space: nowrap;
+ padding-right: 8px;
+}
+
+/* Entry (experience / advisory / education) */
+.rz-entry { margin-bottom: 7px; }
+.rz-entry.compact { margin-bottom: 6px; }
+.rz-entry-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.rz-entry-title { color: var(--primary); font-weight: 700; font-size: 11.5pt; }
+.rz-entry.compact .rz-entry-title { font-size: 10pt; }
+.rz-entry-right { color: var(--text); font-style: italic; font-size: 9.2pt; white-space: nowrap; }
+.rz-entry-subhead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 1px; }
+.rz-entry-sub { color: var(--secondary); font-style: italic; }
+.rz-entry-date { color: var(--lighttext); font-size: 8.6pt; white-space: nowrap; }
+
+/* Bullet list */
+.rz-items { list-style: none; margin: 4px 0 0; padding: 0; }
+.rz-items li {
+ position: relative;
+ padding-left: 15px;
+ margin-bottom: 3.5px;
+ text-align: justify;
+}
+.rz-items li::before {
+ content: "\203A"; /* › angle right */
+ position: absolute;
+ left: 2px;
+ top: -1px;
+ color: var(--secondary);
+ font-weight: 700;
+}
+.rz-items .lead { color: var(--primary); font-weight: 700; }
+.rz-items code, .sheet code {
+ font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+ font-size: .9em;
+ background: #f1f5f9;
+ padding: 0 3px;
+ border-radius: 3px;
+}
+.sheet a { color: var(--secondary); text-decoration: none; }
+.sheet a:hover { text-decoration: underline; }
+
+/* Publications */
+.rz-pub { margin-bottom: 5px; }
+.rz-pub .p-title { color: var(--primary); font-weight: 700; }
+.rz-pub .p-authors { font-style: italic; color: var(--text); }
+.rz-pub .p-venue { color: var(--lighttext); font-size: 8.6pt; }
+
+/* Software */
+.rz-soft { margin-bottom: 5px; }
+.rz-soft .s-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.rz-soft .s-title { color: var(--primary); font-weight: 700; }
+.rz-soft .s-role { color: var(--secondary); font-style: italic; white-space: nowrap; }
+.rz-soft .s-detail { color: var(--text); }
+
+/* Honors / Teaching */
+.rz-group { margin-bottom: 6px; }
+.rz-group-head { font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.rz-honor-list { list-style: none; margin: 0; padding: 0; }
+.rz-honor-list li {
+ position: relative;
+ padding-left: 15px;
+ margin-bottom: 2.5px;
+ display: flex;
+ justify-content: space-between;
+ gap: 12px;
+}
+.rz-honor-list li .h-text { flex: 1; }
+.rz-honor-list li .h-right { color: var(--lighttext); white-space: nowrap; }
+.rz-honor-list li::before {
+ position: absolute;
+ left: 0;
+ top: 0;
+ color: var(--secondary);
+ font-size: .85em;
+}
+.rz-honor-list.icon-star li::before { content: "\2605"; }
+.rz-honor-list.icon-cap li::before { content: "\1F393"; }
+
+/* Key-value (interests) */
+.rz-kv { margin: 0; }
+.rz-kv .k { font-weight: 700; color: var(--text); }
+
+/* References (2 columns) */
+.rz-refs { columns: 2; column-gap: 30px; }
+.rz-ref { break-inside: avoid; margin-bottom: 8px; }
+.rz-ref .r-name { color: var(--primary); font-weight: 700; }
+.rz-ref .r-role { color: var(--text); font-style: italic; }
+.rz-ref .r-email { }
+
+/* ===== Edit mode controls ===== */
+body.editing .sheet { outline: 2px dashed var(--secondary); outline-offset: 8px; }
+.edit-only { display: none; }
+body.editing .edit-only { display: inline-flex; }
+
+.editable-block { position: relative; }
+body.editing .editable-block:hover { background: #eff6ff; box-shadow: 0 0 0 4px #eff6ff; border-radius: 4px; }
+
+.entry-controls {
+ gap: 6px;
+ margin-left: 8px;
+ vertical-align: middle;
+}
+.entry-controls button {
+ font: inherit;
+ font-size: 11px;
+ line-height: 1;
+ padding: 2px 6px;
+ border: 1px solid var(--divider);
+ background: #fff;
+ color: var(--text);
+ border-radius: 4px;
+ cursor: pointer;
+}
+.entry-controls button.del { color: #dc2626; border-color: #fecaca; }
+.entry-controls button.del:hover { background: #fef2f2; }
+.entry-controls button.add:hover { background: #eff6ff; }
+
+.add-entry-btn {
+ display: none;
+ margin-top: 6px;
+ font: inherit;
+ font-size: 12px;
+ font-weight: 600;
+ padding: 5px 10px;
+ border: 1px dashed var(--secondary);
+ background: #eff6ff;
+ color: var(--secondary);
+ border-radius: 6px;
+ cursor: pointer;
+}
+body.editing .add-entry-btn { display: inline-block; }
+
+body.editing [contenteditable="true"] {
+ outline: 1px dotted #93c5fd;
+ outline-offset: 2px;
+ border-radius: 2px;
+}
+body.editing [contenteditable="true"]:focus {
+ outline: 1px solid var(--secondary);
+ background: #fff;
+}
+
+/* ===== Print: US Letter, paginated ===== */
+@media print {
+ /* size + margins; empty margin boxes remove the browser's URL/date/page-number */
+ @page {
+ size: letter;
+ margin: 0.6in 0.65in;
+ @top-left { content: ""; }
+ @top-center { content: ""; }
+ @top-right { content: ""; }
+ @bottom-left { content: ""; }
+ @bottom-center { content: ""; }
+ @bottom-right { content: ""; }
+ }
+ html, body { background: #fff; }
+ #toolbar, .add-entry-btn, .entry-controls, .edit-only { display: none !important; }
+ .page-wrap { padding: 0; display: block; }
+ .sheet {
+ width: auto;
+ min-height: auto;
+ box-shadow: none;
+ padding: 0;
+ font-size: 9.6pt;
+ outline: none !important;
+ }
+ body.editing .sheet { outline: none !important; }
+
+ /* Sections may split across pages to avoid large blank gaps. */
+ .rz-section { break-inside: auto; }
+ /* Keep individual items whole so a split never happens mid-entry. */
+ .rz-entry, .rz-pub, .rz-soft, .rz-ref, .rz-group,
+ .rz-items li, .rz-honor-list li, .rz-skills tr { break-inside: avoid; }
+ /* Don't leave a section heading stranded at the bottom of a page. */
+ .rz-section-title, .rz-rule { break-after: avoid; }
+ .rz-section-title { break-before: auto; }
+ a { color: var(--secondary) !important; }
+}

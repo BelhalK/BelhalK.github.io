@@ -1,0 +1,56 @@
+{
+  "title": "SELECTED PUBLICATIONS",
+  "type": "publications",
+  "entries": [
+    {
+      "titleText": "Extending the saemix package for R to fit non Gaussian outcomes",
+      "authors": "Emmanuelle Comets, Maud Delattre and Belhal Karimi",
+      "venue": "arXiv preprint arXiv:2603.03154, 2026"
+    },
+    {
+      "titleText": "Fed-LAMB: Layer-wise and Dimension-wise Locally Adaptive Federated Learning",
+      "authors": "Belhal Karimi, Xiaoyun Li and Ping Li",
+      "venue": "39th Conference on Uncertainty in Artificial Intelligence (UAI), 2023, 1037-1046"
+    },
+    {
+      "titleText": "FeatureBox: Feature Engineering on GPUs for Massive-Scale Ads Systems",
+      "authors": "Weijie Zhao, Xuewu Jiao, Xinsheng Luo, Jingxue Li, Belhal Karimi and Ping Li",
+      "venue": "IEEE International Conference on Big Data (IEEE BigData), 2022"
+    },
+    {
+      "titleText": "On the Convergence of Decentralized Adaptive Gradient Methods",
+      "authors": "Xiangyi Chen, Belhal Karimi, Weijie Zhao and Ping Li",
+      "venue": "14th Asian Conference on Machine Learning (ACML), 2022, 217-232"
+    },
+    {
+      "titleText": "On Distributed Adaptive Optimization with Gradient Compression",
+      "authors": "Xiaoyun Li, Belhal Karimi and Ping Li",
+      "venue": "International Conference on Learning Representations (ICLR), 2022"
+    },
+    {
+      "titleText": "VFG: Variational Flow Graph Model With Hierarchical Latent Data Structures",
+      "authors": "Shaogang Ren, Belhal Karimi and Ping Li",
+      "venue": "28th Conference on Knowledge Discovery and Data Mining (KDD), ACM 2022"
+    },
+    {
+      "titleText": "Towards Better Generalization of Adaptive Gradient Methods",
+      "authors": "Yingxue Zhou, Belhal Karimi, Jinxing Yu, Zhiqiang Xu and Ping Li",
+      "venue": "Advances in Neural Information Processing Systems (NeurIPS), 2020, 810-821"
+    },
+    {
+      "titleText": "f-SAEM: A fast Stochastic Approximation of the EM algorithm for nonlinear mixed effects models",
+      "authors": "Belhal Karimi, Marc Lavielle and Eric Moulines",
+      "venue": "Computational Statistics & Data Analysis (CSDA) 141, 123-138, 2020"
+    },
+    {
+      "titleText": "On the global convergence of (fast) incremental expectation maximization methods",
+      "authors": "Belhal Karimi, Hoi-To Wai, Marc Lavielle and Eric Moulines",
+      "venue": "Advances in Neural Information Processing Systems (NeurIPS), 2019, 2833-2843"
+    },
+    {
+      "titleText": "Non-asymptotic Analysis of Biased Stochastic Approximation Scheme",
+      "authors": "Belhal Karimi, Hoi-To Wai, B. Miasojedow and Eric Moulines",
+      "venue": "32nd Conference On Learning Theory (COLT), 2019"
+    }
+  ]
+}

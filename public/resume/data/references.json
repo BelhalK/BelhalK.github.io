@@ -1,0 +1,26 @@
+{
+  "title": "REFERENCES",
+  "type": "references",
+  "entries": [
+    {
+      "name": "Eric Moulines",
+      "role": "Professor at Ecole Polytechnique, Académie des Sciences",
+      "email": "eric.moulines@polytechnique.edu"
+    },
+    {
+      "name": "Marc Lavielle",
+      "role": "Research Director at INRIA and Professor at Ecole Polytechnique",
+      "email": "marc.lavielle@inria.fr"
+    },
+    {
+      "name": "Ping Li",
+      "role": "Deputy Dean of Baidu Research Institute, Head of Cognitive Computing Laboratory",
+      "email": "pingli98@gmail.com"
+    },
+    {
+      "name": "Jean-Michel Dalle",
+      "role": "Director of Agoranov, Professor at Sorbonne Université",
+      "email": "jean-michel.dalle@upmc.fr"
+    }
+  ]
+}

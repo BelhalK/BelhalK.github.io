@@ -1,0 +1,11 @@
+{
+  "title": "SOFTWARE & OPEN SOURCE CONTRIBUTION",
+  "type": "software",
+  "entries": [
+    {
+      "titleText": "Saemix: Parameter Estimation in Nonlinear Mixed Effects Models",
+      "role": "Main Developer (R, CRAN)",
+      "detail": "Designed and released a stochastic approximation algorithm for nonlinear mixed effects models. The package has over 18,000 annual downloads on CRAN and is widely used globally in pharmacometrics and crop science. <a href=\"https://github.com/saemixr\">github.com/saemixr</a>"
+    }
+  ]
+}

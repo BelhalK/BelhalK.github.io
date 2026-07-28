@@ -1,0 +1,70 @@
+{
+  "title": "PROFESSIONAL EXPERIENCE",
+  "type": "entries",
+  "entries": [
+    {
+      "title": "Nike, Inc.",
+      "right": "Portland, OR, USA",
+      "subtitle": "Principal Data Scientist",
+      "date": "Apr. 2022 - Present",
+      "items": [
+        { "lead": "Generative 3D Design Pipeline", "text": "Spearheaded Nike's first end-to-end sketch-to-3D generative pipeline, accelerating physical product design by allowing instant 2D-to-3D conceptual volume iteration." },
+        { "lead": "Proprietary Data & Fine-tuning", "text": "Curated a proprietary dataset from physical footwear archives via 3D scanning to fine-tune state-of-the-art 3D models and automate CAD-to-3D pipelines." },
+        { "lead": "Search, Matching & Ranking at Scale", "text": "Led the design and deployment of ML product ranking and matching algorithms across digital platforms (Nike App and Nike.com), driving a <strong>$300M increase in demand</strong> over two fiscal years." },
+        { "lead": "Conversational Agentic AI", "text": "Coordinated the architecture and launch of Nike's first conversational product finder, leveraging LLMs (PyTorch, LangChain, vector stores) and agentic multi-agent systems." },
+        { "lead": "Production MLOps & Platform", "text": "Orchestrated full-stack ML solutions from distributed ETL (PySpark, SQL) to deployment (Jenkins, Airflow, Kubernetes). Authored a core internal Python ML library for matching and ranking, standardizing feature extraction and inference across global engineering teams." }
+      ]
+    },
+    {
+      "title": "Presti AI",
+      "right": "Paris, FR",
+      "subtitle": "Lead Research Scientist",
+      "date": "Apr. 2024 - Aug. 2024",
+      "items": [
+        { "lead": "Diffusion Model Fine-tuning", "text": "Led the research and fine-tuning of state-of-the-art diffusion models (SDXL, SD3, FLUX) for high-fidelity product imagery, optimizing parameters, LoRA/DreamBooth adapters, and text-to-image alignment." },
+        { "lead": "Automated Data Generation", "text": "Designed and automated a massive dataset generation and labeling pipeline (utilizing LLM/VLM annotation and image quality filtering) to train and fine-tune diffusion models, significantly reducing human annotation costs and accelerating iteration loops." }
+      ]
+    },
+    {
+      "title": "Baidu AI",
+      "right": "Seattle, WA, USA",
+      "subtitle": "Research Scientist",
+      "date": "Jan. 2020 - Apr. 2022",
+      "items": [
+        { "lead": "Cognitive Computing Lab", "text": "Conducted advanced research under Prof. Ping Li, publishing 8+ papers in elite conferences (ICLR, NeurIPS, KDD, UAI, ACML, ALT)." },
+        { "lead": "Distributed & Federated Learning at Scale", "text": "Solved communication bottlenecks in resource-constrained environments by developing FedSKETCH (communication-efficient federated learning via sketching) and Fed-LAMB (locally adaptive federated learning)." },
+        { "lead": "Optimization & Generalization", "text": "Researched and developed advanced gradient compression and adaptive optimization methods for training large-scale deep learning models, improving convergence speed and generalization." },
+        { "lead": "Visual Question Answering (VQA)", "text": "Designed dual energy-flow enhanced Graph Neural Networks for multimodal VQA, integrating object and relation graphs." }
+      ]
+    },
+    {
+      "title": "Samsung AI - HSE Lab",
+      "right": "Moscow, Russia",
+      "subtitle": "Research Intern / Visiting Scholar",
+      "date": "Jul. 2019 - Sep. 2019",
+      "items": [
+        { "lead": "Bayesian Deep Learning", "text": "Collaborated with Dr. Dmitry Vetrov on hyperparameter weight averaging (HWA) and stochastic optimization in high-dimensional Bayesian Neural Networks, resulting in publications at AABI." }
+      ]
+    },
+    {
+      "title": "INRIA (XPOP Team)",
+      "right": "Palaiseau, France",
+      "subtitle": "Ph.D. Candidate in Machine Learning",
+      "date": "Oct. 2016 - Oct. 2019",
+      "items": [
+        { "lead": "Nonconvex Optimization", "text": "Proved global convergence of incremental expectation maximization (EM) and developed stochastic approximation methods for large-scale datasets, publishing papers in COLT (2019) and NeurIPS (2019)." },
+        { "lead": "Open Source Software", "text": "Main author and developer of <code>Saemix</code>, an open-source R package for parameter estimation in non-linear mixed-effects models, generating 18,000+ yearly downloads." }
+      ]
+    },
+    {
+      "title": "Massachusetts Institute of Technology (MIT)",
+      "right": "Boston, USA",
+      "subtitle": "Visiting Scholar",
+      "date": "Jan. 2016 - Jul. 2016",
+      "items": [
+        { "lead": "Probabilistic Computing Lab", "text": "Conducted machine learning research under the supervision of Dr. Vikash Mansinghka (Brain and Cognitive Sciences department)." },
+        { "lead": "Diagnostic & Sketched Data", "text": "Applied Bayesian statistics and probabilistic programming to automate diagnostic tools and data sketches in collaboration with the Bill & Melinda Gates Foundation, enabling domain experts to perform qualitative model checks." }
+      ]
+    }
+  ]
+}

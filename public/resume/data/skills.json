@@ -1,0 +1,22 @@
+{
+  "title": "TECHNICAL EXPERTISE",
+  "type": "skills",
+  "entries": [
+    {
+      "category": "Generative AI & LLMs",
+      "detail": "Fine-Tuning (SDXL, SD3, FLUX, LLaMA), LoRA/DreamBooth adapters, Diffusion Models, Gaussian Splatting, NeRFs, Agentic Workflows, LangChain, Vector Databases (Milvus, Qdrant), RAG systems."
+    },
+    {
+      "category": "Machine Learning & Scale",
+      "detail": "DL (PyTorch, TensorFlow), NLP, CV (Mask R-CNN, VGG), Distributed Training, Gradient Compression, Learning-to-Rank, Multi-stage Retrieval, PySpark, SQL."
+    },
+    {
+      "category": "Languages & Tools",
+      "detail": "Python, R, C++, MATLAB, Docker, Kubernetes, Jenkins, Airflow, Git, LaTeX, Linux."
+    },
+    {
+      "category": "Languages spoken",
+      "detail": "French (Native), English (Fluent), Spanish (Advanced), Persian (Native)."
+    }
+  ]
+}
