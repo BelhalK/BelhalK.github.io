@@ -1,0 +1,25 @@
+{
+  "title": "HONORS, AWARDS & TEACHING",
+  "type": "honors",
+  "groups": [
+    {
+      "heading": "Honors & Awards:",
+      "icon": "star",
+      "entries": [
+        { "text": "<strong>Jacques Hadamard Researcher Grant</strong> (Samsung AI - HSE Lab, ANR-11-LABX-0056-LMH)", "right": "2019" },
+        { "text": "<strong>COLT Conference Student Travel Award</strong> (Phoenix, USA)", "right": "2019" },
+        { "text": "<strong>BAYSM Conference Young Researcher Travel Award</strong> (Warwick, UK)", "right": "2018" },
+        { "text": "<strong>Startup Pitch Award</strong> (Ranked 4th/130 at JSC 2017, pitched at Axel Springer Plug & Play, Berlin)", "right": "2017" }
+      ]
+    },
+    {
+      "heading": "Teaching:",
+      "icon": "cap",
+      "entries": [
+        { "text": "<strong>MAP534 Machine Learning</strong> & <strong>MAP535 Regression</strong> (MSc Ecole Polytechnique-HEC)", "right": "2017 - 2018" },
+        { "text": "<strong>Bayesian Statistics</strong> (MSc Data Science Ecole Polytechnique)", "right": "2017 - 2018" },
+        { "text": "<strong>Innovation & Technology</strong> (3rd-year Ecole Polytechnique)", "right": "2018 - 2019" }
+      ]
+    }
+  ]
+}

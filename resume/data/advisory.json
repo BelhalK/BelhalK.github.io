@@ -1,0 +1,50 @@
+{
+  "title": "ADVISORY & ENTREPRENEURSHIP",
+  "type": "entries",
+  "compact": true,
+  "entries": [
+    {
+      "title": "Brainattic / Grokvideo",
+      "right": "Montreal, CA / Paris, FR",
+      "subtitle": "Scientific Advisor (Acquired by Master The Monster | 2019 - 2023)",
+      "items": [
+        { "text": "Guided research in cross-modal information retrieval algorithms for video streams." },
+        { "text": "Co-developed a video search engine and automated movie trailer generation using multimodal embeddings (audio, video, text) and deep learning models." }
+      ]
+    },
+    {
+      "title": "Monk AI",
+      "right": "Paris, FR",
+      "subtitle": "Scientific Advisor (Acquired by ACV Auctions | 2019 - 2022)",
+      "items": [
+        { "text": "Guided research on AI-based inspection systems for vehicle damage detection." },
+        { "text": "Fine-tuned open-source semantic segmentation models (Mask R-CNN) on car dent/scratch images and designed an active learning pipeline that grew the annotation dataset to ~500k instances." }
+      ]
+    },
+    {
+      "title": "EyeCareX",
+      "right": "Vancouver, BC, Canada",
+      "subtitle": "Scientific Advisor (2023 - Present)",
+      "items": [
+        { "text": "Advise on computer vision architectures and statistical modeling for AI-enabled at-home eye diagnostic tests, connecting patient-operated devices to automated clinical optometry reports." }
+      ]
+    },
+    {
+      "title": "Agora",
+      "right": "Paris, France",
+      "subtitle": "Co-Founder (2017 - 2018)",
+      "items": [
+        { "text": "Co-founded and developed a computer vision scratches and flaws detection engine, scaling inspections on high-resolution industrial surfaces. Ranked 4th/130 at JSC 2017." }
+      ]
+    },
+    {
+      "title": "Freelance Contractor (OuiCar & Popsy)",
+      "right": "Paris, France / New York, USA",
+      "subtitle": "Deep Learning Consultant (2017 - 2019)",
+      "items": [
+        { "lead": "OuiCar", "text": "Implemented and deployed a deep learning-based car damages detector on high-resolution photos using Mask R-CNN." },
+        { "lead": "Popsy", "text": "Built and optimized a multi-output multi-class VGGNet to automatically predict the product category and price of classified listings from photos." }
+      ]
+    }
+  ]
+}

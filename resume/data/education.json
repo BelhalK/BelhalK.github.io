@@ -1,0 +1,44 @@
+{
+  "title": "EDUCATION",
+  "type": "entries",
+  "entries": [
+    {
+      "title": "Ecole Polytechnique",
+      "right": "Palaiseau, FR",
+      "subtitle": "Ph.D. in Machine Learning (Eric Moulines and Marc Lavielle)",
+      "date": "2016 - 2019",
+      "items": [
+        { "text": "Thesis: Nonconvex Optimization for Latent Data Models: Algorithms, Analysis and Applications." },
+        { "text": "Recipient of the Samsung AI - HSE Lab Jacques Hadamard Researcher Grant (2019)." }
+      ]
+    },
+    {
+      "title": "Mines ParisTech - PSL",
+      "right": "Paris, FR",
+      "subtitle": "Master of Science (Pre-Doctoral Year) in Applied Math & CV",
+      "date": "2015 - 2016",
+      "items": [
+        { "text": "Focus: Statistical Machine Learning, Computer Vision, Deep Learning, and Convex Optimization." }
+      ]
+    },
+    {
+      "title": "ESCP Business School",
+      "right": "London, UK / Paris, France",
+      "subtitle": "Master of Science in Management (Corporate Finance & Economics)",
+      "date": "2013 - 2014",
+      "items": [
+        { "text": "Completed business/finance specialization semester at the London campus." }
+      ]
+    },
+    {
+      "title": "CentraleSupelec",
+      "right": "Gif-sur-Yvette, FR",
+      "subtitle": "Bachelor and Master of Science in CS & Electrical Engineering",
+      "date": "2011 - 2015",
+      "items": [
+        { "text": "Double-degree curriculum in engineering and mathematics (Signal Processing, Probability, Numerical Optimization)." },
+        { "text": "3rd-year specialization at Telecom ParisTech (IREN Master in Innovation Economics)." }
+      ]
+    }
+  ]
+}
