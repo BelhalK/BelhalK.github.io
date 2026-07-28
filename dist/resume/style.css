@@ -17,7 +17,7 @@ html, body {
  margin: 0;
  padding: 0;
  background: #64748b22;
- font-family: "Helvetica Neue", Helvetica, Arial, "Segoe UI", sans-serif;
+ font-family: "Hanken Grotesk", "Helvetica Neue", Helvetica, Arial, "Segoe UI", sans-serif;
  color: var(--text);
  -webkit-font-smoothing: antialiased;
 }
@@ -97,6 +97,10 @@ html, body {
  color: var(--secondary);
  font-size: 9pt;
  margin-top: 3px;
+ display: flex;
+ justify-content: center;
+ gap: 16px;
+ flex-wrap: wrap;
 }
 .rz-links a { color: var(--secondary); text-decoration: none; }
 .rz-links a:hover { text-decoration: underline; }
@@ -155,7 +159,7 @@ html, body {
 }
 
 /* Text block */
-.rz-text { margin: 0; text-align: justify; }
+.rz-text { margin: 0; text-align: left; }
 
 /* Skills table */
 .rz-skills { width: 100%; border-collapse: collapse; }
@@ -184,7 +188,7 @@ html, body {
  position: relative;
  padding-left: 15px;
  margin-bottom: 3.5px;
- text-align: justify;
+ text-align: left;
 }
 .rz-items li::before {
  content: "\203A"; /* › angle right */
@@ -196,7 +200,7 @@ html, body {
 }
 .rz-items .lead { color: var(--primary); font-weight: 700; }
 .rz-items code, .sheet code {
- font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+ font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
  font-size: .9em;
  background: #f1f5f9;
  padding: 0 3px;
