@@ -90,7 +90,7 @@ const Hero = ({ setActiveTab }) => {
                         className="text-base md:text-lg text-foreground/70 leading-relaxed max-w-xl"
                     >
                         <span className="font-medium text-foreground">{bio.role}</span> at {bio.company}{' '}
-                        Building search, ranking, and GenAI systems. Moving applied machine learning from research to production.
+                        Building search, ranking, and Generative AI systems. Moving applied machine learning from research to production.
                     </motion.p>
 
                     <motion.div
