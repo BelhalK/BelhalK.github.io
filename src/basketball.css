@@ -1,0 +1,94 @@
+.courtside {
+    position: fixed;
+    inset: 0;
+    z-index: 210;
+    pointer-events: none;
+}
+
+.courtside-stage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.courtside-stage canvas { display: block; }
+.courtside-stage[data-status='error'] { display: none; }
+
+.courtside-toolbar {
+    position: absolute;
+    right: max(20px, env(safe-area-inset-right, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 7px 5px 5px;
+    border: 1px solid #e4dfd5;
+    border-radius: 16px;
+    background: rgba(255, 254, 250, 0.96);
+    box-shadow: 0 4px 24px #25203312;
+    color: #282331;
+    pointer-events: auto;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.courtside-number {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 38px;
+    border-radius: 11px;
+    background: #f5c34e;
+    color: #422567;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+}
+
+.courtside-label { padding: 0 10px 0 5px; }
+.courtside-label > span { display: block; font-size: 11px; font-weight: 700; }
+.courtside-label small { display: block; margin-top: 2px; font-size: 9px; color: #716a79; }
+.courtside [hidden] { display: none !important; }
+.courtside-toolbar button { min-height: 36px; border: 0; font-family: inherit; cursor: pointer; transition: background 150ms; }
+.courtside button:focus-visible, .courtside a:focus-visible { outline: 2px solid #493062; outline-offset: 3px; }
+.courtside-toolbar button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.courtside-shoot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #493062;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.courtside-shoot:hover:not(:disabled) { background: #61417f; }
+.courtside-icon { display: grid; place-items: center; width: 32px; border-radius: 9px; color: #716a79; background: transparent; }
+.courtside-icon:hover { color: #493062; background: #f0edf4; }
+.courtside-launch { display: flex; align-items: center; gap: 12px; padding: 0 9px; font-size: 12px; font-weight: 600; background: transparent; color: inherit; }
+
+@media (max-width: 600px) {
+    .courtside-toolbar { right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); gap: 2px; }
+    .courtside-label { padding-right: 5px; }
+    .courtside-icon { width: 34px; min-height: 40px !important; }
+    .courtside-shoot { padding: 0 9px; }
+}
+
+@media (max-width: 360px) {
+    .courtside-label { max-width: 74px; padding: 0 3px; }
+    .courtside-label small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+}
+
+@media print {
+    .courtside { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .courtside-toolbar button { transition: none; }
+}

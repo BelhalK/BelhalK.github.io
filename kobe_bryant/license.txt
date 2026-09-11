@@ -1,0 +1,11 @@
+Model Information:
+* title:	Kobe Bryant
+* source:	https://sketchfab.com/3d-models/kobe-bryant-bb7d130a3def4d378b1c5815105bdd0c
+* author:	uzumakiabi (https://sketchfab.com/itachiuzumakiabi)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Kobe Bryant" (https://sketchfab.com/3d-models/kobe-bryant-bb7d130a3def4d378b1c5815105bdd0c) by uzumakiabi (https://sketchfab.com/itachiuzumakiabi) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
