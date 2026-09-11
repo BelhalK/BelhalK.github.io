@@ -18,6 +18,7 @@ export default defineConfig({
         },
     }],
     build: {
+        manifest: true,
         rollupOptions: {
             input: {
                 main: 'index.html',
@@ -31,9 +32,6 @@ export default defineConfig({
                 teaching: 'public/teaching/index.html',
                 education: 'public/education/index.html',
                 music: 'public/music/index.html',
-            },
-            output: {
-                entryFileNames: (chunk) => chunk.name === 'courtside' ? 'assets/courtside.js' : 'assets/[name]-[hash].js',
             },
         },
     },

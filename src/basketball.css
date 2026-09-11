@@ -20,7 +20,7 @@
 .courtside-toolbar {
     position: absolute;
     right: max(20px, env(safe-area-inset-right, 0px));
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    top: calc(16px + env(safe-area-inset-top, 0px));
     display: flex;
     align-items: center;
     gap: 5px;
@@ -73,8 +73,8 @@
 .courtside-icon:hover { color: #493062; background: #f0edf4; }
 .courtside-launch { display: flex; align-items: center; gap: 12px; padding: 0 9px; font-size: 12px; font-weight: 600; background: transparent; color: inherit; }
 
-@media (max-width: 600px) {
-    .courtside-toolbar { right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); gap: 2px; }
+@media (max-width: 640px) {
+    .courtside-toolbar { right: 10px; top: auto; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); height: 52px; gap: 2px; }
     .courtside-label { padding-right: 5px; }
     .courtside-icon { width: 34px; min-height: 40px !important; }
     .courtside-shoot { padding: 0 9px; }
