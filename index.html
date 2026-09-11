@@ -244,8 +244,9 @@
   .stack-tag:hover{color:var(--accent);border-color:rgba(255,90,31,0.4);}
   .kicker{
     font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.14em;color:var(--accent);
-    margin:0 0 18px;
+    margin:0 0 18px;white-space:nowrap;
   }
+  .kicker-company-short{display:none;}
   .hero-title{font-family:'Anton',sans-serif;font-weight:400;margin:0;text-transform:uppercase;line-height:.86;color:var(--ink);}
   .hero-title .line{display:block;font-size:clamp(3.6rem,13vw,10.5rem);letter-spacing:-.01em;}
   .hero-title .line.accent{color:var(--accent);}
@@ -312,6 +313,8 @@
   @media (max-width:640px){
     .player-grid, .focus-grid{grid-template-columns:1fr;}
     .nav{padding-top:12px;padding-bottom:12px;}
+    .kicker-company-full{display:none;}
+    .kicker-company-short{display:inline;}
 
     /* ---------- mobile: floating menu button + full-screen sheet ---------- */
     .nav{background:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;pointer-events:none;}
@@ -431,8 +434,8 @@
     .reveal{transition:none;opacity:1;transform:none;}
   }
 </style>
-  <script type="module" crossorigin src="/assets/main-SQ_69LOf.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/courtside.js">
+  <script type="module" crossorigin src="/assets/main-DsD4NmHX.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/courtside-BbkrWxIk.js">
 </head>
 <body>
 
@@ -486,7 +489,7 @@
   <div class="spotlight" id="spotlight" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-main">
-      <p class="kicker">// PRINCIPAL DATA SCIENTIST, NIKE, INC.</p>
+      <p class="kicker">// PRINCIPAL DATA SCIENTIST, <span class="kicker-company-full">NIKE, INC.</span><span class="kicker-company-short">NIKE</span></p>
       <h1 class="hero-title">
         <span class="line">BELHAL</span>
         <span class="line accent">KARIMI</span>
@@ -582,7 +585,7 @@
       </article>
       <article class="player-card reveal d4">
         <span class="pc-pos">DRAFT PICK</span>
-        <h3>PhD, MIT &amp; Samsung AI</h3>
+        <h3>PhD, MIT &amp; Baidu AI</h3>
         <p>PhD from École Polytechnique &amp; INRIA, visiting scholar at MIT, early reps at Samsung AI and Baidu AI.</p>
       </article>
     </div>
@@ -713,11 +716,14 @@
   (function initCursor(){
     if (!window.matchMedia('(pointer: fine)').matches) return;
     document.body.classList.add('has-cursor');
-    var dot = document.createElement('div'); dot.className = 'cursor-dot';
-    var ring = document.createElement('div'); ring.className = 'cursor-ring';
+    var dot = document.createElement('div'); dot.className = 'cursor-dot'; dot.style.opacity = '0';
+    var ring = document.createElement('div'); ring.className = 'cursor-ring'; ring.style.opacity = '0';
     document.body.appendChild(dot); document.body.appendChild(ring);
-    var mx=0,my=0, rx=0, ry=0;
-    window.addEventListener('mousemove', function(e){ mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
+    var mx=0,my=0, rx=0, ry=0, primed=false;
+    window.addEventListener('mousemove', function(e){
+      mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px';
+      if (!primed) { primed=true; rx=mx; ry=my; dot.style.opacity=''; ring.style.opacity=''; }
+    });
     document.querySelectorAll('a,button,input').forEach(function(el){
       el.addEventListener('mouseenter', function(){ ring.classList.add('grow'); });
       el.addEventListener('mouseleave', function(){ ring.classList.remove('grow'); });

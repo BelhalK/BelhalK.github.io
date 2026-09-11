@@ -2,7 +2,7 @@
   "use strict";
   var courtScript = document.createElement('script');
   courtScript.type = 'module';
-  courtScript.src = '/assets/courtside.js';
+  courtScript.src = '/assets/courtside-BbkrWxIk.js';
   document.head.appendChild(courtScript);
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -10,11 +10,14 @@
   (function initCursor(){
     if (!window.matchMedia('(pointer: fine)').matches) return;
     document.body.classList.add('has-cursor');
-    var dot = document.createElement('div'); dot.className = 'cursor-dot';
-    var ring = document.createElement('div'); ring.className = 'cursor-ring';
+    var dot = document.createElement('div'); dot.className = 'cursor-dot'; dot.style.opacity = '0';
+    var ring = document.createElement('div'); ring.className = 'cursor-ring'; ring.style.opacity = '0';
     document.body.appendChild(dot); document.body.appendChild(ring);
-    var mx=0,my=0, rx=0, ry=0;
-    window.addEventListener('mousemove', function(e){ mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
+    var mx=0,my=0, rx=0, ry=0, primed=false;
+    window.addEventListener('mousemove', function(e){
+      mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px';
+      if (!primed) { primed=true; rx=mx; ry=my; dot.style.opacity=''; ring.style.opacity=''; }
+    });
     document.querySelectorAll('a,button,input,summary').forEach(function(el){
       el.addEventListener('mouseenter', function(){ ring.classList.add('grow'); });
       el.addEventListener('mouseleave', function(){ ring.classList.remove('grow'); });
