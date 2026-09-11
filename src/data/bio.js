@@ -19,7 +19,7 @@ export const bio = {
         },
         {
             title: "Research Publications",
-            content: "15+ papers in elite journals & conferences (<strong>ICLR</strong>, <strong>NeurIPS</strong>, <strong>UAI</strong>, <strong>ACML</strong>, <strong>COLT</strong>) in ML/Optimization."
+            content: "15+ papers in elite conferences (<strong>ICLR</strong>, <strong>NeurIPS</strong>, <strong>UAI</strong>, <strong>ACML</strong>, <strong>COLT</strong>) in ML/DL/Optimization."
         },
         {
             title: "Acquisitions",
@@ -27,7 +27,7 @@ export const bio = {
         },
         {
             title: "PhD & Academic Exits",
-            content: "PhD from <strong>Ecole Polytechnique</strong> & <strong>INRIA</strong>. Visiting scholar at <strong>MIT</strong>. Interned at <strong>Samsung AI</strong>."
+            content: "PhD from <strong>Ecole Polytechnique</strong> & <strong>INRIA</strong>. Visiting scholar at <strong>MIT</strong>. Interned at <strong>Samsung AI</strong> and <strong>Baidu AI</strong>."
         }
     ],
 
