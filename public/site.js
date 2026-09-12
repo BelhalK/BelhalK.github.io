@@ -78,6 +78,25 @@
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') setOpen(false); });
   })();
 
+  /* ---------- mobile: hide floating buttons once the page is scrolled to the bottom ---------- */
+  (function initFabAutoHide(){
+    if (!document.querySelector('.finale')) return;
+    var ticking = false;
+    function update(){
+      ticking = false;
+      var doc = document.documentElement;
+      var scrollable = doc.scrollHeight > window.innerHeight + 40;
+      var atBottom = scrollable && (window.innerHeight + window.scrollY >= doc.scrollHeight - 24);
+      document.body.classList.toggle('footer-in-view', atBottom);
+    }
+    function onScroll(){
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  })();
+
   /* ---------- filter pills (optional, used by research page) ---------- */
   (function initFilters(){
     var row = document.querySelector('.filter-row');

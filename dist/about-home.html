@@ -246,6 +246,7 @@
     font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.14em;color:var(--accent);
     margin:0 0 18px;
   }
+  .kicker-nike-logo{display:inline-block;height:2.2em;width:auto;vertical-align:-.55em;margin-left:.35em;}
   .hero-title{font-family:'Anton',sans-serif;font-weight:400;margin:0;text-transform:uppercase;line-height:.86;color:var(--ink);}
   .hero-title .line{display:block;font-size:clamp(3.6rem,13vw,10.5rem);letter-spacing:-.01em;}
   .hero-title .line.accent{color:var(--accent);}
@@ -312,6 +313,8 @@
   @media (max-width:640px){
     .player-grid, .focus-grid{grid-template-columns:1fr;}
     .nav{padding-top:12px;padding-bottom:12px;}
+    .kicker{white-space:normal;font-size:clamp(9.5px,3.1vw,12px);letter-spacing:.1em;}
+    .kicker-nike-logo{height:1.7em;vertical-align:-.4em;}
 
     /* ---------- mobile: floating menu button + full-screen sheet ---------- */
     .nav{background:none;backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;pointer-events:none;}
@@ -322,7 +325,7 @@
       background:rgba(255,255,255,0.9);border:1px solid var(--line-strong);
       color:var(--ink);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
       box-shadow:0 8px 22px -6px rgba(22,22,15,0.3);
-      transition:background .2s,color .2s,transform .2s;
+      transition:background .2s,color .2s,transform .2s,opacity .25s ease;
     }
     .nav-fab:active{transform:scale(.94);}
     .nav-fab svg{width:20px;height:20px;}
@@ -330,6 +333,7 @@
     .nav.open .nav-fab{background:var(--ink);color:var(--paper);border-color:var(--ink);}
     .nav.open .nav-fab .icon-menu{display:none;}
     .nav.open .nav-fab .icon-close{display:block;}
+    body.footer-in-view .nav-fab{opacity:0;pointer-events:none;}
     .nav-links{
       display:grid;grid-template-columns:repeat(2,minmax(0,150px));gap:12px;
       justify-content:center;align-content:center;
@@ -352,6 +356,9 @@
     .nav-link .nav-label{max-width:none;margin-left:0;opacity:1;font-size:10px;}
     body.nav-scroll-lock{overflow:hidden;}
     .hero-inner{padding-top:calc(clamp(24px,10vw,40px) + env(safe-area-inset-top,0px));}
+    .finale-bottom{flex-wrap:nowrap;justify-content:flex-start;gap:10px;}
+    .finale-bottom .badge{order:-1;font-size:10px;padding:3px 8px;}
+    .social-btn[aria-label="SoundCloud"]{display:none;}
   }
 
   /* ---------- deals ---------- */
@@ -481,7 +488,7 @@
   <div class="spotlight" id="spotlight" aria-hidden="true"></div>
   <div class="hero-inner">
     <div class="hero-main">
-      <p class="kicker">// PRINCIPAL DATA SCIENTIST, NIKE, INC.</p>
+      <p class="kicker">// PRINCIPAL DATA SCIENTIST AT <img class="kicker-nike-logo" src="/assets/img/nike-script-logo.png" alt="Nike"></p>
       <h1 class="hero-title">
         <span class="line">BELHAL</span>
         <span class="line accent">KARIMI</span>
@@ -833,6 +840,25 @@
     fab.addEventListener('click', function(){ setOpen(!nav.classList.contains('open')); });
     links.addEventListener('click', function(e){ if (e.target.closest('.nav-link')) setOpen(false); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') setOpen(false); });
+  })();
+
+  /* ---------- mobile: hide floating buttons once the footer is reached ---------- */
+  (function initFabAutoHide(){
+    if (!document.querySelector('.finale')) return;
+    var ticking = false;
+    function update(){
+      ticking = false;
+      var doc = document.documentElement;
+      var scrollable = doc.scrollHeight > window.innerHeight + 40;
+      var atBottom = scrollable && (window.innerHeight + window.scrollY >= doc.scrollHeight - 24);
+      document.body.classList.toggle('footer-in-view', atBottom);
+    }
+    function onScroll(){
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
   })();
 
 })();
