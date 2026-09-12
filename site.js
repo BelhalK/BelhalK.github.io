@@ -2,7 +2,7 @@
   "use strict";
   var courtScript = document.createElement('script');
   courtScript.type = 'module';
-  courtScript.src = '/assets/courtside-BbkrWxIk.js';
+  courtScript.src = '/assets/courtside-ufxOeUJB.js';
   document.head.appendChild(courtScript);
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -76,6 +76,25 @@
     fab.addEventListener('click', function(){ setOpen(!nav.classList.contains('open')); });
     links.addEventListener('click', function(e){ if (e.target.closest('.nav-link')) setOpen(false); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') setOpen(false); });
+  })();
+
+  /* ---------- mobile: hide floating buttons once the page is scrolled to the bottom ---------- */
+  (function initFabAutoHide(){
+    if (!document.querySelector('.finale')) return;
+    var ticking = false;
+    function update(){
+      ticking = false;
+      var doc = document.documentElement;
+      var scrollable = doc.scrollHeight > window.innerHeight + 40;
+      var atBottom = scrollable && (window.innerHeight + window.scrollY >= doc.scrollHeight - 24);
+      document.body.classList.toggle('footer-in-view', atBottom);
+    }
+    function onScroll(){
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
   })();
 
   /* ---------- filter pills (optional, used by research page) ---------- */
