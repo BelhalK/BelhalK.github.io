@@ -176,6 +176,13 @@
       <div class="actions"><button class="small" id="addCeil">+ Add point</button></div>
     </fieldset>
 
+    <fieldset id="notesFs">
+      <legend>Notes</legend>
+      <div class="hint" style="margin:0 0 6px">Anything typed here is printed at the bottom of <b>General notes</b> on the sheet, numbered on from the standard ones.</div>
+      <div id="noteList"></div>
+      <div class="actions"><button class="small" id="addNote">+ Add note</button></div>
+    </fieldset>
+
     <button class="primary" id="draw">Draw to scale</button>
     <div class="actions">
       <button id="gridBtn" title="Show or hide a 1 foot grid behind the drawing">Show grid</button>
@@ -184,6 +191,8 @@
       <button id="saveBp" title="Save this layout under a name so you can come back to it">Save</button>
       <button id="openLib" title="See every blueprint you have saved">Saved</button>
       <button id="undo" disabled title="Undo the last wall move / split / join (Ctrl+Z)">Undo</button>
+      <button id="noteBtn" title="Add a note to the general notes on the sheet">+ Note</button>
+      <button id="unitBtn">Inches</button>
       <button id="reset">Reset</button>
     </div>
     <div id="badge" class="gray"><span class="dot"></span><span>Not checked yet</span></div>
@@ -226,13 +235,15 @@ const DEFAULT_STATE = {
     { id:'stairs', tag:'S-1', name:'STAIRS',        on:false, w:36, d:60, x:0,  y:0,  rot:0, color:'#dbeafe' },
   ],
   door: { on:true, seg:2, off:8, w:30, swing:'in', hinge:'start' },
-  ceiling: { on:true, side:'R', flat:96, pts:[ {d:0,h:52}, {d:12,h:69}, {d:36,h:81}, {d:62,h:96} ] }
+  ceiling: { on:true, side:'R', flat:96, pts:[ {d:0,h:52}, {d:12,h:69}, {d:36,h:81}, {d:62,h:96} ] },
+  notes: []
 };
 const STORE = 'bathroom-blueprint-v1';
 let state = load();
 
 function ensureFixtures(s) { // older layouts get fixtures they predate (the stairs) and properties they predate (its colour)
   s.fixtures = s.fixtures || [];
+  if (!Array.isArray(s.notes)) s.notes = []; // layouts saved before the notes section existed
   for (const d of DEFAULT_STATE.fixtures) {
     const f = s.fixtures.find(x => x.id === d.id);
     if (!f) { s.fixtures.push({...d, on:false}); continue; }
@@ -328,6 +339,13 @@ function buildPanel() {
   const c = state.ceiling; $('#ceilOn').checked = c.on; $('#ceilSide').value = c.side; $('#ceilFlat').value = c.flat;
   const ct = $('#ceilTable tbody'); ct.innerHTML = '';
   c.pts.forEach((pt, i) => { const tr = document.createElement('tr'); tr.innerHTML = `<td><input type="number" class="ceilD" data-i="${i}" value="${pt.d}" step="0.5" min="0"></td><td><input type="number" class="ceilH" data-i="${i}" value="${pt.h}" step="0.5" min="0"></td><td><button class="small delCeil" data-i="${i}" title="Remove">×</button></td>`; ct.appendChild(tr); });
+  const nl = $('#noteList'); nl.innerHTML = '';
+  state.notes.forEach((n, i) => {
+    const div = document.createElement('div'); div.className = 'row'; div.style.gridTemplateColumns = '1fr auto';
+    div.innerHTML = `<input type="text" class="noteTxt" data-i="${i}" value="${esc(n)}" placeholder="e.g. TILE TO CEILING IN SHOWER"><button class="small delNote" data-i="${i}" title="Remove this note">×</button>`;
+    nl.appendChild(div);
+  });
+  if (!state.notes.length) nl.innerHTML = '<div class="hint" style="margin:0">No extra notes yet.</div>';
   updateClosure();
   document.querySelectorAll('input[type=number]').forEach(el => el.inputMode = 'decimal'); // phone keyboards with a decimal point
 }
@@ -350,6 +368,7 @@ function readPanel() {
   state.door = { on: $('#doorOn').checked, seg: +$('#doorSeg').value, off: num($('#doorOff').value,0), w: num($('#doorW').value,30), swing: $('#doorSwing').value, hinge: $('#doorHinge').value };
   const pts = [...document.querySelectorAll('.ceilD')].map((el, i) => ({ d: num(el.value, 0), h: num(document.querySelectorAll('.ceilH')[i].value, 96) })).sort((a,b)=>a.d-b.d);
   state.ceiling = { on: $('#ceilOn').checked, side: $('#ceilSide').value, flat: num($('#ceilFlat').value, 96), pts };
+  state.notes = [...document.querySelectorAll('.noteTxt')].map(el => el.value.trim());
 }
 const num = (v, d) => { const n = parseFloat(v); return isFinite(n) ? n : d; };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -367,6 +386,7 @@ $('#panel').addEventListener('input', e => {
   if (e.target.matches('.segDir,.segLen')) updateClosure();
   if (e.target.matches('.segDir,#doorSeg,#doorSwing')) syncDoorLabel();
   if (e.target.matches('.fxSwatch')) { const t = document.querySelector(`.fxColor[data-i="${e.target.dataset.i}"]`); if (t) t.value = e.target.value; }
+  if (e.target.matches('.noteTxt')) state.notes[+e.target.dataset.i] = e.target.value; // keep notes in state as they are typed
   if (e.target.matches('.fxColor')) { const v = e.target.value.trim(); const t = document.querySelector(`.fxSwatch[data-i="${e.target.dataset.i}"]`);
     if (t && HEX.test(v)) t.value = v[0]==='#' ? v : '#'+v; }
 });
@@ -383,6 +403,8 @@ $('#panel').addEventListener('click', e => {
   if (e.target.matches('.mergeSeg')) { readPanel(); pushHistory(); mergeWall(+e.target.dataset.i); buildPanel(); render(); }
   if (e.target.matches('.delCeil')) { readPanel(); state.ceiling.pts.splice(+e.target.dataset.i, 1); buildPanel(); }
   if (e.target.matches('#addCeil')) { readPanel(); const last = state.ceiling.pts[state.ceiling.pts.length-1]; state.ceiling.pts.push({ d: last ? last.d + 12 : 0, h: last ? last.h : 60 }); buildPanel(); }
+  if (e.target.matches('#addNote')) addNote();
+  if (e.target.matches('.delNote')) { readPanel(); state.notes.splice(+e.target.dataset.i, 1); buildPanel(); render(); }
   if (e.target.matches('.fxSnap')) { readPanel(); snapFixture(state.fixtures[+e.target.dataset.i]); buildPanel(); render(); }
 });
 function isSliding(sw) { return sw === 'slide-in' || sw === 'slide-out'; }
@@ -399,6 +421,24 @@ function syncDoorLabel() {
   o[0].textContent = `Slides ${DIRS[OPP[dir]].toLowerCase()}`;   // back toward the start of the wall
   o[1].textContent = `Slides ${DIRS[dir].toLowerCase()}`;        // on toward the end of the wall
 }
+// A blank note row, opened, scrolled to and focused - so the button works whether or not
+// the Notes section happens to be showing.
+function addNote() {
+  readPanel();
+  state.notes.push('');
+  buildPanel();
+  const fs = $('#notesFs');
+  if (fs.classList.contains('collapsed')) fs.querySelector('legend').click(); // remembers the section as open
+  const rows = document.querySelectorAll('.noteTxt'); const last = rows[rows.length-1];
+  if (last) { last.scrollIntoView({block:'nearest'}); last.focus(); }
+}
+$('#noteBtn').onclick = addNote;
+$('#unitBtn').onclick = () => {
+  readPanel();
+  unitMode = unitMode === 'in' ? 'ft' : 'in';
+  try { localStorage.setItem(UNITK, unitMode); } catch(e) {}
+  syncUnitBtn(); buildPanel(); render();
+};
 $('#draw').onclick = () => { readPanel(); render(); };
 let zoom = 1;
 const setZoom = z => { zoom = Math.min(4, Math.max(1, z)); document.documentElement.style.setProperty('--zoom', zoom); $('#sheet').style.width = window.matchMedia('(max-width: 900px)').matches ? '' : `min(${100*zoom}%, ${1400*zoom}px)`; };
@@ -660,9 +700,18 @@ function moveWall(i, delta) {
 }
 
 // ---------- formatting ----------
-function fmtIn(inches) { // 57.5 -> 4'-9 1/2"
+// Every dimension on the sheet and in the panel goes through fmtIn, so the unit toggle
+// only has to decide whether feet are split off or everything stays in inches.
+const UNITK = 'bathroom-blueprint-units-v1';
+let unitMode = 'ft'; try { if (localStorage.getItem(UNITK) === 'in') unitMode = 'in'; } catch(e) {}
+function syncUnitBtn() {
+  const b = $('#unitBtn');
+  b.textContent = unitMode === 'in' ? 'Feet' : 'Inches';
+  b.title = unitMode === 'in' ? 'Dimensions read in plain inches - switch back to feet-inches' : 'Dimensions read in feet-inches - switch to plain inches';
+}
+function fmtIn(inches) { // 57.5 -> 4'-9 1/2", or 57 1/2" in inches mode
   const neg = inches < 0; inches = Math.abs(inches);
-  let total8 = Math.round(inches*8); let ft = Math.floor(total8/96); total8 -= ft*96; let inch = Math.floor(total8/8); let e8 = total8 - inch*8;
+  let total8 = Math.round(inches*8); let ft = unitMode === 'in' ? 0 : Math.floor(total8/96); total8 -= ft*96; let inch = Math.floor(total8/8); let e8 = total8 - inch*8;
   let frac = ''; if (e8) { let n=e8, d=8; while (n%2===0){n/=2;d/=2;} frac = ` ${n}/${d}`; }
   return (neg?'-':'') + (ft ? `${ft}'-` : '') + `${inch}${frac}"`;
 }
@@ -676,6 +725,89 @@ let K = 1; // paper inches per real inch
 let ORG = {x:0,y:0}; // paper coords of real (0,0)
 const P = (x,y) => `${r3(ORG.x + x*K)},${r3(ORG.y + y*K)}`;
 const PX = x => r3(ORG.x + x*K), PY = y => r3(ORG.y + y*K);
+
+// ---------- label placement ----------
+// Text is the one thing on a drawing that must never be guessed at, so every label goes
+// through placeLabel(). It works out the box the text will really occupy - in paper
+// inches, turned the way the text reads - and keeps a list of the boxes already taken.
+// If its first choice is taken, or the text is wider than the run it names, the label
+// tries the inside of its dimension line, then rows further out, then just past the tick
+// - and a thin leader points back to what it measures. Labels also carry a white knockout
+// (the `text` rule in the sheet's <style>), so they stay readable over hatching, the grid,
+// wall fills and the low-headroom shading.
+let labelBoxes = [];
+const LBL_ROW = 0.115;                       // one step out, in paper inches
+const LBL_STEPS = [0, -1, 1, -2, 2, 3, 4, 5];   // the inside of the dimension line is usually free, so try there first
+const LBL_PAD = 0.018;
+function textWidth(s, size) { // Helvetica: digits ~0.6em, lower case ~0.52, feet/inch marks much less
+  let w = 0;
+  for (const ch of String(s).replace(/<[^>]*>/g, '')) w += (ch === "'" || ch === '"') ? 0.3 : ch === ' ' ? 0.28 : /[a-z]/.test(ch) ? 0.52 : 0.6;
+  return w * size;
+}
+function lblBox(cx, cy, w, h, ang) {
+  const a = ang*Math.PI/180, co = Math.cos(a), si = Math.sin(a);
+  return { c:{x:cx, y:cy}, u:{x:co, y:si}, v:{x:-si, y:co}, hw:w/2, hh:h/2 };
+}
+function boxHit(A, B) { // two turned rectangles overlap unless some edge normal separates them
+  const d = {x:B.c.x-A.c.x, y:B.c.y-A.c.y};
+  for (const ax of [A.u, A.v, B.u, B.v]) {
+    const ra = A.hw*Math.abs(A.u.x*ax.x + A.u.y*ax.y) + A.hh*Math.abs(A.v.x*ax.x + A.v.y*ax.y);
+    const rb = B.hw*Math.abs(B.u.x*ax.x + B.u.y*ax.y) + B.hh*Math.abs(B.v.x*ax.x + B.v.y*ax.y);
+    if (Math.abs(d.x*ax.x + d.y*ax.y) > ra + rb) return false;
+  }
+  return true;
+}
+function boxInSheet(b) { // never let text wander off the paper or under the title block
+  for (const sx of [-1,1]) for (const sy of [-1,1]) {
+    const x = b.c.x + b.u.x*b.hw*sx + b.v.x*b.hh*sy, y = b.c.y + b.u.y*b.hw*sx + b.v.y*b.hh*sy;
+    if (x < 0.17 || x > SHEET_W - TB_W - 0.2 || y < 0.17 || y > SHEET_H - 0.17) return false;
+  }
+  return true;
+}
+function boxEdge(b, p) { // where the line from the label's middle to p leaves the label box
+  const d = {x:p.x-b.c.x, y:p.y-b.c.y};
+  const du = d.x*b.u.x + d.y*b.u.y, dv = d.x*b.v.x + d.y*b.v.y;
+  let t = 1;
+  if (Math.abs(du) > 1e-6) t = Math.min(t, (b.hw+0.015)/Math.abs(du));
+  if (Math.abs(dv) > 1e-6) t = Math.min(t, (b.hh+0.015)/Math.abs(dv));
+  return { x: b.c.x + d.x*t, y: b.c.y + d.y*t };
+}
+// o = { p:{x,y} first-choice middle of the text (paper), ang, size, text, out:{x,y} which way
+//       to step when blocked, fit: paper inches available along the text, tip:{x,y} what the
+//       leader points at, fixed: true to claim the spot without ever moving, extra }
+function placeLabel(o) {
+  const size = o.size || 0.085, ang = o.ang || 0;
+  const w = textWidth(o.text, size) + LBL_PAD*2, h = size*0.92 + LBL_PAD;
+  const fits = !(o.fit > 0) || w <= o.fit;
+  const dir = o.out || {x:0, y:0};
+  const steps = o.fixed ? [0] : LBL_STEPS;
+  // sideways is a last resort: the text parks just past the tick, the way a draftsman
+  // writes a small dimension outside its own extension line
+  const sw = Math.min(w/2 + (o.fit > 0 ? o.fit : w)/2 + 0.02, w*0.8); // never far enough to read as the next interval's
+  const along = {x:Math.cos(ang*Math.PI/180), y:Math.sin(ang*Math.PI/180)};
+  const sides = o.fixed ? [0] : [0, sw, -sw];
+  let pick = null;
+  outer: for (const sd of sides) for (const k of steps) {
+    if (k === 0 && sd === 0 && !fits && !o.fixed) continue;       // no room between the ticks: go straight out
+    const cx = o.p.x + dir.x*k*LBL_ROW + along.x*sd, cy = o.p.y + dir.y*k*LBL_ROW + along.y*sd;
+    const box = lblBox(cx, cy, w, h, ang);
+    if ((k !== 0 || sd !== 0) && !boxInSheet(box)) continue;
+    if (labelBoxes.some(b => boxHit(b, box))) continue;
+    pick = { box, cx, cy, k, sd }; break outer;
+  }
+  if (!pick) { const box = lblBox(o.p.x, o.p.y, w, h, ang); pick = { box, cx:o.p.x, cy:o.p.y, k:0, sd:0 }; } // nowhere clear: first choice, halo still helps
+  labelBoxes.push(pick.box);
+  const a = ang*Math.PI/180, up = {x:Math.sin(a), y:-Math.cos(a)};   // baseline sits below the middle of the text
+  const bx = r3(pick.cx - up.x*size*0.34), by = r3(pick.cy - up.y*size*0.34);
+  let lead = '';
+  if (o.tip && (pick.k !== 0 || pick.sd !== 0 || !fits)) {
+    const e = boxEdge(pick.box, o.tip);
+    if (Math.hypot(e.x-o.tip.x, e.y-o.tip.y) > 0.02) lead = `<line x1="${r3(e.x)}" y1="${r3(e.y)}" x2="${r3(o.tip.x)}" y2="${r3(o.tip.y)}" stroke="#000" stroke-width="0.005"/>`;
+  }
+  return `${lead}<text font-size="${r3(size)}" x="${bx}" y="${by}" text-anchor="middle" transform="rotate(${r3(ang)} ${bx} ${by})"${o.extra || ''}>${o.text}</text>`;
+}
+// claim a spot for something that is not text but must not be written over (a fixture tag)
+function claimLabel(cx, cy, w, h) { labelBoxes.push(lblBox(cx, cy, w, h, 0)); }
 
 const GRIDK = 'bathroom-blueprint-grid-v1';
 let showGrid = false; try { showGrid = localStorage.getItem(GRIDK) === '1'; } catch(e) {}
@@ -718,6 +850,8 @@ function render() {
   ORG = { x: cx - ((ext.minX+ext.maxX)/2)*K, y: cy - ((ext.minY+ext.maxY)/2)*K };
 
   const g = []; // svg fragments
+  labelBoxes = [];                                   // labels claim their space in drawing order
+  claimLabel(0.3 + 1.2, 0.2 + areaH + 0.28, 2.6, 0.5); // the plan title under the drawing is not text to step on
   if (showGrid) g.push(gridSVG(areaW, areaH)); // behind everything else
   // walls
   const pathOuter = 'M' + outer.map(q=>P(q.x,q.y)).join(' L') + ' Z';
@@ -730,6 +864,11 @@ function render() {
     } else g.push(`<polygon points="${pts}" fill="${ex ? '#555' : 'url(#hatch)'}" stroke="none"/>`); }
   g.push(`<path d="${pathOuter} ${pathInner}" fill="none" stroke="#000" stroke-width="0.018" stroke-linejoin="miter"/>`);
 
+  // fixture tags cannot move off their fixture, so they claim their circles before any
+  // label that can step aside (ceiling lines, the door note, every dimension)
+  const active = state.fixtures.filter(f=>f.on);
+  for (const f of active) { const b = fxBox(f); claimLabel(PX(b.x + b.w/2), PY(b.y + b.h/2), 0.24, 0.24); }
+
   // sloped ceiling: height lines and low-headroom shading (clipped to the room)
   if (state.ceiling.on) g.push(ceilingSVG(bb));
 
@@ -737,7 +876,6 @@ function render() {
   if (state.door.on) g.push(doorSVG(poly, sign, t, warnings));
 
   // fixtures: bodies first, dimensions afterwards so nothing paints over them
-  const active = state.fixtures.filter(f=>f.on);
   const n = poly.length;
   for (const f of active) {
     const b = fxBox(f);
@@ -814,7 +952,7 @@ function render() {
   <defs>
     <clipPath id="roomClip"><path d="${pathInner}"/></clipPath>
     <pattern id="hatch" width="0.06" height="0.06" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="0.06" stroke="#000" stroke-width="0.008"/></pattern>
-    <style>.lbl{letter-spacing:0.01em} .dim{font-size:0.085px} .tb{font-size:0.08px} .tbh{font-size:0.065px;fill:#444;letter-spacing:0.04em}</style>
+    <style>text{paint-order:stroke;stroke:#fff;stroke-width:0.028px;stroke-linejoin:round} .lbl{letter-spacing:0.01em} .tb{font-size:0.08px} .tbh{font-size:0.065px;fill:#444;letter-spacing:0.04em}</style>
   </defs>
   <rect x="0" y="0" width="${SHEET_W}" height="${SHEET_H}" fill="#fff"/>
   <rect x="0.08" y="0.08" width="${SHEET_W-0.16}" height="${SHEET_H-0.16}" fill="none" stroke="#000" stroke-width="0.03"/>
@@ -838,8 +976,6 @@ function dimChain(a, b, nm, off, marks, wallT) {
   const ts = [0, ...marks.map(m=>m.t), L].sort((p,q)=>p-q).filter((v,i,arr)=> i===0 || v-arr[i-1] > 0.01);
   const tk = p => { const cxp=PX(p.x), cyp=PY(p.y); const tx=(ux-uy)/Math.SQRT2*tick, ty=(uy+ux)/Math.SQRT2*tick; return `<line x1="${r3(cxp-tx)}" y1="${r3(cyp-ty)}" x2="${r3(cxp+tx)}" y2="${r3(cyp+ty)}" stroke="#000" stroke-width="0.012"/>`; };
   let ang = Math.atan2(uy,ux)*180/Math.PI; if (ang >= 90 || ang < -90) ang += 180; // vertical text reads bottom-to-top
-  const upx = -Math.sin(ang*Math.PI/180), upy = -Math.cos(ang*Math.PI/180);
-  const flip = (upx*nm.x + upy*nm.y) >= 0 ? 0 : 0.085; // keep text on the outward side of the line
   const parts = [];
   // dimension line
   const da = out(a, off), db = out(b, off);
@@ -852,7 +988,7 @@ function dimChain(a, b, nm, off, marks, wallT) {
     if (m.kind === 'cl') {
       parts.push(`<line x1="${PX(m.from.x)}" y1="${PY(m.from.y)}" x2="${PX(e.x)}" y2="${PY(e.y)}" stroke="#000" stroke-width="0.005" stroke-dasharray="0.1 0.03 0.015 0.03"/>`);
       const lp = out(p, off+ext+3);
-      parts.push(`<text x="${PX(lp.x)}" y="${r3(PY(lp.y)+0.03)}" text-anchor="middle" font-size="0.07" transform="rotate(${r3(ang)} ${PX(lp.x)} ${r3(PY(lp.y)+0.03)})">\u2104</text>`);
+      parts.push(placeLabel({ p:{x:PX(lp.x), y:PY(lp.y)}, ang, size:0.07, text:'\u2104', fixed:true }));
     } else {
       parts.push(`<line x1="${PX(out(p,-wallT-0.5).x)}" y1="${PY(out(p,-wallT-0.5).y)}" x2="${PX(e.x)}" y2="${PY(e.y)}" stroke="#000" stroke-width="0.006"/>`);
     }
@@ -860,10 +996,9 @@ function dimChain(a, b, nm, off, marks, wallT) {
   // ticks and labels
   for (const t of ts) parts.push(tk(out(at(t), off)));
   for (let i=0;i<ts.length-1;i++) {
-    const t0=ts[i], t1=ts[i+1]; const mid = out(at((t0+t1)/2), off+2.5);
-    const label = fmtIn(t1-t0); const paperLen = (t1-t0)*K; const small = paperLen < label.length*0.055;
-    const mp = small ? out(at((t0+t1)/2), off - 2.5) : mid; const fl = small ? (flip ? 0 : 0.085) : flip;
-    parts.push(`<text class="dim" x="${PX(mp.x)}" y="${r3(PY(mp.y)+fl)}" text-anchor="middle" transform="rotate(${r3(ang)} ${PX(mp.x)} ${r3(PY(mp.y)+fl)})">${label}</text>`);
+    const t0=ts[i], t1=ts[i+1]; const c = at((t0+t1)/2); const mid = out(c, off+3);
+    parts.push(placeLabel({ p:{x:PX(mid.x), y:PY(mid.y)}, ang, size:0.085, text:fmtIn(t1-t0),
+                            out:nm, fit:(t1-t0)*K, tip:{x:PX(out(c,off).x), y:PY(out(c,off).y)} }));
   }
   return parts.join('');
 }
@@ -979,11 +1114,11 @@ function inlineDim(a, b, nm, label, suffix = ' TO \u2104') {
   const tick=0.05;
   const tk = p => { const cxp=PX(p.x), cyp=PY(p.y); const tx=(ux-uy)/Math.SQRT2*tick, ty=(uy+ux)/Math.SQRT2*tick; return `<line x1="${r3(cxp-tx)}" y1="${r3(cyp-ty)}" x2="${r3(cxp+tx)}" y2="${r3(cyp+ty)}" stroke="#000" stroke-width="0.01"/>`; };
   let ang = Math.atan2(uy,ux)*180/Math.PI; if (ang >= 90 || ang < -90) ang += 180;
-  const mid = {x:(a.x+b.x)/2 + nm.x*2.5, y:(a.y+b.y)/2 + nm.y*2.5};
-  const upx = -Math.sin(ang*Math.PI/180), upy = -Math.cos(ang*Math.PI/180);
-  const side = (upx*nm.x + upy*nm.y) >= 0 ? 0 : 0.08;
+  const c = {x:(a.x+b.x)/2, y:(a.y+b.y)/2};
+  const mid = {x:c.x + nm.x*3, y:c.y + nm.y*3};
   return `<g stroke="#000" stroke-width="0.006" fill="none"><line x1="${PX(a.x)}" y1="${PY(a.y)}" x2="${PX(b.x)}" y2="${PY(b.y)}"/>${tk(a)}${tk(b)}</g>
-  <text class="dim" font-size="0.075" x="${PX(mid.x)}" y="${r3(PY(mid.y)+side)}" text-anchor="middle" transform="rotate(${r3(ang)} ${PX(mid.x)} ${r3(PY(mid.y)+side)})">${label}${suffix}</text>`;
+  ` + placeLabel({ p:{x:PX(mid.x), y:PY(mid.y)}, ang, size:0.085, text:`${label}${suffix}`,
+                   out:nm, fit:L*K, tip:{x:PX(c.x), y:PY(c.y)} });
 }
 
 function doorNote() { const sw = state.door.swing;
@@ -1028,7 +1163,8 @@ function doorSVG(poly, sign, t, warnings) {
       <polygon points="${leaf(0)}" fill="#fff" stroke="#000" stroke-width="0.014"/>
       <polyline points="${P(mid.x,mid.y)} ${P(tip.x,tip.y)}" fill="none" stroke="#000" stroke-width="0.008"/>
       <polyline points="${barb(1)} ${P(tip.x,tip.y)} ${barb(-1)}" fill="none" stroke="#000" stroke-width="0.008"/>
-      <text x="${PX(lm.x)}" y="${r3(PY(lm.y)+0.03)}" text-anchor="middle" font-size="0.07" fill="#000" transform="rotate(${r3(slang)} ${PX(lm.x)} ${r3(PY(lm.y)+0.03)})">${fmtIn(d.w)} SLIDING DOOR</text>
+      ${placeLabel({ p:{x:PX(lm.x), y:PY(lm.y)}, ang:slang, size:0.07, text:`${fmtIn(d.w)} SLIDING DOOR`, out:dn,
+                     tip:{x:PX((b1.x+b2.x)/2 + dn.x*TRK), y:PY((b1.y+b2.y)/2 + dn.y*TRK)} })}
     </g>`;
   }
 
@@ -1044,7 +1180,8 @@ function doorSVG(poly, sign, t, warnings) {
     ${jambs}
     <line x1="${PX(hinge.x)}" y1="${PY(hinge.y)}" x2="${PX(leafEnd.x)}" y2="${PY(leafEnd.y)}" stroke="#000" stroke-width="0.016"/>
     <polyline points="${arc.join(' ')}" fill="none" stroke="#000" stroke-width="0.006" stroke-dasharray="0.03 0.02"/>
-    <text x="${PX(lm.x)}" y="${r3(PY(lm.y)+0.03)}" text-anchor="middle" font-size="0.07" fill="#000" transform="rotate(${r3(lang)} ${PX(lm.x)} ${r3(PY(lm.y)+0.03)})">${fmtIn(d.w)} DOOR</text>
+    ${placeLabel({ p:{x:PX(lm.x), y:PY(lm.y)}, ang:lang, size:0.07, text:`${fmtIn(d.w)} DOOR`, out:nm,
+                   tip:{x:PX((p1.x+p2.x)/2 + nm.x*t), y:PY((p1.y+p2.y)/2 + nm.y*t)} })}
   </g>`;
 }
 
@@ -1085,12 +1222,13 @@ function ceilingSVG(bb) {
   if (lowRegion) parts.push(`<rect x="${PX(lowRegion.x)}" y="${PY(lowRegion.y)}" width="${r3(lowRegion.w*K)}" height="${r3(lowRegion.h*K)}" fill="#000" fill-opacity="0.06"/>`);
   const line = (dist, label, dash) => {
     const l = ceilLine(dist, bb); const mx = vert ? l.x1 : Math.min(l.x1+10, (l.x1+l.x2)/2), my = vert ? Math.max(l.y2-10, (l.y1+l.y2)/2) : l.y1; // label near the far end of the line, away from wall-mounted fixtures
+    const along = vert ? {x:0, y:-1} : {x:1, y:0};   // if that spot is taken, slide along the line toward the middle of the room
     parts.push(`<line x1="${PX(l.x1)}" y1="${PY(l.y1)}" x2="${PX(l.x2)}" y2="${PY(l.y2)}" stroke="#000" stroke-width="0.007" stroke-dasharray="${dash}"/>`);
-    const tx = PX(mx) + (vert ? -0.03 : 0), ty = PY(my) + (vert ? 0 : -0.03);
-    parts.push(`<text x="${r3(tx)}" y="${r3(ty)}" font-size="0.06" text-anchor="middle" fill="#333" transform="rotate(${vert?-90:0} ${r3(tx)} ${r3(ty)})">${label}</text>`);
+    const tx = PX(mx) + (vert ? -0.05 : 0), ty = PY(my) + (vert ? 0 : -0.05);
+    parts.push(placeLabel({ p:{x:r3(tx), y:r3(ty)}, ang: vert ? -90 : 0, size:0.06, text:label, out:along, extra:' fill="#333"' }));
   };
-  if (d76 !== null && d76 > 0) line(d76, `6'-4" CLG HT LINE`, '0.06 0.03');
-  if (d80 !== null && d80 > 0 && Math.abs(d80-d76) > 2) line(d80, `6'-8" CLG HT LINE`, '0.06 0.03');
+  if (d76 !== null && d76 > 0) line(d76, `${fmtIn(76)} CLG HT LINE`, '0.06 0.03');
+  if (d80 !== null && d80 > 0 && Math.abs(d80-d76) > 2) line(d80, `${fmtIn(80)} CLG HT LINE`, '0.06 0.03');
   if (slopeEnd > 0 && Math.abs(slopeEnd-d80) > 2 && Math.abs(slopeEnd-d76) > 2) line(slopeEnd, `SLOPE ENDS · FLAT CLG ${fmtIn(ceilH(slopeEnd))}`, '0.12 0.04');
   return `<g clip-path="url(#roomClip)">${parts.join('')}</g>`;
 }
@@ -1139,7 +1277,7 @@ function codeReport(active, poly, bb, area) {
   };
   const headroom = (f, W, D, group, label) => { // 76" over a W x D standing area in front
     if (!ceil) return; const r = frontRect(f, W, D); const h = minCeilOverRect(r, bb);
-    add(group, label, h >= 76, `Lowest ceiling over the ${fmtIn(D)} x ${fmtIn(W)} standing area in front is ${fmtIn(h)} (need 6'-4").`, r);
+    add(group, label, h >= 76, `Lowest ceiling over the ${fmtIn(D)} x ${fmtIn(W)} standing area in front is ${fmtIn(h)} (need ${fmtIn(76)}).`, r);
   };
   const toilet = active.find(f => f.id==='toilet');
   if (toilet) {
@@ -1216,9 +1354,21 @@ function titleBlock(scaleLabel, active, areaSF, checks, warnings) {
   y += 0.1; rows.push(`<line x1="${x0}" y1="${r3(y)}" x2="${x0+w}" y2="${r3(y)}" stroke="#000" stroke-width="0.006"/>`);
   // notes
   y += 0.04; rows.push(`<text class="tbh" x="${r3(x0+0.1)}" y="${r3(y+0.08)}">GENERAL NOTES</text>`); y += 0.12;
-  const notes = ['1. ALL DIMENSIONS ARE INTERIOR, FINISH TO FINISH, IN FEET-INCHES.', (Math.abs(state.wallT-4.5) < 0.01 ? `2. NEW WALLS: 2x4 STUDS @ 16" O.C. WITH 1/2" GYPSUM BOARD EACH SIDE = 4 1/2" FINISHED THICKNESS, AS DIMENSIONED.` : `2. NEW WALLS ${fmtIn(state.wallT)} FINISHED THICKNESS, AS DIMENSIONED.`), '2A. OUTER DIMENSION STRING IS OUTSIDE FACE TO OUTSIDE FACE OF NEW WALLS.', '3. FIXTURE LOCATIONS ARE TO CENTERLINE FROM NEAREST WALL.', '4. VERIFY ALL DIMENSIONS ON SITE BEFORE ROUGH-IN.', `5. ROOM AREA: ${areaSF.toFixed(1)} SQ FT.`];
-  if (state.ceiling.on && state.ceiling.pts.length) { const sideName = {R:'RIGHT', L:'LEFT', T:'TOP', B:'BOTTOM'}[state.ceiling.side]; notes.push(`6. CEILING SLOPES DOWN TO ${sideName} WALL. CLG HT FROM THAT WALL: ` + state.ceiling.pts.map(pt => `${fmtIn(pt.h)} AT ${fmtIn(pt.d)}`).join(', ') + `; FLAT ${fmtIn(state.ceiling.flat)} BEYOND.`); notes.push(`7. SHADED AREA HAS LESS THAN 6'-4" HEADROOM. DASHED LINES ARE CEILING HEIGHT LINES.`); }
-  for (const nt of notes) { for (const line of wrap(nt, 34)) { y += 0.1; rows.push(`<text font-size="0.06" x="${r3(x0+0.1)}" y="${r3(y)}">${esc(line)}</text>`); } y += 0.03; }
+  const notes = [`1. ALL DIMENSIONS ARE INTERIOR, FINISH TO FINISH, IN ${unitMode === 'in' ? 'INCHES' : 'FEET-INCHES'}.`, (Math.abs(state.wallT-4.5) < 0.01 ? `2. NEW WALLS: 2x4 STUDS @ 16" O.C. WITH 1/2" GYPSUM BOARD EACH SIDE = 4 1/2" FINISHED THICKNESS, AS DIMENSIONED.` : `2. NEW WALLS ${fmtIn(state.wallT)} FINISHED THICKNESS, AS DIMENSIONED.`), '2A. OUTER DIMENSION STRING IS OUTSIDE FACE TO OUTSIDE FACE OF NEW WALLS.', '3. FIXTURE LOCATIONS ARE TO CENTERLINE FROM NEAREST WALL.', '4. VERIFY ALL DIMENSIONS ON SITE BEFORE ROUGH-IN.', `5. ROOM AREA: ${areaSF.toFixed(1)} SQ FT.`];
+  if (state.ceiling.on && state.ceiling.pts.length) { const sideName = {R:'RIGHT', L:'LEFT', T:'TOP', B:'BOTTOM'}[state.ceiling.side]; notes.push(`6. CEILING SLOPES DOWN TO ${sideName} WALL. CLG HT FROM THAT WALL: ` + state.ceiling.pts.map(pt => `${fmtIn(pt.h)} AT ${fmtIn(pt.d)}`).join(', ') + `; FLAT ${fmtIn(state.ceiling.flat)} BEYOND.`); notes.push(`7. SHADED AREA HAS LESS THAN ${fmtIn(76)} HEADROOM. DASHED LINES ARE CEILING HEIGHT LINES.`); }
+  let nextNo = (state.ceiling.on && state.ceiling.pts.length) ? 8 : 6; // the numbered notes above stop at 5, or 7 with a sloped ceiling
+  for (const t of state.notes || []) { const txt = String(t).trim(); if (txt) notes.push(`${nextNo++}. ${txt.toUpperCase()}`); }
+  const noteBottom = y0 + h - 0.64; // leave the sheet number and north arrow alone
+  let clipped = false;
+  for (const nt of notes) {
+    if (clipped) break;
+    for (const line of wrap(nt, 34)) {
+      if (y + 0.1 > noteBottom) { clipped = true; break; }
+      y += 0.1; rows.push(`<text font-size="0.06" x="${r3(x0+0.1)}" y="${r3(y)}">${esc(line)}</text>`);
+    }
+    y += 0.03;
+  }
+  if (clipped) rows.push(`<text font-size="0.06" font-style="italic" x="${r3(x0+0.1)}" y="${r3(Math.min(y, noteBottom)+0.1)}">(MORE NOTES - NO ROOM ON SHEET)</text>`);
   // sheet number at bottom
   const sy = y0 + h;
   rows.push(`<line x1="${x0}" y1="${r3(sy-0.55)}" x2="${x0+w}" y2="${r3(sy-0.55)}" stroke="#000" stroke-width="0.01"/>`);
@@ -1308,6 +1458,7 @@ function svgPoint(svg, e) { const pt = svg.createSVGPoint(); pt.x = e.clientX; p
 // ---------- go ----------
 buildPanel();
 syncGridBtn();
+syncUnitBtn();
 render();
 renderLib();
 setupSections();
