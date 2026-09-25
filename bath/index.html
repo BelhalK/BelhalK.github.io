@@ -55,6 +55,16 @@
   #viewbar .seg button + button { border-left:1px solid #59606b; }
   #viewbar .seg button.on { background:#f4f4f2; color:#1a1a1a; }
   #viewbar .seg button:not(.on):hover { background:rgba(255,255,255,.08); }
+  #panelBtn { background:transparent; color:#c9ced6; border:1px solid #59606b; border-radius:5px; padding:5px 12px; font-weight:600; }
+  #panelBtn:hover { background:rgba(255,255,255,.08); }
+  #app.nopanel { grid-template-columns: 1fr; }
+  #app.nopanel #panel { display:none; }
+  #codeLight { display:none; align-items:center; gap:7px; background:transparent; color:#e8ebef; border:1px solid #59606b; border-radius:5px; padding:5px 12px; font-weight:600; }
+  #app.nopanel #codeLight { display:inline-flex; }
+  #codeLight:hover { background:rgba(255,255,255,.08); }
+  #codeLight .dot { width:11px; height:11px; border-radius:50%; background:#777; flex:none; }
+  #codeLight.green .dot { background:#34c759; box-shadow:0 0 8px #34c759; }
+  #codeLight.red .dot { background:#ff453a; box-shadow:0 0 8px #ff453a; }
   #panes { flex:1; min-height:0; display:flex; gap:16px; }
   #planPane { flex:1 1 45%; min-width:0; overflow:auto; }
   #view3d { flex:1 1 55%; min-width:0; position:relative; overflow:hidden; border-radius:6px; box-shadow:0 10px 40px rgba(0,0,0,.5);
@@ -93,6 +103,7 @@
     #panel, #stage { min-width: 0; width: 100%; box-sizing: border-box; }
     #stage { order: -1; position: sticky; top: 0; height: 46vh; padding: 8px; overflow: hidden; background: var(--bg); z-index: 10; }
     #stage[data-mode="split"] { height: 72vh; }
+    #app.nopanel #stage { height: 100vh; }
     #panes { flex-direction: column; gap: 8px; }
     #planPane { -webkit-overflow-scrolling: touch; }
     #viewbar { margin-bottom: 6px; }
@@ -283,6 +294,8 @@
 
   <main id="stage" data-mode="split">
     <div id="viewbar">
+      <button id="panelBtn" title="Hide or show the settings panel"></button>
+      <button id="codeLight" class="gray" title="Open the panel to see the full check list"><span class="dot"></span><span class="txt">Not checked yet</span></button>
       <div class="seg"><button data-mode="plan">Plan</button><button data-mode="split">Split</button><button data-mode="3d">3D</button></div>
       <span>Plan and 3D stay in sync — edit either one.</span>
     </div>
@@ -297,7 +310,7 @@
           <div class="grp"><button id="v3walls" title="Walls between you and the room fade out; or cut all walls at 3'-6&quot;; or keep them solid">Walls: cutaway</button><button id="v3ceil" title="Sloped ceiling: fades when seen from outside / always solid / hidden">Ceiling: auto</button></div>
           <div class="grp"><button id="v3door" title="Open or close the door (or click the door itself)">Close door</button><button id="v3head" class="on" title="Shade the floor where the ceiling is under 6'-4&quot;">Headroom</button><button id="v3lbl" class="on" title="Fixture tags and ceiling heights">Labels</button></div>
         </div>
-        <div class="v3hint">Drag to orbit · right-drag to pan · scroll to zoom · drag a fixture to move it · click the door to open or close it</div>
+        <div class="v3hint">Drag to orbit · right-drag to pan · scroll to zoom · click the door to open or close it</div>
         <div class="v3msg" id="v3msg">Loading 3D…</div>
       </div>
     </div>
@@ -652,6 +665,15 @@ function setViewMode(m) {
 document.querySelectorAll('#viewbar [data-mode]').forEach(b => b.onclick = () => setViewMode(b.dataset.mode));
 setViewMode((() => { try { return localStorage.getItem(VIEWK) || 'split'; } catch(e) { return 'split'; } })());
 setTimeout(() => { if (!window.bath3d) $('#v3msg').textContent = 'The 3D view could not load three.js (it comes from cdn.jsdelivr.net). Check your connection and reload.'; }, 10000);
+// ---------- hide / show the settings panel ----------
+const PANELK = 'bathroom-blueprint-panel-hidden-v1';
+function setPanelHidden(h) {
+  $('#app').classList.toggle('nopanel', h);
+  $('#panelBtn').textContent = h ? '\u25B8 Show panel' : '\u25C2 Hide panel';
+  try { localStorage.setItem(PANELK, h ? '1' : '0'); } catch(e) {}
+}
+$('#panelBtn').onclick = () => setPanelHidden(!$('#app').classList.contains('nopanel'));
+setPanelHidden((() => { try { return localStorage.getItem(PANELK) === '1'; } catch(e) { return false; } })());
 let zoom = 1;
 const setZoom = z => { zoom = Math.min(4, Math.max(1, z)); document.documentElement.style.setProperty('--zoom', zoom); $('#sheet').style.width = window.matchMedia('(max-width: 900px)').matches ? '' : `min(${100*zoom}%, ${1400*zoom}px)`; };
 $('#zoomIn').onclick = () => setZoom(zoom + 0.5); $('#zoomOut').onclick = () => setZoom(zoom - 0.5);
@@ -674,25 +696,19 @@ function svgString() { const s = $('#sheet svg').cloneNode(true); s.setAttribute
 function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000); }
 
 // ---------- collapsible panel sections ----------
-// Every fieldset starts collapsed; clicking its legend opens it, and whatever you left
-// open is remembered for next time. Collapsed inputs still exist, so readPanel() is unaffected.
-const PANELS = 'bathroom-blueprint-sections-v1';
-function panelsOpen() { try { const a = JSON.parse(localStorage.getItem(PANELS)); return Array.isArray(a) ? a : []; } catch(e) { return []; } }
+// Every fieldset starts collapsed on each page load; clicking its legend opens it.
+// Collapsed inputs still exist, so readPanel() is unaffected.
 function setupSections() {
   document.querySelectorAll('#panel fieldset').forEach(fs => {
     const lg = fs.querySelector('legend'); if (!lg) return;
-    const key = lg.textContent.trim();
-    fs.classList.toggle('collapsed', !panelsOpen().includes(key));
+    fs.classList.add('collapsed');
     lg.setAttribute('role', 'button');
     lg.tabIndex = 0;
     lg.title = 'Click to show or hide this section';
     const sync = () => lg.setAttribute('aria-expanded', String(!fs.classList.contains('collapsed')));
     const toggle = () => {
-      const nowOpen = !fs.classList.toggle('collapsed');
+      fs.classList.toggle('collapsed');
       sync();
-      const list = panelsOpen().filter(k => k !== key);
-      if (nowOpen) list.push(key);
-      try { localStorage.setItem(PANELS, JSON.stringify(list)); } catch(e) {}
     };
     sync();
     lg.addEventListener('click', toggle);
@@ -1675,6 +1691,9 @@ function applyWarnOpen() {
 }
 $('#badge').onclick = () => { warnOpen = !warnOpen; applyWarnOpen(); };
 $('#badge').title = 'Show or hide the full check list';
+// While the panel is hidden, the light in the view bar mirrors the badge; clicking it
+// brings the panel back with the check list open.
+$('#codeLight').onclick = () => { setPanelHidden(false); warnOpen = true; applyWarnOpen(); $('#badge').scrollIntoView({ block: 'nearest' }); };
 
 function showWarnings(list, checks) {
   const ul = $('#warnings'); ul.innerHTML = '';
@@ -1684,6 +1703,9 @@ function showWarnings(list, checks) {
   if (errs.length) { badge.className = 'red'; badge.innerHTML = `<span class="dot"></span><span>Fix layout errors<small>${errs.length} problem${errs.length>1?'s':''} with the drawing itself · tap for details</small></span>${chev}`; }
   else if (fails.length) { badge.className = 'red'; badge.innerHTML = `<span class="dot"></span><span>Not up to code<small>${fails.length} of ${checks.length} clearance rules fail · tap for details</small></span>${chev}`; }
   else { badge.className = 'green'; badge.innerHTML = `<span class="dot"></span><span>Up to code<small>All ${checks.length} clearance rules pass · tap for details</small></span>${chev}`; }
+  const light = $('#codeLight');
+  light.className = badge.className;
+  light.querySelector('.txt').textContent = errs.length ? `Layout errors (${errs.length})` : fails.length ? `Not up to code (${fails.length})` : 'Up to code';
   for (const w of errs) { const li = document.createElement('li'); li.className = 'err'; li.textContent = '⚠ ' + w.msg; ul.appendChild(li); }
   for (const c of [...fails, ...checks.filter(c => c.pass)]) { const li = document.createElement('li'); li.className = c.pass ? 'pass' : 'fail'; li.innerHTML = `${c.pass ? '✓' : '✗'} <b>${esc(c.name)}</b><span class="why">${esc(c.detail)}</span>`; ul.appendChild(li); }
   for (const w of list.filter(w => w.lvl==='warn')) { const li = document.createElement('li'); li.className = 'info'; li.textContent = w.msg; ul.appendChild(li); }
@@ -1776,8 +1798,8 @@ setupSections();
 // ---------- 3D view ----------
 // A live Three.js model of the same `state` the plan draws from. The classic script above
 // calls bath3d.update() at the end of every render(), so a dragged fixture, a moved wall, a
-// panel edit or an undo all land here too. Fixtures dragged in 3D write back to state and
-// call render(), so the plan follows the other way. 1 scene unit = 1 real inch; plan (x, y)
+// panel edit or an undo all land here too. The 3D view never moves fixtures: they are
+// only moved on the plan or in the panel. 1 scene unit = 1 real inch; plan (x, y)
 // is scene (x, z) with y up.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -2370,11 +2392,9 @@ function update() {
     const { cx, cy, th } = fxFrame(f); e.wrap.position.set(cx, 0, cy); e.wrap.rotation.y = th;
   });
   for (const [id, e] of fxObjs) if (!seen.has(id)) { disposeTree(e.wrap); fxG.remove(e.wrap); fxObjs.delete(id); }
-  if (hovered !== null && !fxObjByIndex(hovered)) setHover(null);
   applyToggles();
   if (!framed) { framed = true; setView('iso', true); }
 }
-const fxObjByIndex = i => { const f = state.fixtures[i]; return f && f.on ? fxObjs.get(f.id) : null; };
 
 // ---------- camera presets ----------
 let tween = null;
@@ -2426,59 +2446,29 @@ q('#v3lbl').onclick = () => { pref.labels = !pref.labels; savePref(); applyToggl
 q('#v3head').onclick = () => { pref.head = !pref.head; savePref(); applyToggles(); };
 q('#v3door').onclick = () => { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); };
 
-// ---------- picking and dragging fixtures ----------
+// ---------- picking the door ----------
+// Fixtures are view-only in 3D: move them on the plan or in the side panel. The only thing
+// you can click here is the door (fixtures are still cast against so they block the click).
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-const hl = new THREE.BoxHelper(undefined, 0x4ea1ff); hl.visible = false; hl.material.depthTest = false; hl.renderOrder = 9; scene.add(hl);
-let hovered = null, drag = null;
 function castAt(e) {
   const r = renderer.domElement.getBoundingClientRect();
   ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ndc, camera);
 }
-function pick(e) {
+function pickDoor(e) {
   castAt(e);
   const hits = ray.intersectObjects([...fxG.children, ...doorPick], true).filter(h => h.object.visible && h.object.isMesh);
-  if (!hits.length) return null;
-  const h = hits[0];
-  return doorPick.includes(h.object) ? { door: true } : { fx: h.object.userData.fx, point: h.point };
-}
-function setHover(i) {
-  hovered = i; const e = i === null ? null : fxObjByIndex(i);
-  hl.visible = !!e; if (e) hl.setFromObject(e.wrap);
+  return hits.length > 0 && doorPick.includes(hits[0].object);
 }
 host.addEventListener('pointerdown', e => { // capture phase: runs before OrbitControls sees the press
   if (e.button !== 0 || e.target !== renderer.domElement) return;
-  const h = pick(e); if (!h) return;
-  if (h.door) { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); return; }
-  const f = state.fixtures[h.fx]; if (!f) return;
-  controls.enabled = false; renderer.domElement.setPointerCapture(e.pointerId);
-  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -h.point.y);
-  drag = { i: h.fx, f, plane, start: h.point.clone(), x0: f.x, y0: f.y, id: e.pointerId };
-  renderer.domElement.style.cursor = 'grabbing'; setHover(h.fx);
+  if (pickDoor(e)) { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); }
 }, true);
 renderer.domElement.addEventListener('pointermove', e => {
-  if (drag) {
-    castAt(e); const p = new THREE.Vector3(); if (!ray.ray.intersectPlane(drag.plane, p)) return;
-    const f = drag.f, b = fxBox(f), bb = bbox(polygon());
-    let nx = Math.round((drag.x0 + p.x - drag.start.x) * 2) / 2, ny = Math.round((drag.y0 + p.z - drag.start.z) * 2) / 2;
-    if (f.id !== 'stairs') { nx = Math.min(Math.max(nx, bb.minX), bb.maxX - b.w); ny = Math.min(Math.max(ny, bb.minY), bb.maxY - b.h); }
-    if (nx !== f.x || ny !== f.y) {
-      f.x = nx; f.y = ny;
-      const ix = document.querySelector(`.fxX[data-i="${drag.i}"]`), iy = document.querySelector(`.fxY[data-i="${drag.i}"]`);
-      if (ix) ix.value = nx; if (iy) iy.value = ny;
-      render(); // redraws the plan, re-runs the code checks, saves, and calls update() here
-    }
-    return;
-  }
   if (e.buttons) return;
-  const h = pick(e);
-  renderer.domElement.style.cursor = h ? (h.door ? 'pointer' : 'grab') : '';
-  const i = h && !h.door ? h.fx : null; if (i !== hovered) setHover(i);
+  renderer.domElement.style.cursor = pickDoor(e) ? 'pointer' : '';
 });
-const endDrag = () => { if (!drag) return; drag = null; controls.enabled = true; renderer.domElement.style.cursor = 'grab'; };
-renderer.domElement.addEventListener('pointerup', endDrag);
-renderer.domElement.addEventListener('pointercancel', endDrag);
-renderer.domElement.addEventListener('pointerleave', () => { if (!drag) { setHover(null); renderer.domElement.style.cursor = ''; } });
+renderer.domElement.addEventListener('pointerleave', () => { renderer.domElement.style.cursor = ''; });
 
 // ---------- resize and frame loop ----------
 function resize() {
@@ -2517,7 +2507,6 @@ function loop(now) {
     const target = inside || pref.ceil === 'solid' ? 0.97 : THREE.MathUtils.lerp(0.42, 0.1, THREE.MathUtils.smoothstep(elev, 0.35, 0.92));
     M.ceiling.opacity += (target - M.ceiling.opacity) * k; M.ceiling.depthWrite = M.ceiling.opacity > 0.9;
   }
-  if (hl.visible && hovered !== null) { const e = fxObjByIndex(hovered); if (e) hl.setFromObject(e.wrap); }
   renderer.render(scene, camera); css2d.render(scene, camera);
 }
 requestAnimationFrame(loop);
