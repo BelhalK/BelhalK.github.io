@@ -76,7 +76,7 @@
   .clg3d { background:rgba(255,255,255,.88); color:#333; font:600 10px/1.2 -apple-system,"Helvetica Neue",Arial,sans-serif; padding:1px 5px; border-radius:3px; white-space:nowrap; }
   #sheet { background:#fff; box-shadow:0 10px 40px rgba(0,0,0,.5); width:min(100%, 1400px); margin:0 auto; }
   #sheet svg { width:100%; height:auto; display:block; }
-  .fx { cursor: move; pointer-events: all; } /* 'all' so the unfilled stairs can still be grabbed */
+  .fx, .chase { cursor: move; pointer-events: all; } /* 'all' so the unfilled stairs and the thin cross can still be grabbed */
   .wall { stroke: transparent; fill: none; }
   .wall:hover, .wall.active { stroke: rgba(31,78,121,.35); }
   .wall.h { cursor: ns-resize; } .wall.v { cursor: ew-resize; }
@@ -86,7 +86,7 @@
   #zoombar { position: sticky; top: 0; z-index: 5; display: flex; gap: 4px; justify-content: flex-end; margin: 0 0 8px; }
   #zoombar button { background: rgba(255,255,255,.92); border-color: #666; padding: 4px 12px; font-weight: 700; line-height: 1.2; }
   input, select { min-width: 0; max-width: 100%; } .row > div { min-width: 0; }
-  .fx, .wall { touch-action: none; }
+  .fx, .chase, .wall { touch-action: none; }
   #sheet svg { touch-action: manipulation; } /* pan/pinch ok, but no double-tap zoom on the sheet */
   @media (max-width: 900px) {
     #app { display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
@@ -188,6 +188,17 @@
     </fieldset>
 
     <fieldset>
+      <legend>Existing chase</legend>
+      <div class="head" style="margin-bottom:6px"><label style="display:flex;align-items:center;gap:6px;text-transform:none;font-size:13px"><input type="checkbox" id="chaseOn"> Mark the existing chase with a red cross</label></div>
+      <div class="row c3">
+        <div><label>Center X (in)</label><input type="number" id="chaseX" step="0.5"></div>
+        <div><label>Center Y (in)</label><input type="number" id="chaseY" step="0.5"></div>
+        <div><label>Cross size (in)</label><input type="number" id="chaseSize" value="6" step="0.5" min="1"></div>
+      </div>
+      <div class="hint">The pipe chase that already runs down to the first bathroom. It starts just outside the right wall, halfway down. Tick the box to show it, untick to hide it. While it is shown, the sheet dimensions it to the top wall and to the bottom wall. Drag the cross on the sheet, or type where its center is (X / Y from the room's top-left interior corner, like the fixtures). The legend on the sheet explains it.</div>
+    </fieldset>
+
+    <fieldset>
       <legend>Door</legend>
       <div class="head" style="margin-bottom:6px"><label style="display:flex;align-items:center;gap:6px;text-transform:none;font-size:13px"><input type="checkbox" id="doorOn" checked> Include door</label></div>
       <div class="row c3">
@@ -262,6 +273,7 @@
       <button id="openLib" title="See every blueprint you have saved">Saved</button>
       <button id="undo" disabled title="Undo the last wall move / split / join (Ctrl+Z)">Undo</button>
       <button id="noteBtn" title="Add a note to the general notes on the sheet">+ Note</button>
+      <button id="chaseBtn" title="Add or remove the red cross that marks the existing chase">+ Chase</button>
       <button id="unitBtn">Inches</button>
       <button id="reset">Reset</button>
     </div>
@@ -315,13 +327,14 @@ const DEFAULT_STATE = {
   wallT: 4.5,
   segments: [ {dir:'R', len:96, grp:'T'}, {dir:'D', len:60, grp:'R'}, {dir:'L', len:96, grp:'B'}, {dir:'U', len:60, grp:'L'} ],
   fixtures: [
-    { id:'sink',   tag:'P-1', name:'PEDESTAL SINK', on:true,  w:22, d:18, x:37, y:0,  rot:0 },
+    { id:'sink',   tag:'P-1', name:'PEDESTAL SINK', on:true,  w:22, d:18, x:37, y:0,  rot:0, mount:'pedestal' },
     { id:'toilet', tag:'P-2', name:'TOILET',        on:true,  w:20, d:28, x:66, y:0,  rot:0 },
     { id:'shower', tag:'P-3', name:'SHOWER BASE',   on:true,  w:36, d:36, x:0,  y:24, rot:270, head:{ side:'back', pos:50, h:80 } },
     { id:'other',  tag:'P-4', name:'VANITY',        on:false, w:30, d:21, x:0,  y:0,  rot:0 },
     { id:'stairs', tag:'S-1', name:'STAIRS',        on:false, w:36, d:60, x:0,  y:0,  rot:0, color:'#dbeafe' },
   ],
   door: { on:true, seg:2, off:8, w:30, swing:'in', hinge:'start', panel:'frosted' },
+  chase: { on:false, x:null, y:null, size:6 }, // red cross marking the existing chase; x,y = its center (null = not placed yet: it starts just outside the right wall)
   ceiling: { on:true, side:'R', flat:96, pts:[ {d:0,h:52}, {d:12,h:69}, {d:36,h:81}, {d:62,h:96} ] },
   notes: [],
   finish: {
@@ -351,6 +364,8 @@ function showerHeadSpot(f) {
   return { side: hd.side in HEAD_SIDES ? hd.side : 'back', s, len,
            p: hd.side === 'left' ? { x: 2.5, y: f.d - s } : hd.side === 'right' ? { x: f.w - 2.5, y: s } : { x: s, y: 2.5 } };
 }
+// A pedestal sink stands on its column; a wall-hung one is fixed to the wall with nothing under it.
+const SINK_MOUNTS = { pedestal:['Pedestal (column to the floor)','PEDESTAL SINK'], wall:['Floating (wall-hung, nothing under it)','WALL-HUNG SINK'] };
 const SHOWER_SIDES = { auto:'Walls it touches (auto)', three:'3 walls: back + left + right', 'back-left':'2 walls: back + left', 'back-right':'2 walls: back + right', back:'Back wall only' };
 function colorName(mat, hex) { const s = swatchesFor(mat).find(([, c]) => c.toLowerCase() === String(hex).toLowerCase()); return s ? s[0] : String(hex).toUpperCase(); }
 const STORE = 'bathroom-blueprint-v1';
@@ -362,6 +377,7 @@ function ensureFixtures(s) { // older layouts get fixtures they predate (the sta
   const df = JSON.parse(JSON.stringify(DEFAULT_STATE.finish)); // ... or before finishes
   if (s.door && !s.door.panel) s.door.panel = 'frosted';
   s.finish = s.finish || {}; for (const k of Object.keys(df)) s.finish[k] = { ...df[k], ...(s.finish[k] || {}) };
+  if (!s.chase) s.chase = JSON.parse(JSON.stringify(DEFAULT_STATE.chase)); // ...or the chase marker
   for (const d of DEFAULT_STATE.fixtures) {
     const f = s.fixtures.find(x => x.id === d.id);
     if (!f) { s.fixtures.push({...d, on:false}); continue; }
@@ -450,6 +466,9 @@ function buildPanel() {
         <div><label>Height (in)</label><input type="number" class="fxHeadH" data-i="${i}" value="${(f.head||{}).h ?? 80}" step="1" min="30"></div>
       </div>
       <div class="hint" style="margin-top:0">Left and right as you stand facing that wall from inside the shower. The valve sits below the head.</div>` : ''}
+      ${f.id === 'sink' ? `<div class="row" style="margin:6px 0 0">
+        <div><label>Mount</label><select class="fxMount" data-i="${i}">${optionsHTML(SINK_MOUNTS, f.mount in SINK_MOUNTS ? f.mount : 'pedestal')}</select></div>
+      </div>` : ''}
       ${'color' in f ? `<div class="row c2" style="margin:6px 0 0">
         <div><label>Fill colour (hex)</label><input type="text" class="fxColor" data-i="${i}" value="${esc(fxColor(f))}" spellcheck="false"></div>
         <div><label>&nbsp;</label><input type="color" class="fxSwatch" data-i="${i}" value="${esc(fxColor(f))}" style="width:100%;height:30px;padding:2px"></div>
@@ -461,6 +480,7 @@ function buildPanel() {
   $('#doorSwing').value = state.door.swing; $('#doorHinge').value = state.door.hinge;
   $('#doorPanel').innerHTML = optionsHTML(DOOR_PANELS, state.door.panel || 'solid');
   syncDoorLabel();
+  $('#chaseOn').checked = state.chase.on; $('#chaseX').value = state.chase.x ?? ''; $('#chaseY').value = state.chase.y ?? ''; $('#chaseSize').value = state.chase.size;
   const c = state.ceiling; $('#ceilOn').checked = c.on; $('#ceilSide').value = c.side; $('#ceilFlat').value = c.flat;
   const ct = $('#ceilTable tbody'); ct.innerHTML = '';
   c.pts.forEach((pt, i) => { const tr = document.createElement('tr'); tr.innerHTML = `<td><input type="number" class="ceilD" data-i="${i}" value="${pt.d}" step="0.5" min="0"></td><td><input type="number" class="ceilH" data-i="${i}" value="${pt.h}" step="0.5" min="0"></td><td><button class="small delCeil" data-i="${i}" title="Remove">×</button></td>`; ct.appendChild(tr); });
@@ -490,10 +510,13 @@ function readPanel() {
     f.rot = +document.querySelector(`.fxRot[data-i="${i}"]`).value;
     const hs = document.querySelector(`.fxHeadSide[data-i="${i}"]`);
     if (hs) f.head = { side: hs.value, pos: num(document.querySelector(`.fxHeadPos[data-i="${i}"]`).value, 50), h: num(document.querySelector(`.fxHeadH[data-i="${i}"]`).value, 80) };
+    const mt = document.querySelector(`.fxMount[data-i="${i}"]`);
+    if (mt) f.mount = mt.value;
     const col = document.querySelector(`.fxColor[data-i="${i}"]`);
     if (col) { const v = col.value.trim(); f.color = HEX.test(v) ? (v[0]==='#'?v:'#'+v) : f.color; }
   });
   state.door = { on: $('#doorOn').checked, seg: +$('#doorSeg').value, off: num($('#doorOff').value,0), w: num($('#doorW').value,30), swing: $('#doorSwing').value, hinge: $('#doorHinge').value, panel: $('#doorPanel').value };
+  state.chase = { on: $('#chaseOn').checked, x: num($('#chaseX').value, state.chase.x), y: num($('#chaseY').value, state.chase.y), size: Math.max(1, num($('#chaseSize').value, 6)) };
   const pts = [...document.querySelectorAll('.ceilD')].map((el, i) => ({ d: num(el.value, 0), h: num(document.querySelectorAll('.ceilH')[i].value, 96) })).sort((a,b)=>a.d-b.d);
   state.ceiling = { on: $('#ceilOn').checked, side: $('#ceilSide').value, flat: num($('#ceilFlat').value, 96), pts };
   state.notes = [...document.querySelectorAll('.noteTxt')].map(el => el.value.trim());
@@ -549,6 +572,8 @@ $('#panel').addEventListener('input', e => {
   if (e.target.matches('.segDir,.segLen')) updateClosure();
   if (e.target.matches('.segDir,#doorSeg,#doorSwing')) syncDoorLabel();
   if (e.target.matches('.fxSwatch')) { const t = document.querySelector(`.fxColor[data-i="${e.target.dataset.i}"]`); if (t) t.value = e.target.value; }
+  if (e.target.matches('.fxMount')) { const n = document.querySelector(`.fxName[data-i="${e.target.dataset.i}"]`); // swap the name too, unless it was renamed by hand
+    if (n && Object.values(SINK_MOUNTS).some(([, nm]) => nm === n.value.trim().toUpperCase())) n.value = SINK_MOUNTS[e.target.value][1]; }
   if (e.target.matches('.noteTxt')) state.notes[+e.target.dataset.i] = e.target.value; // keep notes in state as they are typed
   if (e.target.matches('.fxColor')) { const v = e.target.value.trim(); const t = document.querySelector(`.fxSwatch[data-i="${e.target.dataset.i}"]`);
     if (t && HEX.test(v)) t.value = v[0]==='#' ? v : '#'+v; }
@@ -596,6 +621,9 @@ function addNote() {
   if (last) { last.scrollIntoView({block:'nearest'}); last.focus(); }
 }
 $('#noteBtn').onclick = addNote;
+function syncChaseBtn() { $('#chaseBtn').textContent = state.chase.on ? '\u2212 Chase' : '+ Chase'; }
+$('#chaseBtn').onclick = () => { const on = !state.chase.on; readPanel(); state.chase.on = on; buildPanel(); render(); };
+$('#chaseOn').onchange = () => { readPanel(); render(); };
 $('#unitBtn').onclick = () => {
   readPanel();
   unitMode = unitMode === 'in' ? 'ft' : 'in';
@@ -872,7 +900,7 @@ function moveWall(i, delta) {
     segs.push({dir, len: Math.round(Math.hypot(dx,dy)*100)/100, tag: clean[k].tag}); }
   const di = segs.findIndex(sg => sg.tag === state.door.seg); state.door.seg = di >= 0 ? di : Math.min(state.door.seg, segs.length-1);
   const oldSegs = state.segments; state.segments = segs.map(sg => ({dir:sg.dir, len:sg.len, ex: typeof sg.tag === 'number' && !!(oldSegs[sg.tag]||{}).ex, grp: typeof sg.tag === 'number' ? (oldSegs[sg.tag]||{}).grp : (oldSegs[i]||{}).grp})); // a new jog is always a new wall, in the moved wall's group
-  const o = clean[0].p; if (o.x || o.y) for (const f of state.fixtures) { f.x -= o.x; f.y -= o.y; } // walk starts at (0,0): keep fixtures where they are
+  const o = clean[0].p; if (o.x || o.y) { for (const f of state.fixtures) { f.x -= o.x; f.y -= o.y; } if (state.chase.x != null) { state.chase.x -= o.x; state.chase.y -= o.y; } } // walk starts at (0,0): keep fixtures and the chase where they are
 }
 
 // ---------- formatting ----------
@@ -1009,12 +1037,18 @@ function render() {
   const t = state.wallT; const A = signedArea(poly); const sign = A > 0 ? 1 : -1;
   const outer = offsetPolygon(poly, t, sign);
   const bb = bbox(poly), ob = bbox(outer);
+  if (state.chase.x == null || state.chase.y == null) { // first time: outside the right wall, halfway down
+    state.chase.x = r3(Math.round((bb.maxX + t + state.chase.size/2 + 3)*2)/2); state.chase.y = r3(Math.round(((bb.minY+bb.maxY)/2)*2)/2);
+    $('#chaseX').value = state.chase.x; $('#chaseY').value = state.chase.y; }
   const DIM_TXT = 36; // real inches outside the outer wall reserved for dimension strings
   const pad = DIM_TXT + 6;
   let ext = { minX: ob.minX-pad, maxX: ob.maxX+pad, minY: ob.minY-pad, maxY: ob.maxY+pad };
   for (const f of state.fixtures) if (f.on && f.id === 'stairs') { const sb = fxBox(f); // stairs float outside the room, so the sheet has to reach them
     ext = { minX: Math.min(ext.minX, sb.x-10), maxX: Math.max(ext.maxX, sb.x+sb.w+10),
             minY: Math.min(ext.minY, sb.y-10), maxY: Math.max(ext.maxY, sb.y+sb.h+10) }; }
+  if (state.chase.on) { const h = state.chase.size/2; // the chase can sit outside the room, so the sheet has to reach it
+    ext = { minX: Math.min(ext.minX, state.chase.x-h-10), maxX: Math.max(ext.maxX, state.chase.x+h+10),
+            minY: Math.min(ext.minY, state.chase.y-h-10), maxY: Math.max(ext.maxY, state.chase.y+h+10) }; }
   const realW = ext.maxX-ext.minX, realH = ext.maxY-ext.minY;
   const TITLE_H = 0.45; // strip kept free at the foot of the drawing area for the plan title
   const areaW = SHEET_W - TB_W - 0.45, areaH = SHEET_H - 0.45 - TITLE_H;
@@ -1044,6 +1078,7 @@ function render() {
   // label that can step aside (ceiling lines, the door note, every dimension)
   const active = state.fixtures.filter(f=>f.on);
   for (const f of active) { const b = fxBox(f); claimLabel(PX(b.x + b.w/2), PY(b.y + b.h/2), 0.24, 0.24); }
+  if (state.chase.on) { const q = Math.max(state.chase.size*K, 0.12) + 0.06; claimLabel(PX(state.chase.x), PY(state.chase.y), q, q); }
 
   // sloped ceiling: height lines and low-headroom shading (clipped to the room)
   if (state.ceiling.on) g.push(ceilingSVG(bb));
@@ -1102,6 +1137,7 @@ function render() {
   }
   for (const f of active) if (!located.has(f) && f.id !== 'stairs') g.push(fixtureCenterlineDim(f, bb)); // free-standing fixture: locate inside the room
   for (const f of active) if (f.id !== 'stairs') g.push(backGapDim(f, poly, sign)); // gap to the wall it backs onto, when it is not flush
+  if (state.chase.on) { g.push(chaseDims(bb, ob)); g.push(chaseSVG()); } // the cross goes on last so it is never hidden
   for (const f of active) if (f.id === 'stairs') g.push(stairDims(f)); // stairs are dimensioned on the plan, not just in the schedule
   // overlaps
   for (let i=0;i<active.length;i++) for (let j=i+1;j<active.length;j++) { if (active[i].id==='stairs' || active[j].id==='stairs') continue; // stairs are outside the room
@@ -1139,6 +1175,7 @@ function render() {
   $('#sheet').innerHTML = svg;
   attachDrag();
   showWarnings(warnings, checks);
+  syncChaseBtn();
   save();
   if (window.bath3d) window.bath3d.update();
 }
@@ -1176,6 +1213,29 @@ function dimChain(a, b, nm, off, marks, wallT) {
     const t0=ts[i], t1=ts[i+1]; const c = at((t0+t1)/2); const mid = out(c, off+3);
     parts.push(placeLabel({ p:{x:PX(mid.x), y:PY(mid.y)}, ang, size:0.085, text:fmtIn(t1-t0),
                             out:nm, fit:(t1-t0)*K, tip:{x:PX(out(c,off).x), y:PY(out(c,off).y)} }));
+  }
+  return parts.join('');
+}
+
+// The existing chase: a red X centred on (x, y), with a white halo so it reads over hatching and
+// dimension lines, and an invisible square behind it so a thin cross is still easy to grab.
+function chaseSVG() {
+  const c = state.chase, r = r3(Math.max(c.size/2*K, 0.06)), cx = PX(c.x), cy = PY(c.y);
+  const x = (col, w) => `<line x1="${r3(cx-r)}" y1="${r3(cy-r)}" x2="${r3(cx+r)}" y2="${r3(cy+r)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/><line x1="${r3(cx-r)}" y1="${r3(cy+r)}" x2="${r3(cx+r)}" y2="${r3(cy-r)}" stroke="${col}" stroke-width="${w}" stroke-linecap="round"/>`;
+  return `<g class="chase"><title>Existing chase (down to the first bathroom) - drag to move</title><rect x="${r3(cx-r)}" y="${r3(cy-r)}" width="${r3(r*2)}" height="${r3(r*2)}" fill="#fff" fill-opacity="0" stroke="none"/>${x('#fff', 0.055)}${x('#c5221f', 0.03)}</g>`;
+}
+
+// Where the chase is, measured straight up to the top wall and straight down to the bottom wall
+// (interior faces, like every other dimension to a wall). Thin extension lines carry those two wall
+// levels across to the cross when it sits outside the room, on whichever side of it the cross is.
+function chaseDims(bb, ob) {
+  const c = state.chase, cx = c.x, cy = c.y, right = cx >= (bb.minX + bb.maxX)/2;
+  const xs = right ? (cx > ob.maxX ? ob.maxX + 1 : cx - 4) : (cx < ob.minX ? ob.minX - 1 : cx + 4), xe = right ? cx + 4 : cx - 4;
+  const nm = {x: right ? 1 : -1, y: 0};
+  const parts = [];
+  for (const wy of [bb.minY, bb.maxY]) {
+    parts.push(`<line x1="${PX(xs)}" y1="${PY(wy)}" x2="${PX(xe)}" y2="${PY(wy)}" stroke="#000" stroke-width="0.006"/>`);
+    if (Math.abs(cy - wy) >= 0.5) parts.push(inlineDim({x:cx, y:wy}, {x:cx, y:cy}, nm, fmtIn(Math.abs(cy - wy))));
   }
   return parts.join('');
 }
@@ -1543,10 +1603,15 @@ function titleBlock(scaleLabel, active, areaSF, checks, warnings) {
   // graphic scale bar
   // wall legend
   const anyEx = state.segments.some(sg => sg.ex), anyNew = state.segments.some(sg => !sg.ex);
-  rows.push(`<text class="tbh" x="${r3(x0+0.1)}" y="${r3(y+0.08)}">WALL LEGEND</text>`);
+  rows.push(`<text class="tbh" x="${r3(x0+0.1)}" y="${r3(y+0.08)}">LEGEND</text>`);
   let lx = x0+0.1; const ly = y+0.14;
   if (anyNew) { rows.push(`<rect x="${r3(lx)}" y="${r3(ly)}" width="0.3" height="0.1" fill="url(#hatch)" stroke="#000" stroke-width="0.008"/><text font-size="0.06" x="${r3(lx+0.36)}" y="${r3(ly+0.08)}">NEW WALL ${fmtIn(state.wallT)}</text>`); lx += 1.05; }
   if (anyEx) rows.push(`<rect x="${r3(lx)}" y="${r3(ly)}" width="0.3" height="0.1" fill="#555" stroke="#000" stroke-width="0.008"/><text font-size="0.06" x="${r3(lx+0.36)}" y="${r3(ly+0.08)}">EXISTING WALL</text>`);
+  if (state.chase.on) { // red cross swatch, centred where the wall swatches are
+    const sx = x0+0.25, sy = ly+0.16, k = 0.05, cy0 = sy+0.05;
+    rows.push(`<line x1="${r3(sx-k)}" y1="${r3(cy0-k)}" x2="${r3(sx+k)}" y2="${r3(cy0+k)}" stroke="#c5221f" stroke-width="0.025" stroke-linecap="round"/><line x1="${r3(sx-k)}" y1="${r3(cy0+k)}" x2="${r3(sx+k)}" y2="${r3(cy0-k)}" stroke="#c5221f" stroke-width="0.025" stroke-linecap="round"/><text font-size="0.06" x="${r3(x0+0.46)}" y="${r3(sy+0.08)}">EXISTING CHASE DOWN TO FIRST BATHROOM</text>`);
+    y += 0.19;
+  }
   y += 0.34; rows.push(`<line x1="${x0}" y1="${r3(y-0.04)}" x2="${x0+w}" y2="${r3(y-0.04)}" stroke="#000" stroke-width="0.006"/>`);
   rows.push(`<text class="tbh" x="${r3(x0+0.1)}" y="${r3(y+0.08)}">GRAPHIC SCALE (FEET)</text>`);
   const bx = x0+0.1, by = y+0.16, ft = 12*K; const nFt = Math.max(1, Math.min(4, Math.floor((w-0.3)/ft)));
@@ -1617,6 +1682,7 @@ function showWarnings(list, checks) {
 function attachDrag() {
   const svg = $('#sheet svg'); if (!svg) return;
   attachWallDrag(svg);
+  attachChaseDrag(svg);
   svg.querySelectorAll('.fx').forEach(el => {
     el.addEventListener('pointerdown', e => {
       e.preventDefault();
@@ -1635,6 +1701,20 @@ function attachDrag() {
     });
   });
 }
+function attachChaseDrag(svg) {
+  const el = svg.querySelector('.chase'); if (!el) return;
+  el.addEventListener('pointerdown', e => {
+    e.preventDefault(); dragging = true;
+    const start = svgPoint(svg, e), x0 = state.chase.x, y0 = state.chase.y; let moved = false;
+    const move = ev => {
+      const p = svgPoint($('#sheet svg'), ev);
+      const nx = Math.round((x0 + (p.x-start.x)/K)*2)/2, ny = Math.round((y0 + (p.y-start.y)/K)*2)/2; // free to leave the room, like the stairs
+      if (nx !== state.chase.x || ny !== state.chase.y) { if (!moved) { pushHistory(); moved = true; } state.chase.x = nx; state.chase.y = ny; $('#chaseX').value = nx; $('#chaseY').value = ny; render(); }
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  });
+}
 function attachWallDrag(svg) {
   svg.querySelectorAll('.wall').forEach(el => {
     el.addEventListener('dblclick', e => {
@@ -1648,14 +1728,14 @@ function attachWallDrag(svg) {
       if (e.detail > 1) return; // second click of a double-click
       e.preventDefault(); readPanel(); dragging = true;
       const i = +el.dataset.i; const pts = polygon(); const sign = signedArea(pts) > 0 ? 1 : -1; const nm = edgeNormal(pts, i, sign);
-      const start = svgPoint(svg, e); const snapshot = JSON.stringify({segments: state.segments, fixtures: state.fixtures, door: state.door});
+      const start = svgPoint(svg, e); const snapshot = JSON.stringify({segments: state.segments, fixtures: state.fixtures, door: state.door, chase: state.chase});
       let moved = false, last = 0;
       const move = ev => {
         const p = svgPoint($('#sheet svg'), ev);
         const delta = Math.round((((p.x-start.x)*nm.x + (p.y-start.y)*nm.y)/K)*2)/2;
         if (delta === last) return; last = delta;
         if (!moved) { pushHistory(); moved = true; }
-        const snap = JSON.parse(snapshot); state.segments = snap.segments; state.fixtures = snap.fixtures; state.door = snap.door;
+        const snap = JSON.parse(snapshot); state.segments = snap.segments; state.fixtures = snap.fixtures; state.door = snap.door; state.chase = snap.chase;
         moveWall(i, delta); buildPanel(); render();
         const h = document.querySelector(`.wall[data-i="${i}"]`); if (h) h.classList.add('active');
       };
@@ -2123,7 +2203,12 @@ function buildToilet(f) {
 }
 function buildSink(f) {
   const g = new THREE.Group(), w = f.w, d = f.d;
-  g.add(mk(lathe([[0, 0], [5, 0], [4.8, 1], [3.5, 4], [2.9, 14], [3.1, 24], [4.4, 29], [0, 29]], 48), M.ceramic, 0, 0, -d / 2 + Math.min(d * 0.42, 8)));
+  if (f.mount === 'wall') { // floating: nothing on the floor, just the chrome trap running back into the wall
+    const tz = -d / 2 + d * 0.55, trap = new THREE.CatmullRomCurve3([new THREE.Vector3(0, 28.6, tz), new THREE.Vector3(0, 22, tz),
+      new THREE.Vector3(0, 19, tz - 2), new THREE.Vector3(0, 21, tz - 4.5), new THREE.Vector3(0, 21.5, -d / 2 + 2), new THREE.Vector3(0, 21.5, -d / 2)]);
+    g.add(mk(new THREE.TubeGeometry(trap, 40, 0.65, 12), M.chrome));
+    g.add(mk(new THREE.CylinderGeometry(1.6, 1.6, 0.4, 24).rotateX(Math.PI / 2), M.chrome, 0, 21.5, -d / 2 + 0.2)); // escutcheon
+  } else g.add(mk(lathe([[0, 0], [5, 0], [4.8, 1], [3.5, 4], [2.9, 14], [3.1, 24], [4.4, 29], [0, 29]], 48), M.ceramic, 0, 0, -d / 2 + Math.min(d * 0.42, 8)));
   const zc = -d / 2 + d * 0.55, rx = w * 0.36, rz = d * 0.3;
   const sh = rrect(w - 0.8, d - 0.8, Math.min(w, d) * 0.25);
   sh.holes.push(new THREE.Path().absellipse(0, -zc, rx, rz, 0, Math.PI * 2, true));
@@ -2254,7 +2339,7 @@ function update() {
   state.fixtures.forEach((f, i) => {
     if (!f.on) return; seen.add(f.id);
     // the shower and vanity look at the walls and ceiling around them, so they rebuild when moved
-    const key = JSON.stringify([f.w, f.d, f.rot, f.color, f.name, f.tag, i, (f.id === 'shower' || f.id === 'other') ? [f.x, f.y] : 0, f.id === 'shower' ? [state.finish.shower.sides, f.head] : 0]);
+    const key = JSON.stringify([f.w, f.d, f.rot, f.color, f.name, f.tag, i, (f.id === 'shower' || f.id === 'other') ? [f.x, f.y] : 0, f.id === 'shower' ? [state.finish.shower.sides, f.head] : 0, f.mount]);
     let e = fxObjs.get(f.id);
     if (!e || e.key !== key) { if (e) disposeTree(e.wrap); else { e = { wrap: new THREE.Group() }; fxG.add(e.wrap); fxObjs.set(f.id, e); }
       const b = buildFixture(f, i); e.wrap.add(b.g); e.key = key; e.top = b.top; }
