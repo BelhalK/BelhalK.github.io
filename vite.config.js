@@ -9,7 +9,7 @@ export default defineConfig({
         configureServer(server) {
             server.middlewares.use((request, _response, next) => {
                 if (request.url === '/assets/courtside.js') request.url = '/src/basketball.js';
-                const match = request.url.match(/^\/(research|talks|industry|advisory|software|awards|teaching|education|music)\/?$/);
+                const match = request.url.match(/^\/(research|talks|industry|advisory|software|awards|teaching|education|music|bath)\/?$/);
                 if (match) {
                     request.url = `/public/${match[1]}/index.html`;
                 }

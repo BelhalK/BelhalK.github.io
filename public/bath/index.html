@@ -48,7 +48,32 @@
   #badge { cursor:pointer; user-select:none; }
   #badge .chev { margin-left:auto; font-size:14px; opacity:.85; }
   #ceilTable input { width:70px; }
-  #stage { padding:24px; display:block; overflow:auto; position:relative; }
+  #stage { padding:14px 20px 20px; display:flex; flex-direction:column; height:100vh; overflow:hidden; position:relative; }
+  #viewbar { display:flex; align-items:center; gap:10px; margin-bottom:10px; color:#c9ced6; font-size:12px; }
+  #viewbar .seg { display:inline-flex; border:1px solid #59606b; border-radius:5px; overflow:hidden; }
+  #viewbar .seg button { border:none; border-radius:0; background:transparent; color:#c9ced6; padding:5px 14px; font-weight:600; }
+  #viewbar .seg button + button { border-left:1px solid #59606b; }
+  #viewbar .seg button.on { background:#f4f4f2; color:#1a1a1a; }
+  #viewbar .seg button:not(.on):hover { background:rgba(255,255,255,.08); }
+  #panes { flex:1; min-height:0; display:flex; gap:16px; }
+  #planPane { flex:1 1 45%; min-width:0; overflow:auto; }
+  #view3d { flex:1 1 55%; min-width:0; position:relative; overflow:hidden; border-radius:6px; box-shadow:0 10px 40px rgba(0,0,0,.5);
+            background:radial-gradient(ellipse at 50% 35%, #4a515c 0%, #2f343c 55%, #22262c 100%); touch-action:none; }
+  #stage[data-mode="plan"] #view3d { display:none; }
+  #stage[data-mode="3d"] #planPane { display:none; }
+  #view3d canvas { position:absolute; inset:0; display:block; outline:none; }
+  #view3d .lbl-layer { position:absolute; inset:0; pointer-events:none; }
+  .v3bar { position:absolute; top:10px; left:10px; right:10px; display:flex; flex-wrap:wrap; gap:6px; z-index:2; pointer-events:none; }
+  .v3bar .grp { display:inline-flex; background:rgba(20,24,30,.72); border:1px solid rgba(255,255,255,.12); border-radius:6px; overflow:hidden; pointer-events:auto; backdrop-filter:blur(6px); }
+  .v3bar button { background:transparent; border:none; border-radius:0; color:#dfe4ea; font-size:12px; padding:5px 10px; }
+  .v3bar button + button { border-left:1px solid rgba(255,255,255,.1); }
+  .v3bar button:hover { background:rgba(255,255,255,.1); }
+  .v3bar button.on { background:rgba(142,197,255,.22); color:#fff; }
+  .v3hint { position:absolute; left:10px; bottom:8px; right:10px; z-index:2; color:rgba(230,235,240,.6); font-size:11px; pointer-events:none; }
+  .v3msg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#dfe4ea; font-size:13px; padding:20px; text-align:center; }
+  .fx3d { background:rgba(20,24,30,.8); color:#fff; font:600 11px/1.2 -apple-system,"Helvetica Neue",Arial,sans-serif; padding:3px 8px; border-radius:10px; white-space:nowrap; letter-spacing:.02em; }
+  .fx3d b { color:#8ec5ff; margin-right:5px; }
+  .clg3d { background:rgba(255,255,255,.88); color:#333; font:600 10px/1.2 -apple-system,"Helvetica Neue",Arial,sans-serif; padding:1px 5px; border-radius:3px; white-space:nowrap; }
   #sheet { background:#fff; box-shadow:0 10px 40px rgba(0,0,0,.5); width:min(100%, 1400px); margin:0 auto; }
   #sheet svg { width:100%; height:auto; display:block; }
   .fx { cursor: move; pointer-events: all; } /* 'all' so the unfilled stairs can still be grabbed */
@@ -58,7 +83,7 @@
   .segRow td:last-child { white-space: nowrap; }
   .wchip { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:middle; border:1px solid rgba(0,0,0,.3); }
   .fx:hover .fxbody { stroke: #c0392b; }
-  #zoombar { position: sticky; top: 8px; z-index: 5; display: flex; gap: 4px; justify-content: flex-end; margin: -12px 0 8px; }
+  #zoombar { position: sticky; top: 0; z-index: 5; display: flex; gap: 4px; justify-content: flex-end; margin: 0 0 8px; }
   #zoombar button { background: rgba(255,255,255,.92); border-color: #666; padding: 4px 12px; font-weight: 700; line-height: 1.2; }
   input, select { min-width: 0; max-width: 100%; } .row > div { min-width: 0; }
   .fx, .wall { touch-action: none; }
@@ -66,7 +91,12 @@
   @media (max-width: 900px) {
     #app { display: flex; flex-direction: column; width: 100%; overflow-x: hidden; }
     #panel, #stage { min-width: 0; width: 100%; box-sizing: border-box; }
-    #stage { order: -1; position: sticky; top: 0; height: 46vh; padding: 8px; overflow: auto; background: var(--bg); z-index: 10; -webkit-overflow-scrolling: touch; }
+    #stage { order: -1; position: sticky; top: 0; height: 46vh; padding: 8px; overflow: hidden; background: var(--bg); z-index: 10; }
+    #stage[data-mode="split"] { height: 72vh; }
+    #panes { flex-direction: column; gap: 8px; }
+    #planPane { -webkit-overflow-scrolling: touch; }
+    #viewbar { margin-bottom: 6px; }
+    .v3hint { display: none; }
     #zoombar { top: 0; margin: 0 0 6px; }
     #sheet { width: calc((100vw - 16px) * var(--zoom, 1)); margin: 0; }
     #panel { max-height: none; overflow: hidden; border-right: none; padding: 12px 12px 60px; }
@@ -80,6 +110,15 @@
     .segRow td:last-child button { padding: 4px 5px; }
     .c4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
   }
+  .fin { border-top:1px dashed var(--line); padding-top:8px; margin-top:8px; }
+  .fin:first-of-type { border-top:none; padding-top:0; margin-top:0; }
+  .fin .fhead { font-weight:600; margin-bottom:4px; }
+  .swrow { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:2px 0 6px; }
+  .sw { width:24px; height:24px; padding:0; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px #999; cursor:pointer; }
+  .sw:hover { box-shadow:0 0 0 1px #333; background-clip:padding-box; }
+  .sw.on { box-shadow:0 0 0 2px var(--accent); }
+  .swrow input[type=color] { width:34px; height:26px; padding:1px 2px; border:1px solid #bbb; border-radius:3px; background:#fff; }
+  .swname { font-size:11px; color:#555; }
   /* collapsible sections */
   fieldset > legend { cursor:pointer; user-select:none; padding:3px 6px; margin-left:-2px; border-radius:3px; }
   fieldset > legend:hover { background:#eef4fa; }
@@ -111,7 +150,9 @@
     body { background:#fff; }
     #app { display:block; }
     #panel { display:none; }
-    #stage { padding:0; display:block; }
+    #stage { padding:0; display:block; height:auto; overflow:visible; }
+    #viewbar, #view3d { display:none !important; }
+    #planPane { display:block !important; overflow:visible; }
     #sheet { box-shadow:none; width:10.5in; height:8in; }
     #sheet svg { width:10.5in; height:8in; }
   }
@@ -155,8 +196,12 @@
         <div><label>Door width (in)</label><input type="number" id="doorW" value="30" step="0.5"></div>
       </div>
       <div class="row c2">
-        <div><label>Type</label><select id="doorSwing"><option value="in">Swings into the room</option><option value="out">Swings out of the room</option><option value="slide-in">Slides inside the bathroom</option><option value="slide-out">Slides outside the bathroom</option></select></div>
+        <div><label>Type</label><select id="doorSwing"><option value="in">Swings into the room</option><option value="out">Swings out of the room</option><option value="slide-in">Slides inside the bathroom</option><option value="slide-out">Slides outside the bathroom</option><option value="pocket">Pocket door (slides into the wall)</option></select></div>
         <div><label id="doorHingeLbl">Hinge side</label><select id="doorHinge"><option value="start">Start of wall</option><option value="end">End of wall</option></select></div>
+      </div>
+      <div class="row c2">
+        <div><label>Door panel</label><select id="doorPanel"></select></div>
+        <div class="hint" style="align-self:end;margin:0 0 4px">Frosted glass lets light through without showing who is inside.</div>
       </div>
       <div class="hint">"Start of wall" is the end you'd reach first going clockwise. For a sliding door, <b>Slides toward</b> is the direction the panel travels as it opens; it needs a clear run of wall as wide as the door that way, and the parked panel is drawn dashed.</div>
     </fieldset>
@@ -174,6 +219,31 @@
         <tbody></tbody>
       </table>
       <div class="actions"><button class="small" id="addCeil">+ Add point</button></div>
+    </fieldset>
+
+    <fieldset id="finishFs">
+      <legend>Finishes</legend>
+      <div class="fin">
+        <div class="fhead">Floor</div>
+        <div class="row c2">
+          <div><label>Material</label><select id="floorMat"></select></div>
+          <div id="floorGroutBox"><label>Grout</label><select id="floorGrout"></select></div>
+        </div>
+        <label>Colour</label>
+        <div class="swrow" id="floorSw"></div>
+      </div>
+      <div class="fin">
+        <div class="fhead">Shower walls (tile surround)</div>
+        <div class="row c2">
+          <div><label>Material</label><select id="showerMat"></select></div>
+          <div><label>Grout</label><select id="showerGrout"></select></div>
+        </div>
+        <label>Colour</label>
+        <div class="swrow" id="showerSw"></div>
+        <label>Tiled walls</label>
+        <select id="showerSides"></select>
+        <div class="hint">Left and right are as you stand facing into the shower. A tiled side that is not against a room wall is built as a 4" tiled wall; open sides get glass.</div>
+      </div>
     </fieldset>
 
     <fieldset id="notesFs">
@@ -199,9 +269,26 @@
     <ul id="warnings"></ul>
   </aside>
 
-  <main id="stage">
-    <div id="zoombar"><button id="zoomOut" title="Zoom out">−</button><button id="zoomIn" title="Zoom in">+</button></div>
-    <div id="sheet"></div>
+  <main id="stage" data-mode="split">
+    <div id="viewbar">
+      <div class="seg"><button data-mode="plan">Plan</button><button data-mode="split">Split</button><button data-mode="3d">3D</button></div>
+      <span>Plan and 3D stay in sync — edit either one.</span>
+    </div>
+    <div id="panes">
+      <div id="planPane">
+        <div id="zoombar"><button id="zoomOut" title="Zoom out">−</button><button id="zoomIn" title="Zoom in">+</button></div>
+        <div id="sheet"></div>
+      </div>
+      <div id="view3d">
+        <div class="v3bar">
+          <div class="grp"><button data-view="iso" title="Three-quarter view of the whole room">Overview</button><button data-view="top" title="Straight down">Top</button><button data-view="eye" title="Standing in the doorway at eye height">Eye level</button></div>
+          <div class="grp"><button id="v3walls" title="Walls between you and the room fade out; or cut all walls at 3'-6&quot;; or keep them solid">Walls: cutaway</button><button id="v3ceil" title="Sloped ceiling: fades when seen from outside / always solid / hidden">Ceiling: auto</button></div>
+          <div class="grp"><button id="v3door" title="Open or close the door (or click the door itself)">Close door</button><button id="v3head" class="on" title="Shade the floor where the ceiling is under 6'-4&quot;">Headroom</button><button id="v3lbl" class="on" title="Fixture tags and ceiling heights">Labels</button></div>
+        </div>
+        <div class="v3hint">Drag to orbit · right-drag to pan · scroll to zoom · drag a fixture to move it · click the door to open or close it</div>
+        <div class="v3msg" id="v3msg">Loading 3D…</div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -230,24 +317,55 @@ const DEFAULT_STATE = {
   fixtures: [
     { id:'sink',   tag:'P-1', name:'PEDESTAL SINK', on:true,  w:22, d:18, x:37, y:0,  rot:0 },
     { id:'toilet', tag:'P-2', name:'TOILET',        on:true,  w:20, d:28, x:66, y:0,  rot:0 },
-    { id:'shower', tag:'P-3', name:'SHOWER BASE',   on:true,  w:36, d:36, x:0,  y:24, rot:270 },
+    { id:'shower', tag:'P-3', name:'SHOWER BASE',   on:true,  w:36, d:36, x:0,  y:24, rot:270, head:{ side:'back', pos:50, h:80 } },
     { id:'other',  tag:'P-4', name:'VANITY',        on:false, w:30, d:21, x:0,  y:0,  rot:0 },
     { id:'stairs', tag:'S-1', name:'STAIRS',        on:false, w:36, d:60, x:0,  y:0,  rot:0, color:'#dbeafe' },
   ],
-  door: { on:true, seg:2, off:8, w:30, swing:'in', hinge:'start' },
+  door: { on:true, seg:2, off:8, w:30, swing:'in', hinge:'start', panel:'frosted' },
   ceiling: { on:true, side:'R', flat:96, pts:[ {d:0,h:52}, {d:12,h:69}, {d:36,h:81}, {d:62,h:96} ] },
-  notes: []
+  notes: [],
+  finish: {
+    floor:  { mat:'tile12', color:'#dcd2c2', grout:'grey' },
+    shower: { mat:'subway', color:'#f4f4f1', grout:'light', sides:'auto' }
+  }
 };
+// ---------- finishes ----------
+// Shared by the panel, the plan's general notes and the 3D view (which paints the textures).
+const FLOOR_MATS = { lvp:'Luxury vinyl plank', tile12:'Porcelain tile 12x12', tile1224:'Porcelain tile 12x24', marble:'Marble tile 24x24', hex:'Hex mosaic 2"' };
+const WALL_MATS = { subway:'Subway tile 3x6', square4:'Square tile 4x4', tile1224:'Large format tile 12x24', hex:'Hex mosaic 2"', marble:'Marble tile 24x24' };
+const SWATCHES = {
+  lvp:    [['Dark walnut','#5a3a24'], ['Brown oak','#86603f'], ['Honey oak','#b0834f'], ['Light oak','#c9a77c'], ['Whitewashed oak','#dccdb5'], ['Greige','#a59a8c']],
+  tile:   [['White','#f4f4f1'], ['Warm beige','#dcd2c2'], ['Light grey','#c8cacb'], ['Charcoal','#4a4c50'], ['Sage green','#9fae99'], ['Navy','#2f3f5c'], ['Terracotta','#b8674a']],
+  marble: [['Carrara','#eeede9'], ['Calacatta','#f5f0e6'], ['Nero marquina','#2d2d30']],
+};
+const swatchesFor = mat => SWATCHES[mat] || SWATCHES.tile;
+const GROUTS = { light:['Light','#e9e7e2'], grey:['Grey','#a8a7a3'], dark:['Charcoal','#4a4a4a'] };
+const DOOR_PANELS = { solid:'Solid', frosted:'Frosted glass (privacy)', bronze:'Frosted glass, bronze tint', smoke:'Frosted glass, smoke grey tint' };
+// Where the shower head (and the valve under it) sits, in the shower's own frame: 2D plan units
+// with x across the width and y out from the back (0 = back). `pos` runs 0-100 from left to
+// right as you stand facing that wall.
+const HEAD_SIDES = { back:'Back wall', left:'Left wall', right:'Right wall' };
+function showerHeadSpot(f) {
+  const hd = f.head || { side:'back', pos:50 }, len = hd.side === 'back' ? f.w : f.d;
+  const s = Math.min(Math.max(len * (+hd.pos || 0) / 100, 4), len - 4);
+  return { side: hd.side in HEAD_SIDES ? hd.side : 'back', s, len,
+           p: hd.side === 'left' ? { x: 2.5, y: f.d - s } : hd.side === 'right' ? { x: f.w - 2.5, y: s } : { x: s, y: 2.5 } };
+}
+const SHOWER_SIDES = { auto:'Walls it touches (auto)', three:'3 walls: back + left + right', 'back-left':'2 walls: back + left', 'back-right':'2 walls: back + right', back:'Back wall only' };
+function colorName(mat, hex) { const s = swatchesFor(mat).find(([, c]) => c.toLowerCase() === String(hex).toLowerCase()); return s ? s[0] : String(hex).toUpperCase(); }
 const STORE = 'bathroom-blueprint-v1';
 let state = load();
 
 function ensureFixtures(s) { // older layouts get fixtures they predate (the stairs) and properties they predate (its colour)
   s.fixtures = s.fixtures || [];
   if (!Array.isArray(s.notes)) s.notes = []; // layouts saved before the notes section existed
+  const df = JSON.parse(JSON.stringify(DEFAULT_STATE.finish)); // ... or before finishes
+  if (s.door && !s.door.panel) s.door.panel = 'frosted';
+  s.finish = s.finish || {}; for (const k of Object.keys(df)) s.finish[k] = { ...df[k], ...(s.finish[k] || {}) };
   for (const d of DEFAULT_STATE.fixtures) {
     const f = s.fixtures.find(x => x.id === d.id);
     if (!f) { s.fixtures.push({...d, on:false}); continue; }
-    for (const k of Object.keys(d)) if (!(k in f)) f[k] = d[k];
+    for (const k of Object.keys(d)) if (!(k in f)) f[k] = JSON.parse(JSON.stringify(d[k]));
   }
   return s;
 }
@@ -326,6 +444,12 @@ function buildPanel() {
         <div><label>Back against</label><select class="fxRot" data-i="${i}">${Object.entries(ROTS).map(([k,v])=>`<option value="${k}" ${+f.rot===+k?'selected':''}>${v}</option>`).join('')}</select></div>
         <div><label>&nbsp;</label><button class="small fxSnap" data-i="${i}" style="width:100%">Snap flush to that wall</button></div>
       </div>
+      ${f.id === 'shower' ? `<div class="row c3" style="margin:6px 0 0">
+        <div><label>Shower head on</label><select class="fxHeadSide" data-i="${i}">${optionsHTML(HEAD_SIDES, (f.head||{}).side || 'back')}</select></div>
+        <div><label>Left &harr; right</label><input type="range" class="fxHeadPos" data-i="${i}" min="0" max="100" step="1" value="${(f.head||{}).pos ?? 50}" style="width:100%"></div>
+        <div><label>Height (in)</label><input type="number" class="fxHeadH" data-i="${i}" value="${(f.head||{}).h ?? 80}" step="1" min="30"></div>
+      </div>
+      <div class="hint" style="margin-top:0">Left and right as you stand facing that wall from inside the shower. The valve sits below the head.</div>` : ''}
       ${'color' in f ? `<div class="row c2" style="margin:6px 0 0">
         <div><label>Fill colour (hex)</label><input type="text" class="fxColor" data-i="${i}" value="${esc(fxColor(f))}" spellcheck="false"></div>
         <div><label>&nbsp;</label><input type="color" class="fxSwatch" data-i="${i}" value="${esc(fxColor(f))}" style="width:100%;height:30px;padding:2px"></div>
@@ -335,10 +459,12 @@ function buildPanel() {
   const ds = $('#doorSeg'); ds.innerHTML = state.segments.map((s,i)=>`<option value="${i}" ${state.door.seg===i?'selected':''}>${names[i]} (${DIRS[s.dir]} ${s.len}")</option>`).join('');
   $('#doorOn').checked = state.door.on; $('#doorOff').value = state.door.off; $('#doorW').value = state.door.w;
   $('#doorSwing').value = state.door.swing; $('#doorHinge').value = state.door.hinge;
+  $('#doorPanel').innerHTML = optionsHTML(DOOR_PANELS, state.door.panel || 'solid');
   syncDoorLabel();
   const c = state.ceiling; $('#ceilOn').checked = c.on; $('#ceilSide').value = c.side; $('#ceilFlat').value = c.flat;
   const ct = $('#ceilTable tbody'); ct.innerHTML = '';
   c.pts.forEach((pt, i) => { const tr = document.createElement('tr'); tr.innerHTML = `<td><input type="number" class="ceilD" data-i="${i}" value="${pt.d}" step="0.5" min="0"></td><td><input type="number" class="ceilH" data-i="${i}" value="${pt.h}" step="0.5" min="0"></td><td><button class="small delCeil" data-i="${i}" title="Remove">×</button></td>`; ct.appendChild(tr); });
+  buildFinishPanel();
   const nl = $('#noteList'); nl.innerHTML = '';
   state.notes.forEach((n, i) => {
     const div = document.createElement('div'); div.className = 'row'; div.style.gridTemplateColumns = '1fr auto';
@@ -362,14 +488,51 @@ function readPanel() {
     f.x = num(document.querySelector(`.fxX[data-i="${i}"]`).value, 0);
     f.y = num(document.querySelector(`.fxY[data-i="${i}"]`).value, 0);
     f.rot = +document.querySelector(`.fxRot[data-i="${i}"]`).value;
+    const hs = document.querySelector(`.fxHeadSide[data-i="${i}"]`);
+    if (hs) f.head = { side: hs.value, pos: num(document.querySelector(`.fxHeadPos[data-i="${i}"]`).value, 50), h: num(document.querySelector(`.fxHeadH[data-i="${i}"]`).value, 80) };
     const col = document.querySelector(`.fxColor[data-i="${i}"]`);
     if (col) { const v = col.value.trim(); f.color = HEX.test(v) ? (v[0]==='#'?v:'#'+v) : f.color; }
   });
-  state.door = { on: $('#doorOn').checked, seg: +$('#doorSeg').value, off: num($('#doorOff').value,0), w: num($('#doorW').value,30), swing: $('#doorSwing').value, hinge: $('#doorHinge').value };
+  state.door = { on: $('#doorOn').checked, seg: +$('#doorSeg').value, off: num($('#doorOff').value,0), w: num($('#doorW').value,30), swing: $('#doorSwing').value, hinge: $('#doorHinge').value, panel: $('#doorPanel').value };
   const pts = [...document.querySelectorAll('.ceilD')].map((el, i) => ({ d: num(el.value, 0), h: num(document.querySelectorAll('.ceilH')[i].value, 96) })).sort((a,b)=>a.d-b.d);
   state.ceiling = { on: $('#ceilOn').checked, side: $('#ceilSide').value, flat: num($('#ceilFlat').value, 96), pts };
   state.notes = [...document.querySelectorAll('.noteTxt')].map(el => el.value.trim());
+  const fc = t => { const el = document.querySelector(`#${t}Sw input[type=color]`); return el ? el.value : state.finish[t].color; };
+  state.finish = {
+    floor:  { mat: $('#floorMat').value, color: fc('floor'), grout: $('#floorGrout').value },
+    shower: { mat: $('#showerMat').value, color: fc('shower'), grout: $('#showerGrout').value, sides: $('#showerSides').value },
+  };
 }
+const optionsHTML = (o, cur) => Object.entries(o).map(([k, v]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(Array.isArray(v) ? v[0] : v)}</option>`).join('');
+function swatchRow(t) { // preset colours for the chosen material, plus a picker for anything else
+  const f = state.finish[t], row = $(`#${t}Sw`);
+  row.innerHTML = swatchesFor(f.mat).map(([n, c]) => `<button type="button" class="sw${c.toLowerCase() === f.color.toLowerCase() ? ' on' : ''}" data-t="${t}" data-c="${c}" title="${esc(n)}" style="background:${c}"></button>`).join('')
+    + `<input type="color" data-t="${t}" value="${esc(f.color)}" title="Any other colour"><span class="swname">${esc(colorName(f.mat, f.color))}</span>`;
+}
+function buildFinishPanel() {
+  const f = state.finish;
+  $('#floorMat').innerHTML = optionsHTML(FLOOR_MATS, f.floor.mat); $('#showerMat').innerHTML = optionsHTML(WALL_MATS, f.shower.mat);
+  $('#floorGrout').innerHTML = optionsHTML(GROUTS, f.floor.grout); $('#showerGrout').innerHTML = optionsHTML(GROUTS, f.shower.grout);
+  $('#showerSides').innerHTML = optionsHTML(SHOWER_SIDES, f.shower.sides);
+  $('#floorGroutBox').style.visibility = f.floor.mat === 'lvp' ? 'hidden' : '';
+  swatchRow('floor'); swatchRow('shower');
+}
+// picking a swatch or a new material: update the row now, the live redraw picks it up
+$('#finishFs').addEventListener('click', e => {
+  const b = e.target.closest('.sw'); if (!b) return;
+  const t = b.dataset.t; state.finish[t].color = b.dataset.c; swatchRow(t);
+  $('#finishFs').dispatchEvent(new Event('input', { bubbles: true }));
+});
+$('#finishFs').addEventListener('input', e => {
+  const m = e.target.id.match(/^(floor|shower)Mat$/);
+  if (m) { const t = m[1], f = state.finish[t]; f.mat = e.target.value;
+    const sw = swatchesFor(f.mat); if (!sw.some(([, c]) => c.toLowerCase() === f.color.toLowerCase())) f.color = sw[0][1];
+    if (t === 'floor') $('#floorGroutBox').style.visibility = f.mat === 'lvp' ? 'hidden' : '';
+    swatchRow(t); }
+  if (e.target.matches('input[type=color]')) { const t = e.target.dataset.t; state.finish[t].color = e.target.value;
+    document.querySelectorAll(`#${t}Sw .sw`).forEach(b => b.classList.toggle('on', b.dataset.c.toLowerCase() === e.target.value.toLowerCase()));
+    document.querySelector(`#${t}Sw .swname`).textContent = colorName(state.finish[t].mat, e.target.value); }
+});
 const num = (v, d) => { const n = parseFloat(v); return isFinite(n) ? n : d; };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -407,7 +570,7 @@ $('#panel').addEventListener('click', e => {
   if (e.target.matches('.delNote')) { readPanel(); state.notes.splice(+e.target.dataset.i, 1); buildPanel(); render(); }
   if (e.target.matches('.fxSnap')) { readPanel(); snapFixture(state.fixtures[+e.target.dataset.i]); buildPanel(); render(); }
 });
-function isSliding(sw) { return sw === 'slide-in' || sw === 'slide-out'; }
+function isSliding(sw) { return sw === 'slide-in' || sw === 'slide-out' || sw === 'pocket'; }
 const OPP = { R:'L', L:'R', U:'D', D:'U' };
 // For a sliding door the second dropdown picks which way the panel runs, so it is
 // spelled out as a compass direction for the wall the door is actually on.
@@ -440,6 +603,19 @@ $('#unitBtn').onclick = () => {
   syncUnitBtn(); buildPanel(); render();
 };
 $('#draw').onclick = () => { readPanel(); render(); };
+// Every edit in the panel redraws the plan and the 3D view as you type (Draw to scale still works).
+let liveT = 0;
+$('#panel').addEventListener('input', () => { clearTimeout(liveT); liveT = setTimeout(() => { readPanel(); render(); }, 120); });
+// ---------- plan / split / 3D ----------
+const VIEWK = 'bathroom-blueprint-view-v1';
+function setViewMode(m) {
+  $('#stage').dataset.mode = m;
+  document.querySelectorAll('#viewbar [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+  try { localStorage.setItem(VIEWK, m); } catch(e) {}
+}
+document.querySelectorAll('#viewbar [data-mode]').forEach(b => b.onclick = () => setViewMode(b.dataset.mode));
+setViewMode((() => { try { return localStorage.getItem(VIEWK) || 'split'; } catch(e) { return 'split'; } })());
+setTimeout(() => { if (!window.bath3d) $('#v3msg').textContent = 'The 3D view could not load three.js (it comes from cdn.jsdelivr.net). Check your connection and reload.'; }, 10000);
 let zoom = 1;
 const setZoom = z => { zoom = Math.min(4, Math.max(1, z)); document.documentElement.style.setProperty('--zoom', zoom); $('#sheet').style.width = window.matchMedia('(max-width: 900px)').matches ? '' : `min(${100*zoom}%, ${1400*zoom}px)`; };
 $('#zoomIn').onclick = () => setZoom(zoom + 0.5); $('#zoomOut').onclick = () => setZoom(zoom - 0.5);
@@ -964,6 +1140,7 @@ function render() {
   attachDrag();
   showWarnings(warnings, checks);
   save();
+  if (window.bath3d) window.bath3d.update();
 }
 
 // Architectural dimension string. a,b = real-world outer wall corners, nm = outward unit normal,
@@ -1026,7 +1203,7 @@ function fixtureSVG(f, index) {
       <line x1="2" y1="2" x2="${dr.x-2}" y2="${dr.y-2}"/><line x1="${w-2}" y1="2" x2="${dr.x+2}" y2="${dr.y-2}"/>
       <line x1="2" y1="${d-2}" x2="${dr.x-2}" y2="${dr.y+2}"/><line x1="${w-2}" y1="${d-2}" x2="${dr.x+2}" y2="${dr.y+2}"/>
       <circle cx="${dr.x}" cy="${dr.y}" r="2"/>
-      <circle cx="${w/2}" cy="2.5" r="1" fill="#000"/>`; // shower valve mark on back wall
+      <circle cx="${showerHeadSpot(f).p.x}" cy="${showerHeadSpot(f).p.y}" r="1" fill="#000"/>`; // shower head / valve mark
   } else if (f.id === 'stairs') {
     body = `<rect x="0" y="0" width="${w}" height="${d}"/>`;
   } else {
@@ -1121,8 +1298,11 @@ function inlineDim(a, b, nm, label, suffix = ' TO \u2104') {
                    out:nm, fit:L*K, tip:{x:PX(c.x), y:PY(c.y)} });
 }
 
-function doorNote() { const sw = state.door.swing;
-  return sw === 'slide-in' ? 'DOOR, SLIDING (INSIDE)' : sw === 'slide-out' ? 'DOOR, SLIDING (OUTSIDE)' : `DOOR, SWING ${String(sw).toUpperCase()}`; }
+function doorNote() { const sw = state.door.swing, p = state.door.panel;
+  const glass = { frosted: ', FROSTED GLASS', bronze: ', FROSTED BRONZE', smoke: ', FROSTED SMOKE' }[p] || '';
+  return baseDoorNote(sw) + glass; }
+function baseDoorNote(sw) {
+  return sw === 'pocket' ? 'DOOR, POCKET' : sw === 'slide-in' ? 'DOOR, SLIDING (INSIDE)' : sw === 'slide-out' ? 'DOOR, SLIDING (OUTSIDE)' : `DOOR, SWING ${String(sw).toUpperCase()}`; }
 function doorSVG(poly, sign, t, warnings) {
   const d = state.door; const n = poly.length; const i = Math.min(Math.max(d.seg,0), n-1);
   const a=poly[i], b=poly[(i+1)%n]; const L=Math.hypot(b.x-a.x,b.y-a.y); if (L<0.01) return '';
@@ -1134,6 +1314,34 @@ function doorSVG(poly, sign, t, warnings) {
   const jambs = `<polygon points="${P(p1.x,p1.y)} ${P(p2.x,p2.y)} ${P(q2.x,q2.y)} ${P(q1.x,q1.y)}" fill="#fff" stroke="none"/>
     <line x1="${PX(p1.x)}" y1="${PY(p1.y)}" x2="${PX(q1.x)}" y2="${PY(q1.y)}" stroke="#000" stroke-width="0.018"/>
     <line x1="${PX(p2.x)}" y1="${PY(p2.y)}" x2="${PX(q2.x)}" y2="${PY(q2.y)}" stroke="#000" stroke-width="0.018"/>`;
+
+  if (d.swing === 'pocket') {
+    // The panel runs in the middle of the wall and parks in a pocket inside it, so the wall
+    // beside the opening has to be clear for a full door width.
+    const toStart = d.hinge === 'start';
+    const tv = toStart ? {x:-u.x, y:-u.y} : {x:u.x, y:u.y};
+    const run = toStart ? d.off : L - (d.off + d.w);
+    if (run < d.w - 0.01) warnings.push({lvl:'err', msg:`Pocket door has no room in the wall: it needs ${fmtIn(d.w)} of clear wall toward the ${toStart?'start':'end'} of ${wallNames()[i]} to slide into, but only ${fmtIn(Math.max(0,run))} is there. Slide it the other way or move the opening.`});
+    const TH = 1.375, mid = t/2, edge = toStart ? p1 : p2;
+    const along = (pt, k) => ({x: pt.x + tv.x*k, y: pt.y + tv.y*k});
+    const band = (a, b, h0, h1) => `${P(a.x+nm.x*h0, a.y+nm.y*h0)} ${P(b.x+nm.x*h0, b.y+nm.y*h0)} ${P(b.x+nm.x*h1, b.y+nm.y*h1)} ${P(a.x+nm.x*h1, a.y+nm.y*h1)}`;
+    const pocketEnd = along(edge, Math.min(d.w + 1, Math.max(0, run)));
+    const c = {x:(p1.x+p2.x)/2, y:(p1.y+p2.y)/2};
+    const am = {x:c.x - nm.x*4, y:c.y - nm.y*4}, aLen = Math.min(d.w*0.55, 9), tip = along(am, aLen);
+    const barb = k => P(tip.x - tv.x*2.6 + nm.x*k*1.8, tip.y - tv.y*2.6 + nm.y*k*1.8);
+    const lm = {x:c.x + nm.x*(t+3.5), y:c.y + nm.y*(t+3.5)};
+    let lang = Math.atan2(u.y,u.x)*180/Math.PI; if (lang >= 90 || lang < -90) lang += 180;
+    return `<g>
+      ${jambs}
+      <polygon points="${band(edge, pocketEnd, mid-1.3, mid+1.3)}" fill="#fff" stroke="#000" stroke-width="0.005" stroke-dasharray="0.03 0.02"/>
+      <polygon points="${band(edge, along(edge, d.w), mid-TH/2, mid+TH/2)}" fill="none" stroke="#000" stroke-width="0.006" stroke-dasharray="0.03 0.02"/>
+      <polygon points="${band(along(p1, toStart ? 0.5 : -0.5), along(p2, toStart ? 0.5 : -0.5), mid-TH/2, mid+TH/2)}" fill="#fff" stroke="#000" stroke-width="0.014"/>
+      <polyline points="${P(am.x,am.y)} ${P(tip.x,tip.y)}" fill="none" stroke="#000" stroke-width="0.008"/>
+      <polyline points="${barb(1)} ${P(tip.x,tip.y)} ${barb(-1)}" fill="none" stroke="#000" stroke-width="0.008"/>
+      ${placeLabel({ p:{x:PX(lm.x), y:PY(lm.y)}, ang:lang, size:0.07, text:`${fmtIn(d.w)} POCKET DOOR`, out:nm,
+                     tip:{x:PX(c.x + nm.x*mid), y:PY(c.y + nm.y*mid)} })}
+    </g>`;
+  }
 
   if (isSliding(d.swing)) {
     const inSide = d.swing === 'slide-in';
@@ -1357,6 +1565,9 @@ function titleBlock(scaleLabel, active, areaSF, checks, warnings) {
   const notes = [`1. ALL DIMENSIONS ARE INTERIOR, FINISH TO FINISH, IN ${unitMode === 'in' ? 'INCHES' : 'FEET-INCHES'}.`, (Math.abs(state.wallT-4.5) < 0.01 ? `2. NEW WALLS: 2x4 STUDS @ 16" O.C. WITH 1/2" GYPSUM BOARD EACH SIDE = 4 1/2" FINISHED THICKNESS, AS DIMENSIONED.` : `2. NEW WALLS ${fmtIn(state.wallT)} FINISHED THICKNESS, AS DIMENSIONED.`), '2A. OUTER DIMENSION STRING IS OUTSIDE FACE TO OUTSIDE FACE OF NEW WALLS.', '3. FIXTURE LOCATIONS ARE TO CENTERLINE FROM NEAREST WALL.', '4. VERIFY ALL DIMENSIONS ON SITE BEFORE ROUGH-IN.', `5. ROOM AREA: ${areaSF.toFixed(1)} SQ FT.`];
   if (state.ceiling.on && state.ceiling.pts.length) { const sideName = {R:'RIGHT', L:'LEFT', T:'TOP', B:'BOTTOM'}[state.ceiling.side]; notes.push(`6. CEILING SLOPES DOWN TO ${sideName} WALL. CLG HT FROM THAT WALL: ` + state.ceiling.pts.map(pt => `${fmtIn(pt.h)} AT ${fmtIn(pt.d)}`).join(', ') + `; FLAT ${fmtIn(state.ceiling.flat)} BEYOND.`); notes.push(`7. SHADED AREA HAS LESS THAN ${fmtIn(76)} HEADROOM. DASHED LINES ARE CEILING HEIGHT LINES.`); }
   let nextNo = (state.ceiling.on && state.ceiling.pts.length) ? 8 : 6; // the numbered notes above stop at 5, or 7 with a sloped ceiling
+  const fin = state.finish, grout = g => GROUTS[g] ? GROUTS[g][0].toUpperCase() + ' GROUT' : '';
+  notes.push(`${nextNo++}. FLOOR: ${FLOOR_MATS[fin.floor.mat] || fin.floor.mat}, ${colorName(fin.floor.mat, fin.floor.color)}${fin.floor.mat === 'lvp' ? '' : ', ' + grout(fin.floor.grout)}.`.toUpperCase());
+  if (active.some(f => f.id === 'shower')) notes.push(`${nextNo++}. SHOWER WALLS: ${WALL_MATS[fin.shower.mat] || fin.shower.mat}, ${colorName(fin.shower.mat, fin.shower.color)}, ${grout(fin.shower.grout)}; ${SHOWER_SIDES[fin.shower.sides] || ''}.`.toUpperCase());
   for (const t of state.notes || []) { const txt = String(t).trim(); if (txt) notes.push(`${nextNo++}. ${txt.toUpperCase()}`); }
   const noteBottom = y0 + h - 0.64; // leave the sheet number and north arrow alone
   let clipped = false;
@@ -1462,6 +1673,748 @@ syncUnitBtn();
 render();
 renderLib();
 setupSections();
+</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+// ---------- 3D view ----------
+// A live Three.js model of the same `state` the plan draws from. The classic script above
+// calls bath3d.update() at the end of every render(), so a dragged fixture, a moved wall, a
+// panel edit or an undo all land here too. Fixtures dragged in 3D write back to state and
+// call render(), so the plan follows the other way. 1 scene unit = 1 real inch; plan (x, y)
+// is scene (x, z) with y up.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const host = document.getElementById('view3d');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.localClippingEnabled = true;
+host.prepend(renderer.domElement);
+const css2d = new CSS2DRenderer();
+css2d.domElement.className = 'lbl-layer';
+host.appendChild(css2d.domElement);
+document.getElementById('v3msg').remove();
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+
+const camera = new THREE.PerspectiveCamera(40, 1, 1, 8000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.495; controls.minDistance = 12; controls.maxDistance = 2000;
+
+scene.add(new THREE.HemisphereLight(0xfff8ef, 0x3a3f47, 0.7));
+const sun = new THREE.DirectionalLight(0xfff1dc, 2.0);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.6;
+scene.add(sun, sun.target);
+const lamp = new THREE.PointLight(0xffe6c4, 0.9, 0, 0); // no falloff: inch units make physical decay meaningless
+scene.add(lamp);
+
+// ---------- procedural textures ----------
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t;
+}
+// Floor and shower-wall finishes, painted in the chosen colour. Each pattern is one repeat
+// `iw` x `ih` real inches wide, so a texture repeat of 1/iw, 1/ih lays it at true size on
+// geometry whose UVs are in inches (the floor and the tile panels both are).
+const rgbOf = h => { const n = parseInt(String(h).replace('#', '').padEnd(6, '0').slice(0, 6), 16) || 0; return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+const tone = (c, f) => `rgb(${c.map(v => Math.round(f < 0 ? v * (1 + f) : v + (255 - v) * f)).join(',')})`;
+const lum = c => (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) / 255;
+// Rectangular tiles, optionally running bond; a tile that wraps off one edge keeps its shade on the other.
+function tileGrid(g, W, H, iw, ih, tw, th, stagger, c, grout, spread, extra) {
+  const sx = W / iw, sy = H / ih, gp = 0.14, shades = new Map();
+  g.fillStyle = grout; g.fillRect(0, 0, W, H);
+  for (let r = 0; r * th < ih - 1e-6; r++) {
+    const off = stagger ? ((r % 2) * tw * stagger) % tw : 0;
+    for (let x0 = off - tw; x0 < iw; x0 += tw) {
+      const key = r + ':' + Math.round((((x0 % iw) + iw) % iw) * 100);
+      if (!shades.has(key)) shades.set(key, { f: (rnd() - 0.5) * spread, seed: rnd() });
+      const sh = shades.get(key);
+      for (const dx of [0, -iw, iw]) {
+        const x = (x0 + dx + gp / 2) * sx, y = (r * th + gp / 2) * sy, w = (tw - gp) * sx, h = (th - gp) * sy;
+        if (x > W || x + w < 0) continue;
+        const grd = g.createLinearGradient(x, y, x + w * 0.3, y + h);
+        grd.addColorStop(0, tone(c, sh.f + 0.05)); grd.addColorStop(1, tone(c, sh.f - 0.03));
+        g.fillStyle = grd; g.fillRect(x, y, w, h);
+        if (extra) { g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip(); extra(g, x, y, w, h, sh.seed); g.restore(); }
+      }
+    }
+  }
+}
+function speckle(g, x, y, w, h, n, dark) {
+  for (let k = 0; k < n; k++) { g.fillStyle = `rgba(${rnd() > 0.5 ? '255,255,255' : dark},${0.04 + rnd() * 0.06})`; g.fillRect(x + rnd() * w, y + rnd() * h, 1 + rnd() * 3, 1 + rnd() * 2); }
+}
+function marbleVeins(g, x, y, w, h, c) {
+  const dark = lum(c) < 0.35, n = 3 + Math.floor(rnd() * 4);
+  g.filter = 'blur(0.8px)';
+  for (let k = 0; k < n; k++) {
+    g.strokeStyle = dark ? `rgba(235,230,220,${0.25 + rnd() * 0.35})` : `rgba(${90 + rnd() * 40},${90 + rnd() * 40},${95 + rnd() * 40},${0.18 + rnd() * 0.35})`;
+    g.lineWidth = 0.6 + rnd() * (k === 0 ? 3 : 1.6);
+    let px = x + rnd() * w, py = y - 5; g.beginPath(); g.moveTo(px, py);
+    while (py < y + h + 5) { const nx = px + (rnd() - 0.5) * w * 0.35, ny = py + h * (0.12 + rnd() * 0.2); g.quadraticCurveTo(px + (rnd() - 0.5) * w * 0.3, (py + ny) / 2, nx, ny); px = nx; py = ny; }
+    g.stroke();
+  }
+  g.filter = 'none';
+}
+const FINISH_SPECS = {
+  lvp: { iw: 96, ih: 28, W: 1024, H: 512, rough: 0.6, draw(g, W, H, c) { // 7" x 48" planks, random stagger
+    const sx = W / 96, sy = H / 28, offs = [0, 20, 36, 10];
+    g.fillStyle = tone(c, -0.45); g.fillRect(0, 0, W, H);
+    for (let r = 0; r < 4; r++) for (let x0 = offs[r] - 48; x0 < 96; x0 += 48) {
+      const f = (rnd() - 0.5) * 0.2, lines = [], knot = rnd() < 0.35 ? { x: 8 + rnd() * 32, y: 1.5 + rnd() * 4 } : null;
+      for (let k = 0; k < 34; k++) { const pts = [], yy = rnd() * 7; for (let t = 0; t <= 10; t++) pts.push([t * 4.8, yy + Math.sin(t * 0.7 + k) * 0.25 + (rnd() - 0.5) * 0.18]);
+        lines.push({ pts, dark: rnd() > 0.45, a: 0.05 + rnd() * 0.1, lw: 0.5 + rnd() * 1.5 }); }
+      for (const dx of [0, -96, 96]) {
+        const x = (x0 + dx) * sx, y = r * 7 * sy, w = 48 * sx, h = 7 * sy; if (x > W || x + w < 0) continue;
+        g.save(); g.beginPath(); g.rect(x + 1, y + 1, w - 2, h - 2); g.clip();
+        g.fillStyle = tone(c, f); g.fillRect(x, y, w, h);
+        for (const l of lines) { g.strokeStyle = `rgba(${l.dark ? '35,20,10' : '255,245,225'},${l.a})`; g.lineWidth = l.lw;
+          g.beginPath(); l.pts.forEach(([px, py], i) => i ? g.lineTo(x + px * sx, y + py * sy) : g.moveTo(x + px * sx, y + py * sy)); g.stroke(); }
+        if (knot) { g.fillStyle = 'rgba(40,22,10,.35)'; g.beginPath(); g.ellipse(x + knot.x * sx, y + knot.y * sy, 6, 3, 0, 0, Math.PI * 2); g.fill(); }
+        g.restore();
+      }
+    }
+  } },
+  tile12:   { iw: 24, ih: 24, W: 512, H: 512, rough: 0.35, draw(g, W, H, c, gr) { tileGrid(g, W, H, 24, 24, 12, 12, 0, c, gr, 0.07, (g2, x, y, w, h) => speckle(g2, x, y, w, h, 500, '60,55,50')); } },
+  tile1224: { iw: 48, ih: 24, W: 1024, H: 512, rough: 0.35, draw(g, W, H, c, gr) { tileGrid(g, W, H, 48, 24, 24, 12, 0.5, c, gr, 0.07, (g2, x, y, w, h) => speckle(g2, x, y, w, h, 700, '60,55,50')); } },
+  marble:   { iw: 48, ih: 48, W: 1024, H: 1024, rough: 0.12, draw(g, W, H, c, gr) { const cc = c; tileGrid(g, W, H, 48, 48, 24, 24, 0, c, gr, 0.04, (g2, x, y, w, h) => marbleVeins(g2, x, y, w, h, cc)); } },
+  subway:   { iw: 12, ih: 12, W: 512, H: 512, rough: 0.2, draw(g, W, H, c, gr) { tileGrid(g, W, H, 12, 12, 6, 3, 0.5, c, gr, 0.06); } },
+  square4:  { iw: 12, ih: 12, W: 512, H: 512, rough: 0.2, draw(g, W, H, c, gr) { tileGrid(g, W, H, 12, 12, 4, 4, 0, c, gr, 0.08); } },
+  hex: { iw: 13.8, ih: 7 * 1.15 * Math.sqrt(3), W: 512, H: 512, rough: 0.3, draw(g, W, H, c, gr) { // 2" flat-top hexagons
+    const r = 1.15, iw = 13.8, ih = 7 * r * Math.sqrt(3), sx = W / iw, sy = H / ih, shades = new Map();
+    g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    for (let i = -1; i <= 4; i++) for (let j = -1; j <= 7; j++) for (const odd of [0, 1]) {
+      const key = `${((i % 4) + 4) % 4}:${((j % 7) + 7) % 7}:${odd}`;
+      if (!shades.has(key)) shades.set(key, (rnd() - 0.5) * 0.12);
+      const cx = i * 3 * r + odd * 1.5 * r, cy = j * r * Math.sqrt(3) + odd * r * Math.sqrt(3) / 2;
+      g.fillStyle = tone(c, shades.get(key)); g.beginPath();
+      for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3, rr = r - 0.09; const px = (cx + rr * Math.cos(a)) * sx, py = (cy + rr * Math.sin(a)) * sy; k ? g.lineTo(px, py) : g.moveTo(px, py); }
+      g.fill();
+    }
+  } },
+};
+let finishCache = {};
+function finishTexture(slot, f) { // slot: 'floor' | 'shower'; one live texture per slot
+  const key = JSON.stringify([f.mat, f.color, f.grout]);
+  if (finishCache[slot] && finishCache[slot].key === key) return finishCache[slot];
+  if (finishCache[slot]) finishCache[slot].tex.dispose();
+  const spec = FINISH_SPECS[f.mat] || FINISH_SPECS.tile12;
+  seed = 7 + slot.length; // same colour, same pattern every time
+  const tex = canvasTex(spec.W, spec.H, (g, W, H) => spec.draw(g, W, H, rgbOf(f.color), (GROUTS[f.grout] || GROUTS.grey)[1]));
+  tex.repeat.set(1 / spec.iw, 1 / spec.ih);
+  return (finishCache[slot] = { key, tex, spec });
+}
+const woodTex = canvasTex(256, 256, (g, w) => {
+  g.fillStyle = '#7b5a3d'; g.fillRect(0, 0, w, w);
+  for (let k = 0; k < 140; k++) { g.strokeStyle = `rgba(${rnd() > .5 ? '40,25,12' : '160,120,80'},${.08 + rnd() * .12})`; g.lineWidth = 1 + rnd() * 2;
+    const x = rnd() * w; g.beginPath(); g.moveTo(x, 0); g.bezierCurveTo(x + rnd() * 8 - 4, w / 3, x + rnd() * 8 - 4, w * 2 / 3, x + rnd() * 6 - 3, w); g.stroke(); }
+});
+
+const M = {
+  ceramic: new THREE.MeshPhysicalMaterial({ color: 0xfbfbf8, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.05, side: THREE.DoubleSide }),
+  chrome: new THREE.MeshStandardMaterial({ color: 0xeef1f4, metalness: 1, roughness: 0.1 }),
+  water: new THREE.MeshPhysicalMaterial({ color: 0x9fc6d6, roughness: 0.05, transparent: true, opacity: 0.55 }),
+  stone: new THREE.MeshPhysicalMaterial({ color: 0xe9e5de, roughness: 0.28, clearcoat: 0.6, side: THREE.DoubleSide }),
+  wood: new THREE.MeshStandardMaterial({ color: 0xffffff, map: woodTex, roughness: 0.6 }),
+  glass: new THREE.MeshPhysicalMaterial({ color: 0xd4f1f7, roughness: 0.03, metalness: 0.1, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }),
+  tile: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25 }),
+  floor: new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }),
+  slab: new THREE.MeshStandardMaterial({ color: 0xcfc8bd, roughness: 0.95 }),
+  ground: new THREE.MeshStandardMaterial({ color: 0x3b414a, roughness: 1 }),
+  mirror: new THREE.MeshStandardMaterial({ color: 0xdfe7ec, metalness: 1, roughness: 0.03 }),
+  door: new THREE.MeshStandardMaterial({ color: 0xf4f0e8, roughness: 0.55 }),
+  ceiling: new THREE.MeshStandardMaterial({ color: 0x9ba1a8, roughness: 0.85, side: THREE.DoubleSide, transparent: true, opacity: 0.5, depthWrite: false }),
+  headroom: new THREE.MeshBasicMaterial({ color: 0xe8792f, transparent: true, opacity: 0.3, depthWrite: false }),
+  crease: new THREE.LineDashedMaterial({ color: 0x3d4248, dashSize: 3, gapSize: 2 }),
+};
+const lowCut = [new THREE.Plane(new THREE.Vector3(0, -1, 0), 42)]; // "Walls: low" keeps everything under 3'-6"
+
+// ---------- small builders ----------
+const V2 = (x, y) => new THREE.Vector2(x, y);
+function mk(geo, mat, x = 0, y = 0, z = 0) { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true; return m; }
+function lathe(profile, seg = 48) { return new THREE.LatheGeometry(profile.map(([r, y]) => V2(Math.max(r, 0.001), y)), seg); }
+function rrect(w, h, r, cx = 0, cy = 0, path = new THREE.Shape()) {
+  const x = cx - w / 2, y = cy - h / 2; r = Math.max(0.01, Math.min(r, w / 2 - 0.01, h / 2 - 0.01));
+  path.moveTo(x + r, y); path.lineTo(x + w - r, y); path.quadraticCurveTo(x + w, y, x + w, y + r);
+  path.lineTo(x + w, y + h - r); path.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  path.lineTo(x + r, y + h); path.quadraticCurveTo(x, y + h, x, y + h - r);
+  path.lineTo(x, y + r); path.quadraticCurveTo(x, y, x + r, y); return path;
+}
+// A flat slab (counter, sink deck, shower rim) lying on the floor plane: shape y is -z.
+function deck(shape, thick, y0, bevel = 0.4) {
+  const g = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.05, thick - 2 * bevel), bevelEnabled: bevel > 0, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 3, curveSegments: 32 });
+  g.rotateX(-Math.PI / 2); g.translate(0, y0 + bevel, 0); return g;
+}
+function faucet(g, z, deckY, reach = 4) {
+  g.add(mk(new THREE.CylinderGeometry(1, 1.1, 0.8, 24), M.chrome, 0, deckY + 0.4, z));
+  const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(0, deckY, z), new THREE.Vector3(0, deckY + 5.5, z), new THREE.Vector3(0, deckY + 7, z + reach * 0.45), new THREE.Vector3(0, deckY + 5.2, z + reach)]);
+  g.add(mk(new THREE.TubeGeometry(curve, 32, 0.45, 12), M.chrome));
+  for (const sx of [-3, 3]) { g.add(mk(new THREE.CylinderGeometry(0.55, 0.65, 1.6, 16), M.chrome, sx, deckY + 0.8, z)); g.add(mk(new THREE.BoxGeometry(1.8, 0.35, 0.5), M.chrome, sx, deckY + 1.7, z)); }
+}
+function label(html, cls) { const el = document.createElement('div'); el.className = cls; el.innerHTML = html; return new CSS2DObject(el); }
+const escH = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const titleCase = s => String(s).toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+// ---------- ceiling model ----------
+const ceilIsOn = () => state.ceiling.on && state.ceiling.pts.length > 0;
+let BB = { minX: 0, maxX: 96, minY: 0, maxY: 60 }, POLY = [];
+function topAt(x, y) { return ceilIsOn() ? ceilH(ceilDist(x, y, BB)) : (state.ceiling.flat || 96); }
+// Planar pieces of the ceiling: between two consecutive height points the ceiling is one flat plane.
+function ceilBands() {
+  const BIG = 1e5;
+  if (!ceilIsOn()) { const h = state.ceiling.flat || 96; return [{ d0: -BIG, d1: BIG, h: () => h }]; }
+  const p = [...state.ceiling.pts].sort((a, b) => a.d - b.d), last = p[p.length - 1];
+  const bands = [{ d0: -BIG, d1: p[0].d, h: () => p[0].h }];
+  for (let k = 0; k < p.length - 1; k++) { const a = p[k], b = p[k + 1]; if (b.d - a.d < 1e-6) continue;
+    bands.push({ d0: a.d, d1: b.d, h: d => a.h + (Math.min(Math.max(d, a.d), b.d) - a.d) / (b.d - a.d) * (b.h - a.h) }); }
+  const flatH = Math.max(last.h, state.ceiling.flat);
+  bands.push({ d0: last.d, d1: BIG, h: () => flatH });
+  return bands;
+}
+function clipAxis(pts, k, v, keepGE) {
+  const out = [], inn = p => keepGE ? p[k] >= v - 1e-9 : p[k] <= v + 1e-9;
+  for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length], ia = inn(a), ib = inn(b);
+    if (ia) out.push(a);
+    if (ia !== ib) { const t = (v - a[k]) / (b[k] - a[k]); out.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }); } }
+  return out;
+}
+function clipBand(poly, d0, d1) { // the part of the room whose distance from the low wall is in [d0, d1]
+  const sd = state.ceiling.side; let p = poly.map(q => ({ x: q.x, y: q.y }));
+  if (sd === 'R') { p = clipAxis(p, 'x', BB.maxX - d1, true); p = clipAxis(p, 'x', BB.maxX - d0, false); }
+  else if (sd === 'L') { p = clipAxis(p, 'x', BB.minX + d0, true); p = clipAxis(p, 'x', BB.minX + d1, false); }
+  else if (sd === 'T') { p = clipAxis(p, 'y', BB.minY + d0, true); p = clipAxis(p, 'y', BB.minY + d1, false); }
+  else { p = clipAxis(p, 'y', BB.maxY - d1, true); p = clipAxis(p, 'y', BB.maxY - d0, false); }
+  const out = []; for (const q of p) { const l = out[out.length - 1]; if (!l || Math.hypot(l.x - q.x, l.y - q.y) > 1e-4) out.push(q); }
+  while (out.length > 2 && Math.hypot(out[0].x - out[out.length - 1].x, out[0].y - out[out.length - 1].y) < 1e-4) out.pop();
+  return out.length >= 3 && Math.abs(signedArea(out)) > 0.01 ? out : null;
+}
+function floorShapeGeo(pts, y) { const g = new THREE.ShapeGeometry(new THREE.Shape(pts.map(p => V2(p.x, -p.y)))); g.rotateX(-Math.PI / 2); g.translate(0, y, 0); return g; }
+
+// ---------- room: floor, walls, ceiling, door ----------
+const roomG = new THREE.Group(), fxG = new THREE.Group(); scene.add(roomG, fxG);
+let walls = [], ceilMesh = null, ceilExtras = [], headMesh = null, doorRig = null, doorPick = [];
+let doorOpen = 1, doorTarget = 1;
+function disposeTree(g) {
+  for (const c of [...g.children]) { g.remove(c);
+    c.traverse(o => { if (o.geometry) o.geometry.dispose();
+      if (o.material) for (const m of [].concat(o.material)) if (m.userData.own) m.dispose();
+      if (o.isCSS2DObject) o.element.remove(); }); }
+}
+// A group whose local X runs along plan direction u, starting at plan point a. `zs` says
+// which way local +Z points: +1 = out of the room (along the wall's outward normal), -1 = in.
+function wallFrame(a, u, nm) {
+  const g = new THREE.Group(); g.position.set(a.x, 0, a.y); g.rotation.y = Math.atan2(-u.y, u.x);
+  g.userData.zs = Math.sign(-u.y * nm.x + u.x * nm.y) || 1; return g;
+}
+
+function buildRoom() {
+  disposeTree(roomG); walls = []; ceilExtras = []; doorRig = null; doorPick = []; ceilMesh = headMesh = null;
+  const poly = polygon(); if (poly.length < 3) return;
+  POLY = poly; BB = bbox(poly);
+  const n = poly.length, t = state.wallT, sign = signedArea(poly) > 0 ? 1 : -1, outer = offsetPolygon(poly, t, sign);
+  const bps = ceilIsOn() ? state.ceiling.pts.map(p => p.d) : [];
+  const d = state.door, doorI = d.on ? Math.min(Math.max(d.seg, 0), n - 1) : -1;
+
+  // floor, slab and ground
+  const floor = mk(floorShapeGeo(poly, 0), M.floor); floor.castShadow = false; roomG.add(floor);
+  const slabG = new THREE.ExtrudeGeometry(new THREE.Shape(outer.map(p => V2(p.x, -p.y))), { depth: 4, bevelEnabled: false });
+  slabG.rotateX(-Math.PI / 2); slabG.translate(0, -4.02, 0); roomG.add(mk(slabG, M.slab));
+  const size = Math.max(BB.maxX - BB.minX, BB.maxY - BB.minY, 60);
+  const ground = mk(new THREE.CircleGeometry(size * 6, 64), M.ground, (BB.minX + BB.maxX) / 2, -4.05, (BB.minY + BB.maxY) / 2);
+  ground.rotation.x = -Math.PI / 2; ground.castShadow = false; roomG.add(ground);
+
+  // walls: each is its elevation (bottom, door notch, top following the ceiling) extruded through the wall thickness
+  const names = wallNames();
+  for (let i = 0; i < n; i++) {
+    const a = poly[i], b = poly[(i + 1) % n], L = Math.hypot(b.x - a.x, b.y - a.y); if (L < 0.01) continue;
+    const u = { x: (b.x - a.x) / L, y: (b.y - a.y) / L }, nm = edgeNormal(poly, i, sign);
+    const ob = outer[(i + 1) % n]; const u1 = (ob.x - a.x) * u.x + (ob.y - a.y) * u.y; // runs past the corner on a convex end, stops short on a re-entrant one
+    const at = s => ({ x: a.x + u.x * s, y: a.y + u.y * s });
+    const top = s => { const p = at(Math.min(Math.max(s, 0), L)); return topAt(p.x, p.y); };
+    const us = new Set([0, u1]);
+    if (ceilIsOn()) { const d0 = ceilDist(a.x, a.y, BB), sl = (ceilDist(b.x, b.y, BB) - d0) / L;
+      if (Math.abs(sl) > 1e-9) for (const bd of bps) for (const e of [-0.02, 0.02]) { const s = (bd + e - d0) / sl; if (s > 0 && s < u1) us.add(s); } }
+    const prof = [...us].sort((p, q) => p - q);
+    const shape = new THREE.Shape(); shape.moveTo(0, 0);
+    let door = null;
+    if (i === doorI) {
+      const dA = Math.max(0.05, d.off), dB = Math.min(Math.min(L, u1) - 0.05, d.off + d.w);
+      if (dB - dA > 2) { let hMin = Infinity; for (let k = 0; k <= 8; k++) hMin = Math.min(hMin, top(dA + (dB - dA) * k / 8));
+        const dh = Math.min(80, hMin - 3); if (dh > 30) door = { dA, dB, dh }; }
+      if (door) { shape.lineTo(door.dA, 0); shape.lineTo(door.dA, door.dh); shape.lineTo(door.dB, door.dh); shape.lineTo(door.dB, 0); }
+    }
+    shape.lineTo(u1, 0);
+    for (let k = prof.length - 1; k >= 0; k--) shape.lineTo(prof[k], top(prof[k]));
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: t, bevelEnabled: false });
+    const frame = wallFrame(a, u, nm), zs = frame.userData.zs;
+    if (zs < 0) geo.translate(0, 0, -t); // extrude toward the outside either way
+    const ex = !!state.segments[i]?.ex;
+    const col = new THREE.Color(ex ? 0xdedcd7 : 0xf0ebe3); if (wallColors) col.lerp(new THREE.Color(wallColor(i)), 0.55);
+    const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.92, transparent: true, opacity: 1 }); mat.userData.own = true;
+    const trim = new THREE.MeshStandardMaterial({ color: 0xfbfaf7, roughness: 0.5, transparent: true, opacity: 1 }); trim.userData.own = true;
+    const wall = mk(geo, mat); wall.name = names[i]; frame.add(wall);
+    // baseboard on the room side, broken at the door
+    const runs = door ? [[0, door.dA], [door.dB, L]] : [[0, L]];
+    for (const [s0, s1] of runs) if (s1 - s0 > 0.5) frame.add(mk(new THREE.BoxGeometry(s1 - s0, 3.5, 0.6), trim, (s0 + s1) / 2, 1.75, -zs * 0.3));
+    if (door) { // lining through the opening and casing on both faces
+      const { dA, dB, dh } = door, mid = (dA + dB) / 2;
+      for (const x of [dA + 0.375, dB - 0.375]) frame.add(mk(new THREE.BoxGeometry(0.75, dh, t + 0.4), trim, x, dh / 2, zs * t / 2));
+      frame.add(mk(new THREE.BoxGeometry(dB - dA, 0.75, t + 0.4), trim, mid, dh - 0.375, zs * t / 2));
+      const headroomAbove = top(mid) - dh;
+      for (const z of [-zs * 0.3, zs * (t + 0.3)]) {
+        for (const x of [dA - 1.25, dB + 1.25]) frame.add(mk(new THREE.BoxGeometry(2.5, dh + Math.min(2.5, headroomAbove), 0.6), trim, x, (dh + Math.min(2.5, headroomAbove)) / 2, z));
+        if (headroomAbove > 1) frame.add(mk(new THREE.BoxGeometry(dB - dA + 5, Math.min(2.5, headroomAbove), 0.6), trim, mid, dh + Math.min(2.5, headroomAbove) / 2, z));
+      }
+      buildDoor(a, u, nm, t, door);
+    }
+    roomG.add(frame);
+    const c = at(L / 2);
+    walls.push({ frame, mats: [mat, trim], meshes: [wall], normal: new THREE.Vector3(nm.x, 0, nm.y), mid: new THREE.Vector3(c.x, 0, c.y), fade: 1 });
+  }
+
+  // ceiling: each planar band triangulated, heights from the table on the left
+  const pos = [];
+  for (const band of ceilBands()) {
+    const pts = clipBand(poly, band.d0, band.d1); if (!pts) continue;
+    for (const tri of THREE.ShapeUtils.triangulateShape(pts.map(p => V2(p.x, p.y)), []))
+      for (const k of tri) { const p = pts[k]; pos.push(p.x, band.h(ceilDist(p.x, p.y, BB)), p.y); }
+  }
+  if (ceilIsOn()) { // where the slope ends below the flat ceiling there is a vertical step
+    const p = state.ceiling.pts, last = p[p.length - 1], flatH = Math.max(last.h, state.ceiling.flat);
+    if (flatH - last.h > 0.1) { const l = ceilLine(last.d, BB);
+      pos.push(l.x1, last.h, l.y1, l.x2, last.h, l.y2, l.x2, flatH, l.y2, l.x1, last.h, l.y1, l.x2, flatH, l.y2, l.x1, flatH, l.y1); }
+  }
+  if (pos.length) {
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
+    ceilMesh = new THREE.Mesh(g, M.ceiling); ceilMesh.receiveShadow = true; ceilMesh.renderOrder = 2; roomG.add(ceilMesh);
+  }
+  if (ceilIsOn()) { // a crease line and a height tag at every point in the table
+    for (const p of state.ceiling.pts) {
+      const l = ceilLine(p.d, BB), h = ceilH(p.d) - 0.2;
+      const lg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(l.x1, h, l.y1), new THREE.Vector3(l.x2, h, l.y2)]);
+      const line = new THREE.Line(lg, M.crease); line.computeLineDistances(); roomG.add(line); ceilExtras.push(line);
+      const tag = label(`${fmtIn(p.h)} <span style="font-weight:400;color:#777">@ ${fmtIn(p.d)}</span>`, 'clg3d');
+      tag.position.set((l.x1 + l.x2) / 2, h - 3, (l.y1 + l.y2) / 2); roomG.add(tag); ceilExtras.push(tag);
+    }
+    // floor shading where there is less than 6'-4" of headroom, as on the plan
+    const d76 = ceilReach(76);
+    const pts = d76 === null ? poly : d76 > 0 ? clipBand(poly, -1e5, d76) : null;
+    if (pts) { headMesh = new THREE.Mesh(floorShapeGeo(pts, 0.12), M.headroom); headMesh.renderOrder = 1; roomG.add(headMesh); }
+  }
+
+  // light and shadows sized to the room
+  const c = new THREE.Vector3((BB.minX + BB.maxX) / 2, 0, (BB.minY + BB.maxY) / 2);
+  sun.target.position.copy(c); sun.position.copy(c).add(new THREE.Vector3(-0.45, 1.5, 0.75).multiplyScalar(size * 1.6));
+  const sc = sun.shadow.camera; sc.left = sc.bottom = -size * 1.3; sc.right = sc.top = size * 1.3; sc.near = 1; sc.far = size * 6; sc.updateProjectionMatrix();
+  lamp.position.set(c.x, Math.max(40, Math.min(90, (ceilIsOn() ? ceilH(1e4) : state.ceiling.flat || 96) - 10)), c.z);
+  applyWallMode();
+}
+
+// Door leaf: lw wide, lh tall, th thick, centred on x and z, standing on y = 0.
+// Solid is a painted two-panel door; the glass options are frosted privacy glass in a slim
+// black frame - it glows with the light behind it but you cannot see through it.
+const GLASS_TINTS = { frosted: 0xf1f5f5, bronze: 0xb68d63, smoke: 0x8c9399 };
+const glassMats = {};
+M.frame = new THREE.MeshStandardMaterial({ color: 0x26282b, metalness: 0.6, roughness: 0.4 });
+function frostedGlass(kind) {
+  return glassMats[kind] || (glassMats[kind] = new THREE.MeshPhysicalMaterial({
+    color: GLASS_TINTS[kind] || GLASS_TINTS.frosted, transmission: 1, roughness: 0.55, thickness: 0.6, ior: 1.5,
+    metalness: 0, attenuationColor: new THREE.Color(GLASS_TINTS[kind] || GLASS_TINTS.frosted), attenuationDistance: 1.5 }));
+}
+function doorLeaf(lw, lh, th) {
+  const g = new THREE.Group(), kind = state.door.panel || 'solid';
+  if (kind === 'solid') {
+    const slab = mk(new RoundedBoxGeometry(lw, lh, th, 2, 0.25), M.door, 0, lh / 2, 0); g.add(slab);
+    for (const z of [-th / 2 - 0.1, th / 2 + 0.1]) for (const [py, ph] of [[lh * 0.72, lh * 0.34], [lh * 0.27, lh * 0.36]])
+      g.add(mk(new THREE.BoxGeometry(lw - 7, ph, 0.25), M.door, 0, py, z));
+    return { g, pick: [slab] };
+  }
+  const st = 2.2, bot = 4, pick = [];
+  for (const [w, h, x, y] of [[st, lh, -lw / 2 + st / 2, lh / 2], [st, lh, lw / 2 - st / 2, lh / 2], [lw - 2 * st, st, 0, lh - st / 2], [lw - 2 * st, bot, 0, bot / 2]]) {
+    const m = mk(new THREE.BoxGeometry(w, h, th), M.frame, x, y, 0); g.add(m); pick.push(m);
+  }
+  const glass = mk(new THREE.BoxGeometry(lw - 2 * st + 0.2, lh - st - bot + 0.2, 0.4), frostedGlass(kind), 0, bot + (lh - st - bot) / 2, 0);
+  glass.castShadow = false; // light comes through
+  g.add(glass); pick.push(glass);
+  return { g, pick };
+}
+
+function buildDoor(a, u, nm, t, o) {
+  const d = state.door, w = o.dB - o.dA, dh = o.dh;
+  const P = s => ({ x: a.x + u.x * s, y: a.y + u.y * s });
+  if (d.swing === 'pocket') { // panel in the middle of the wall; "open" parks it inside the wall
+    const tv = d.hinge === 'start' ? -1 : 1, TH = 1.375, base = P((o.dA + o.dB) / 2);
+    const g = new THREE.Group(); g.rotation.y = Math.atan2(-u.y, u.x);
+    g.position.set(base.x + nm.x * t / 2, 0, base.y + nm.y * t / 2);
+    const panel = new THREE.Group(); g.add(panel);
+    const leaf = doorLeaf(w + 1.5, dh - 0.8, TH); panel.add(leaf.g);
+    for (const z of [-TH / 2 - 0.05, TH / 2 + 0.05]) // flush pulls near the leading edge
+      panel.add(mk(new RoundedBoxGeometry(1.1, 5, 0.12, 2, 0.05), M.chrome, -tv * (w / 2 - 2.2), 38, z));
+    roomG.add(g); doorPick = leaf.pick;
+    doorRig = { apply: s => { panel.position.x = tv * w * s; } };
+  } else if (isSliding(d.swing)) {
+    const inSide = d.swing === 'slide-in', dn = inSide ? { x: -nm.x, y: -nm.y } : nm;
+    const face = inSide ? 0 : t, G = 1, TH = 1.75, off = face + G + TH / 2;
+    const tv = d.hinge === 'start' ? -1 : 1; // along u
+    const base = P((o.dA + o.dB) / 2);
+    const g = new THREE.Group(); g.rotation.y = Math.atan2(-u.y, u.x);
+    const panel = new THREE.Group(); g.add(panel);
+    const leaf = doorLeaf(w + 2, dh + 1, TH);
+    panel.add(leaf.g);
+    for (const z of [-TH / 2 - 0.4, TH / 2 + 0.4]) panel.add(mk(new THREE.BoxGeometry(0.7, 8, 0.5), M.chrome, tv * -(w / 2 - 2.5), 38, z));
+    const trackLen = 2 * w + 4;
+    const track = mk(new THREE.BoxGeometry(trackLen, 1.6, 2.6), M.chrome, tv * w / 2, dh + 2, 0);
+    g.add(track);
+    roomG.add(g); doorPick = leaf.pick;
+    doorRig = { apply: s => { const along = tv * w * s;
+      g.position.set(base.x + dn.x * off, 0, base.y + dn.y * off);
+      panel.position.x = along; } };
+  } else {
+    const startHinge = d.hinge === 'start';
+    const hinge = P(startHinge ? o.dA + 0.75 : o.dB - 0.75), v = startHinge ? u : { x: -u.x, y: -u.y };
+    const s = d.swing === 'out' ? nm : { x: -nm.x, y: -nm.y };
+    const faceOff = (d.swing === 'out' ? t : 0) + 0.8;
+    const pivot = new THREE.Group(); pivot.position.set(hinge.x + s.x * faceOff, 0, hinge.y + s.y * faceOff);
+    const lw = w - 1.5 - 0.3, leaf = new THREE.Group();
+    const body = doorLeaf(lw, dh - 0.6, 1.4); body.g.position.set(lw / 2, 0.3, 0); leaf.add(body.g);
+    for (const z of [-1.6, 1.6]) { leaf.add(mk(new THREE.CylinderGeometry(1.1, 1.1, 0.5, 20).rotateX(Math.PI / 2), M.chrome, lw - 2.6, 36, z * 0.75));
+      leaf.add(mk(new THREE.BoxGeometry(4.2, 0.55, 0.55), M.chrome, lw - 4.1, 36, z)); }
+    pivot.add(leaf); roomG.add(pivot); doorPick = body.pick;
+    doorRig = { apply: k => { const th = k * Math.PI / 2, dx = Math.cos(th) * v.x + Math.sin(th) * s.x, dz = Math.cos(th) * v.y + Math.sin(th) * s.y;
+      pivot.rotation.y = Math.atan2(-dz, dx); } };
+  }
+  doorRig.apply(doorOpen);
+}
+
+// ---------- fixtures ----------
+// Each builder works in the fixture's own frame: X across its width (centred), Z from its
+// back (-d/2) to its front (+d/2), Y up. ctx.ceil(x, z) gives the ceiling height there.
+function buildToilet(f) {
+  const g = new THREE.Group(), w = f.w, d = f.d, tankD = Math.min(d * 0.3, 9), bowlL = d - tankD;
+  g.add(mk(new RoundedBoxGeometry(w * 0.88, 14.5, tankD - 1, 3, 1.3), M.ceramic, 0, 15.5 + 7.25, -d / 2 + tankD / 2));
+  g.add(mk(new RoundedBoxGeometry(w * 0.93, 1.5, tankD + 0.2, 2, 0.6), M.ceramic, 0, 30.7, -d / 2 + tankD / 2));
+  g.add(mk(new THREE.BoxGeometry(2.6, 0.6, 0.8), M.chrome, -w * 0.3, 27.5, -d / 2 + tankD));
+  const rx = w * 0.4, rz = bowlL * 0.48, bz = -d / 2 + tankD + bowlL * 0.5;
+  const body = mk(lathe([[0, 0], [0.48, 0], [0.45, 2], [0.5, 7], [0.76, 10.5], [0.95, 13.6], [1, 15], [0.93, 15.35], [0.85, 14.9], [0.62, 12.4], [0.36, 10.3], [0, 9.8]], 64), M.ceramic, 0, 0, bz);
+  body.scale.set(rx, 1, rz); g.add(body);
+  const water = mk(new THREE.CircleGeometry(1, 40).rotateX(-Math.PI / 2), M.water, 0, 11, bz + 0.3); water.scale.set(rx * 0.5, 1, rz * 0.5); g.add(water);
+  const seat = mk(new THREE.TorusGeometry(1, 0.1, 14, 64).rotateX(Math.PI / 2), M.ceramic, 0, 15.9, bz + 0.3); seat.scale.set(rx * 0.9, 6, rz * 0.9); g.add(seat);
+  const lidPivot = new THREE.Group(); lidPivot.position.set(0, 16.2, -d / 2 + tankD + 1.2); lidPivot.rotation.x = -1.5;
+  const lid = mk(new THREE.CylinderGeometry(1, 1, 1, 48), M.ceramic, 0, 0, rz * 0.9); lid.scale.set(rx * 0.92, 0.8, rz * 0.92); lidPivot.add(lid); g.add(lidPivot);
+  return { g, top: 31 };
+}
+function buildSink(f) {
+  const g = new THREE.Group(), w = f.w, d = f.d;
+  g.add(mk(lathe([[0, 0], [5, 0], [4.8, 1], [3.5, 4], [2.9, 14], [3.1, 24], [4.4, 29], [0, 29]], 48), M.ceramic, 0, 0, -d / 2 + Math.min(d * 0.42, 8)));
+  const zc = -d / 2 + d * 0.55, rx = w * 0.36, rz = d * 0.3;
+  const sh = rrect(w - 0.8, d - 0.8, Math.min(w, d) * 0.25);
+  sh.holes.push(new THREE.Path().absellipse(0, -zc, rx, rz, 0, Math.PI * 2, true));
+  g.add(mk(deck(sh, 4, 29.5), M.ceramic));
+  const bowl = mk(lathe([[0, -5], [0.45, -4.8], [0.8, -3.4], [0.96, -1.4], [1, 0]], 48), M.ceramic, 0, 33.5, zc); bowl.scale.set(rx, 1, rz); g.add(bowl);
+  g.add(mk(new THREE.CylinderGeometry(0.9, 0.9, 0.15, 24), M.chrome, 0, 28.6, zc));
+  faucet(g, -d / 2 + d * 0.16, 33.5, Math.min(4.5, d * 0.35));
+  return { g, top: 41 };
+}
+function buildVanity(f, ctx) {
+  const g = new THREE.Group(), w = f.w, d = f.d, cabD = d - 1.5, topY = 32.5;
+  g.add(mk(new THREE.BoxGeometry(w - 2, 3.5, cabD - 3), new THREE.MeshStandardMaterial({ color: 0x2c2723, roughness: 0.8 }), 0, 1.75, -d / 2 + (cabD - 3) / 2));
+  g.children[0].material.userData.own = true;
+  g.add(mk(new RoundedBoxGeometry(w - 0.5, topY - 3.5, cabD, 2, 0.3), M.wood, 0, 3.5 + (topY - 3.5) / 2, -d / 2 + cabD / 2));
+  const nDoors = w >= 24 ? 2 : 1, dw = (w - 1.5) / nDoors - 0.4, fz = -d / 2 + cabD + 0.35;
+  for (let k = 0; k < nDoors; k++) {
+    const x = -w / 2 + 0.75 + (k + 0.5) * (w - 1.5) / nDoors;
+    g.add(mk(new RoundedBoxGeometry(dw, topY - 6, 0.7, 2, 0.2), M.wood, x, 4.5 + (topY - 6) / 2, fz));
+    const hx = nDoors === 2 ? (k === 0 ? x + dw / 2 - 1.8 : x - dw / 2 + 1.8) : x + dw / 2 - 1.8;
+    g.add(mk(new THREE.CylinderGeometry(0.28, 0.28, 6, 12), M.chrome, hx, topY - 8, fz + 1.1));
+  }
+  const zc = -d / 2 + d * 0.52, rx = Math.min(w * 0.3, 9), rz = Math.min(d * 0.28, 7);
+  const sh = rrect(w - 0.4, d - 0.4, 0.8);
+  sh.holes.push(new THREE.Path().absellipse(0, -zc, rx, rz, 0, Math.PI * 2, true));
+  g.add(mk(deck(sh, 1.5, topY, 0.2), M.stone));
+  const bowl = mk(lathe([[0, -5.5], [0.5, -5.3], [0.85, -3.8], [0.98, -1.5], [1, 0]], 48), M.ceramic, 0, topY + 1.5, zc); bowl.scale.set(rx, 1, rz); g.add(bowl);
+  faucet(g, -d / 2 + 2.5, topY + 1.5, Math.min(5, d * 0.3));
+  // mirror on the wall behind, if the ceiling leaves room for one
+  const mTop = Math.min(76, Math.min(ctx.ceil(-w * 0.35, -d / 2), ctx.ceil(w * 0.35, -d / 2)) - 4), mBot = topY + 9;
+  let top = topY + 9;
+  if (mTop - mBot > 8) {
+    const mw = w * 0.8, mh = mTop - mBot;
+    g.add(mk(new THREE.BoxGeometry(mw + 1.5, mh + 1.5, 0.6), M.chrome, 0, mBot + mh / 2, -d / 2 + 0.3));
+    const glass = mk(new THREE.PlaneGeometry(mw, mh), M.mirror, 0, mBot + mh / 2, -d / 2 + 0.62); glass.castShadow = false; g.add(glass);
+    top = mTop;
+  }
+  return { g, top };
+}
+function buildShower(f, ctx) { // f.head picks the wall and spot for the head
+  const g = new THREE.Group(), w = f.w, d = f.d;
+  const rim = rrect(w - 0.8, d - 0.8, 1.2), well = new THREE.Path(); rrect(w - 5, d - 5, 0.8, 0, 0, well); rim.holes.push(well);
+  g.add(mk(deck(rim, 4, 0), M.ceramic));
+  g.add(mk(new THREE.BoxGeometry(w - 4.4, 1.6, d - 4.4), M.ceramic, 0, 0.8, 0));
+  g.add(mk(new THREE.CylinderGeometry(1.8, 1.8, 0.15, 32), M.chrome, 0, 1.65, 0));
+  const sides = [
+    { k: 'back', a: [-w / 2, -d / 2], b: [w / 2, -d / 2], out: [0, -1] },
+    { k: 'right', a: [w / 2, -d / 2], b: [w / 2, d / 2], out: [1, 0] },
+    { k: 'front', a: [w / 2, d / 2], b: [-w / 2, d / 2], out: [0, 1] },
+    { k: 'left', a: [-w / 2, d / 2], b: [-w / 2, -d / 2], out: [-1, 0] },
+  ];
+  let top = 4, head = null;
+  for (const sd of sides) {
+    const len = Math.hypot(sd.b[0] - sd.a[0], sd.b[1] - sd.a[1]), dir = [(sd.b[0] - sd.a[0]) / len, (sd.b[1] - sd.a[1]) / len];
+    const mid = [(sd.a[0] + sd.b[0]) / 2, (sd.a[1] + sd.b[1]) / 2];
+    sd.wall = !ctx.inside(mid[0] + sd.out[0] * 2, mid[1] + sd.out[1] * 2);
+    const pickSides = { three: ['back', 'left', 'right'], 'back-left': ['back', 'left'], 'back-right': ['back', 'right'], back: ['back'] }[state.finish.shower.sides];
+    sd.tile = pickSides ? pickSides.includes(sd.k) : sd.wall;
+    const at = s => [sd.a[0] + dir[0] * s - sd.out[0], sd.a[1] + dir[1] * s - sd.out[1]];
+    const clg = s => ctx.ceil(...at(s));
+    const fr = new THREE.Group(); fr.position.set(sd.a[0], 0, sd.a[1]); fr.rotation.y = Math.atan2(-dir[1], dir[0]); // local +Z points into the shower
+    if (sd.tile) { // tile up to 7' or the sloped ceiling, whichever is lower; with no room wall behind it, a 4" tiled wall
+      const shp = new THREE.Shape(); shp.moveTo(0, 0); shp.lineTo(len, 0);
+      for (let k = 12; k >= 0; k--) { const s = len * k / 12; shp.lineTo(s, Math.min(84, clg(s) - 0.3)); }
+      const thick = sd.wall ? 0.5 : 4, tg = new THREE.ExtrudeGeometry(shp, { depth: thick, bevelEnabled: false });
+      if (!sd.wall) tg.translate(0, 0, 0.5 - thick); // grows outward, the shower keeps its inside size
+      fr.add(mk(tg, M.tile));
+      for (let k = 0; k <= 12; k++) top = Math.max(top, Math.min(84, clg(len * k / 12)));
+    } else if (!sd.wall) { // open side: glass (a plain room wall is left as painted wall)
+      let mc = Infinity; for (let k = 0; k <= 8; k++) mc = Math.min(mc, clg(len * k / 8));
+      const H = Math.min(72, mc - 6) - 4;
+      if (H > 10) {
+        const gl = mk(new THREE.BoxGeometry(len - 1, H, 0.375), M.glass, len / 2, 4 + H / 2, 1); gl.castShadow = false; fr.add(gl);
+        fr.add(mk(new THREE.BoxGeometry(len - 1, 0.8, 0.9), M.chrome, len / 2, 4.4, 1));
+        fr.add(mk(new THREE.BoxGeometry(len - 1, 0.6, 0.7), M.chrome, len / 2, 4 + H, 1));
+        if (sd.k === 'front') { fr.add(mk(new THREE.CylinderGeometry(0.35, 0.35, 14, 12), M.chrome, len * 0.3, 40, -0.4));
+          fr.add(mk(new THREE.CylinderGeometry(0.35, 0.35, 14, 12), M.chrome, len * 0.3, 40, 2.4)); }
+        top = Math.max(top, 4 + H);
+      }
+    }
+    sd.fr = fr; sd.clg = clg;
+    g.add(fr);
+  }
+  { // valve and shower arm where the panel puts them
+    const spot = showerHeadSpot(f), sd = sides.find(x => x.k === spot.side), fr = sd.fr, cx = spot.s;
+    const hy = Math.min(+(f.head || {}).h || 80, sd.clg(cx) - 6);
+    fr.add(mk(new THREE.CylinderGeometry(3, 3, 0.4, 32).rotateX(Math.PI / 2), M.chrome, cx, 46, 0.7));
+    fr.add(mk(new THREE.BoxGeometry(0.6, 0.6, 4).translate(0, 0, 2), M.chrome, cx, 46, 0.9));
+    const arm = new THREE.CatmullRomCurve3([new THREE.Vector3(cx, hy, 0.5), new THREE.Vector3(cx, hy + 0.5, 4), new THREE.Vector3(cx, hy - 1.5, 8)]);
+    fr.add(mk(new THREE.TubeGeometry(arm, 16, 0.45, 10), M.chrome));
+    fr.add(mk(new THREE.CylinderGeometry(3.5, 2.2, 1, 32), M.chrome, cx, hy - 2.2, 8.5));
+  }
+  return { g, top: Math.min(top, 84) };
+}
+function buildStairs(f) {
+  const g = new THREE.Group(), w = f.w, d = f.d, n = Math.max(2, Math.round(d / 10)), tread = d / n, rise = 7.5;
+  const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(fxColor(f)), roughness: 0.6 }); mat.userData.own = true;
+  for (let k = 0; k < n; k++) { const h = rise * (k + 1); // rising toward the back
+    g.add(mk(new THREE.BoxGeometry(w, h, tread), mat, 0, h / 2, d / 2 - tread * (k + 0.5)));
+    g.add(mk(new THREE.BoxGeometry(w, 0.8, 1.2), M.wood, 0, h + 0.4, d / 2 - tread * k - 0.6)); }
+  return { g, top: rise * n };
+}
+function buildGeneric(f) { const g = new THREE.Group(); g.add(mk(new RoundedBoxGeometry(f.w, 30, f.d, 2, 0.5), M.stone, 0, 15, 0)); return { g, top: 30 }; }
+const BUILDERS = { toilet: buildToilet, sink: buildSink, other: buildVanity, shower: buildShower, stairs: buildStairs };
+
+const fxObjs = new Map(); // fixture id -> { key, g, top }
+function fxFrame(f) { const b = fxBox(f); return { cx: b.x + b.w / 2, cy: b.y + b.h / 2, th: -f.rot * Math.PI / 180 }; }
+function buildFixture(f, i) {
+  const { cx, cy, th } = fxFrame(f), co = Math.cos(th), si = Math.sin(th);
+  const toWorld = (x, z) => ({ x: cx + x * co + z * si, y: cy - x * si + z * co });
+  const ctx = { ceil: (x, z) => { const p = toWorld(x, z); return topAt(p.x, p.y); }, inside: (x, z) => { const p = toWorld(x, z); return pointInPoly(p.x, p.y, POLY); } };
+  const { g, top } = (BUILDERS[f.id] || buildGeneric)(f, ctx);
+  g.traverse(o => { o.userData.fx = i; });
+  const tag = label(`<b>${escH(f.tag)}</b>${escH(titleCase(f.name))}`, 'fx3d'); tag.position.set(0, top + 7, 0); g.add(tag);
+  return { g, top };
+}
+
+// ---------- sync with the plan ----------
+let roomKey = '', framed = false;
+function update() {
+  if (polygon().length < 3) return;
+  const rk = JSON.stringify([state.segments, state.wallT, state.ceiling, state.door, wallColors, unitMode]);
+  if (rk !== roomKey) { roomKey = rk; buildRoom(); for (const e of fxObjs.values()) e.key = ''; }
+  for (const [slot, mat] of [['floor', M.floor], ['shower', M.tile]]) {
+    const ft = finishTexture(slot, state.finish[slot]);
+    if (mat.map !== ft.tex) { const had = !!mat.map; mat.map = ft.tex; mat.roughness = ft.spec.rough; if (!had) mat.needsUpdate = true; }
+  }
+  const seen = new Set();
+  state.fixtures.forEach((f, i) => {
+    if (!f.on) return; seen.add(f.id);
+    // the shower and vanity look at the walls and ceiling around them, so they rebuild when moved
+    const key = JSON.stringify([f.w, f.d, f.rot, f.color, f.name, f.tag, i, (f.id === 'shower' || f.id === 'other') ? [f.x, f.y] : 0, f.id === 'shower' ? [state.finish.shower.sides, f.head] : 0]);
+    let e = fxObjs.get(f.id);
+    if (!e || e.key !== key) { if (e) disposeTree(e.wrap); else { e = { wrap: new THREE.Group() }; fxG.add(e.wrap); fxObjs.set(f.id, e); }
+      const b = buildFixture(f, i); e.wrap.add(b.g); e.key = key; e.top = b.top; }
+    const { cx, cy, th } = fxFrame(f); e.wrap.position.set(cx, 0, cy); e.wrap.rotation.y = th;
+  });
+  for (const [id, e] of fxObjs) if (!seen.has(id)) { disposeTree(e.wrap); fxG.remove(e.wrap); fxObjs.delete(id); }
+  if (hovered !== null && !fxObjByIndex(hovered)) setHover(null);
+  applyToggles();
+  if (!framed) { framed = true; setView('iso', true); }
+}
+const fxObjByIndex = i => { const f = state.fixtures[i]; return f && f.on ? fxObjs.get(f.id) : null; };
+
+// ---------- camera presets ----------
+let tween = null;
+function setView(v, instant) {
+  const size = Math.max(BB.maxX - BB.minX, BB.maxY - BB.minY, 60);
+  const c = new THREE.Vector3((BB.minX + BB.maxX) / 2, 30, (BB.minY + BB.maxY) / 2);
+  let pos, tgt = c.clone();
+  const fit = Math.max(1, 1.4 / Math.max(camera.aspect, 0.5));
+  if (v === 'top') { pos = new THREE.Vector3(c.x, size * 2.9 * fit, c.z + 0.5); tgt.y = 0; }
+  else if (v === 'eye') {
+    const poly = polygon(), sign = signedArea(poly) > 0 ? 1 : -1, n = poly.length, d = state.door;
+    let m, inw;
+    if (d.on) { const i = Math.min(Math.max(d.seg, 0), n - 1), a = poly[i], b = poly[(i + 1) % n], L = Math.hypot(b.x - a.x, b.y - a.y) || 1, nm = edgeNormal(poly, i, sign);
+      const s = d.off + d.w / 2; m = { x: a.x + (b.x - a.x) / L * s, y: a.y + (b.y - a.y) / L * s }; inw = { x: -nm.x, y: -nm.y }; }
+    else { m = { x: BB.minX + 8, y: BB.maxY - 8 }; inw = { x: c.x - m.x, y: c.z - m.y }; const l = Math.hypot(inw.x, inw.y) || 1; inw.x /= l; inw.y /= l; }
+    // standing in the doorway, looking across the room with a wider lens
+    const eyeX = m.x + inw.x * 2, eyeZ = m.y + inw.y * 2;
+    pos = new THREE.Vector3(eyeX, Math.min(63, topAt(m.x, m.y) - 6), eyeZ);
+    tgt = new THREE.Vector3(m.x + inw.x * 70, 38, m.y + inw.y * 70);
+  } else pos = c.clone().add(new THREE.Vector3(0.5, 1.1, 1.25).multiplyScalar(size * 1.4 * fit));
+  camera.fov = v === 'eye' ? 68 : 40; camera.updateProjectionMatrix();
+  document.querySelectorAll('.v3bar [data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  if (instant) { camera.position.copy(pos); controls.target.copy(tgt); controls.update(); tween = null; return; }
+  tween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: tgt, start: performance.now() };
+}
+document.querySelectorAll('.v3bar [data-view]').forEach(b => b.onclick = () => setView(b.dataset.view));
+controls.addEventListener('start', () => { tween = null; document.querySelectorAll('.v3bar [data-view]').forEach(b => b.classList.remove('on')); });
+
+// ---------- toggles ----------
+const PREFK = 'bathroom-blueprint-3d-v1';
+const pref = (() => { try { return { walls: 'cutaway', ceil: 'auto', labels: true, head: true, ...JSON.parse(localStorage.getItem(PREFK) || '{}') }; } catch (e) { return { walls: 'cutaway', ceil: 'auto', labels: true, head: true }; } })();
+const savePref = () => { try { localStorage.setItem(PREFK, JSON.stringify(pref)); } catch (e) {} };
+const WALLS = ['cutaway', 'low', 'solid'], CEILS = ['auto', 'solid', 'hidden'];
+const q = s => host.querySelector(s);
+function applyWallMode() { for (const m of [M.door, M.frame, ...Object.values(glassMats), ...walls.flatMap(w => w.mats)]) { m.clippingPlanes = pref.walls === 'low' ? lowCut : null; m.needsUpdate = true; } }
+function applyToggles() {
+  q('#v3walls').textContent = `Walls: ${pref.walls}`; q('#v3ceil').textContent = `Ceiling: ${pref.ceil}`;
+  q('#v3lbl').classList.toggle('on', pref.labels); q('#v3head').classList.toggle('on', pref.head);
+  q('#v3door').textContent = doorTarget > 0.5 ? 'Close door' : 'Open door'; q('#v3door').disabled = !doorRig;
+  css2d.domElement.style.display = pref.labels ? '' : 'none';
+  const ceilShown = pref.ceil !== 'hidden' && pref.walls !== 'low';
+  if (ceilMesh) ceilMesh.visible = ceilShown;
+  for (const o of ceilExtras) o.visible = ceilShown;
+  if (headMesh) headMesh.visible = pref.head;
+}
+q('#v3walls').onclick = () => { pref.walls = WALLS[(WALLS.indexOf(pref.walls) + 1) % 3]; savePref(); applyWallMode(); applyToggles(); };
+q('#v3ceil').onclick = () => { pref.ceil = CEILS[(CEILS.indexOf(pref.ceil) + 1) % 3]; savePref(); applyToggles(); };
+q('#v3lbl').onclick = () => { pref.labels = !pref.labels; savePref(); applyToggles(); };
+q('#v3head').onclick = () => { pref.head = !pref.head; savePref(); applyToggles(); };
+q('#v3door').onclick = () => { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); };
+
+// ---------- picking and dragging fixtures ----------
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+const hl = new THREE.BoxHelper(undefined, 0x4ea1ff); hl.visible = false; hl.material.depthTest = false; hl.renderOrder = 9; scene.add(hl);
+let hovered = null, drag = null;
+function castAt(e) {
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+}
+function pick(e) {
+  castAt(e);
+  const hits = ray.intersectObjects([...fxG.children, ...doorPick], true).filter(h => h.object.visible && h.object.isMesh);
+  if (!hits.length) return null;
+  const h = hits[0];
+  return doorPick.includes(h.object) ? { door: true } : { fx: h.object.userData.fx, point: h.point };
+}
+function setHover(i) {
+  hovered = i; const e = i === null ? null : fxObjByIndex(i);
+  hl.visible = !!e; if (e) hl.setFromObject(e.wrap);
+}
+host.addEventListener('pointerdown', e => { // capture phase: runs before OrbitControls sees the press
+  if (e.button !== 0 || e.target !== renderer.domElement) return;
+  const h = pick(e); if (!h) return;
+  if (h.door) { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); return; }
+  const f = state.fixtures[h.fx]; if (!f) return;
+  controls.enabled = false; renderer.domElement.setPointerCapture(e.pointerId);
+  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -h.point.y);
+  drag = { i: h.fx, f, plane, start: h.point.clone(), x0: f.x, y0: f.y, id: e.pointerId };
+  renderer.domElement.style.cursor = 'grabbing'; setHover(h.fx);
+}, true);
+renderer.domElement.addEventListener('pointermove', e => {
+  if (drag) {
+    castAt(e); const p = new THREE.Vector3(); if (!ray.ray.intersectPlane(drag.plane, p)) return;
+    const f = drag.f, b = fxBox(f), bb = bbox(polygon());
+    let nx = Math.round((drag.x0 + p.x - drag.start.x) * 2) / 2, ny = Math.round((drag.y0 + p.z - drag.start.z) * 2) / 2;
+    if (f.id !== 'stairs') { nx = Math.min(Math.max(nx, bb.minX), bb.maxX - b.w); ny = Math.min(Math.max(ny, bb.minY), bb.maxY - b.h); }
+    if (nx !== f.x || ny !== f.y) {
+      f.x = nx; f.y = ny;
+      const ix = document.querySelector(`.fxX[data-i="${drag.i}"]`), iy = document.querySelector(`.fxY[data-i="${drag.i}"]`);
+      if (ix) ix.value = nx; if (iy) iy.value = ny;
+      render(); // redraws the plan, re-runs the code checks, saves, and calls update() here
+    }
+    return;
+  }
+  if (e.buttons) return;
+  const h = pick(e);
+  renderer.domElement.style.cursor = h ? (h.door ? 'pointer' : 'grab') : '';
+  const i = h && !h.door ? h.fx : null; if (i !== hovered) setHover(i);
+});
+const endDrag = () => { if (!drag) return; drag = null; controls.enabled = true; renderer.domElement.style.cursor = 'grab'; };
+renderer.domElement.addEventListener('pointerup', endDrag);
+renderer.domElement.addEventListener('pointercancel', endDrag);
+renderer.domElement.addEventListener('pointerleave', () => { if (!drag) { setHover(null); renderer.domElement.style.cursor = ''; } });
+
+// ---------- resize and frame loop ----------
+function resize() {
+  const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return;
+  renderer.setSize(w, h); css2d.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(host); resize();
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const tmp = new THREE.Vector3();
+let lastNow = performance.now();
+function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(1, (now - lastNow) / 1000); lastNow = now;
+  if (!host.clientWidth) return; // Plan-only mode: nothing to draw
+  const k = 1 - Math.exp(-dt * 9); // frame-rate independent easing for fades and the door
+  if (tween) { const k = Math.min(1, (now - tween.start) / 700), e = ease(k);
+    camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.t0, tween.t1, e); if (k >= 1) tween = null; }
+  controls.update();
+  if (doorRig && Math.abs(doorOpen - doorTarget) > 1e-3) { doorOpen += (doorTarget - doorOpen) * k; doorRig.apply(doorOpen); }
+  // Walls between the camera and the room fade out, dollhouse style; none do once you are inside.
+  const cam = camera.position, inside = POLY.length > 2 && pointInPoly(cam.x, cam.z, POLY) && cam.y < topAt(cam.x, cam.z);
+  tmp.subVectors(cam, controls.target).normalize(); const elev = tmp.y, horiz = Math.sqrt(Math.max(0, 1 - elev * elev));
+  for (const w of walls) {
+    let o = 1;
+    if (pref.walls === 'cutaway' && !inside) {
+      const toCam = new THREE.Vector3(cam.x - w.mid.x, 0, cam.z - w.mid.z).normalize();
+      const facing = w.normal.dot(toCam) * Math.min(1, horiz * 1.6);
+      o = facing > 0.35 ? 0 : facing > 0.05 ? 1 - (facing - 0.05) / 0.3 : 1;
+    }
+    w.fade += (o - w.fade) * k;
+    for (const m of w.mats) { m.opacity = w.fade; m.transparent = w.fade < 0.99; m.depthWrite = w.fade > 0.5; }
+    for (const m of w.meshes) m.castShadow = w.fade > 0.5;
+    w.frame.visible = w.fade > 0.03;
+  }
+  if (ceilMesh && ceilMesh.visible) {
+    const target = inside || pref.ceil === 'solid' ? 0.97 : THREE.MathUtils.lerp(0.42, 0.1, THREE.MathUtils.smoothstep(elev, 0.35, 0.92));
+    M.ceiling.opacity += (target - M.ceiling.opacity) * k; M.ceiling.depthWrite = M.ceiling.opacity > 0.9;
+  }
+  if (hl.visible && hovered !== null) { const e = fxObjByIndex(hovered); if (e) hl.setFromObject(e.wrap); }
+  renderer.render(scene, camera); css2d.render(scene, camera);
+}
+requestAnimationFrame(loop);
+
+window.bath3d = { update };
+update();
 </script>
 </body>
 </html>
