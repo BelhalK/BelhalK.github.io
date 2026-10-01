@@ -8,7 +8,7 @@ export const bio = {
         twitter: "https://twitter.com/BelhalK",
         scholar: "https://scholar.google.com/citations?hl=en&user=Xh_OIWkAAAAJ",
         github: "https://github.com/BelhalK",
-        linkedin: "https://www.linkedin.com/in/belhal-karimi-2baa71a5",
+        linkedin: "https://www.linkedin.com/in/belhal-karimi",
         soundcloud: "https://soundcloud.com/lalbe",
         instagram: "https://www.instagram.com/belhal/"
     },
