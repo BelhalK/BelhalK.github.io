@@ -403,6 +403,7 @@
   .trophy-track.grabbing{cursor:grabbing;}
   .trophy-card{
     scroll-snap-align:start;flex:0 0 auto;width:210px;
+    display:block;color:inherit;text-decoration:none;
     transition:transform .25s;
   }
   .trophy-card:hover{transform:translateY(-4px);}
@@ -695,16 +696,16 @@
     <div class="section-head reveal">
       <span class="tag-eyebrow">◈ TROPHY CASE</span>
       <h2 class="section-title">RESEARCH<br/><span class="accent">DROPS</span></h2>
-      <p class="section-sub">Peer-reviewed plays. Drag the shelf to scroll.</p>
+      <p class="section-sub">Peer-reviewed plays. Scroll or drag the shelf, click a paper to read it.</p>
     </div>
     <div class="trophy-track reveal" id="trophyTrack">
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/fiem.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2019</p><h4>On the Global Convergence of (Fast) Incremental EM Methods</h4></div></article>
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/sagd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2020</p><h4>Towards Better Generalization of Adaptive Gradient Methods</h4></div></article>
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/nonas.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">COLT · 2019</p><h4>Non-asymptotic Analysis of Biased Stochastic Approximation</h4></div></article>
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/compams.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ICLR · 2022</p><h4>Distributed Adaptive Optimization with Gradient Compression</h4></div></article>
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/phd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">PH.D. THESIS · 2019</p><h4>Nonconvex Optimization for Latent Data Models</h4></div></article>
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/misso.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ALT · 2022</p><h4>Minimization by Incremental Stochastic Surrogate</h4></div></article>
-      <article class="trophy-card"><img class="trophy-thumb" src="/assets/paperthumb/layerwise.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">UAI · 2023</p><h4>Layer-wise &amp; Dimension-wise Locally Adaptive FL</h4></div></article>
+      <a class="trophy-card" href="https://arxiv.org/abs/1910.12521" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/fiem.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2019</p><h4>On the Global Convergence of (Fast) Incremental EM Methods</h4></div></a>
+      <a class="trophy-card" href="https://proceedings.neurips.cc/paper/2020/file/08fb104b0f2f838f3ce2d2b3741a12c2-Paper.pdf" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/sagd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2020</p><h4>Towards Better Generalization of Adaptive Gradient Methods</h4></div></a>
+      <a class="trophy-card" href="https://arxiv.org/abs/1902.00629" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/nonas.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">COLT · 2019</p><h4>Non-asymptotic Analysis of Biased Stochastic Approximation</h4></div></a>
+      <a class="trophy-card" href="https://openreview.net/pdf?id=CI-xXX9dg9l" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/compams.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ICLR · 2022</p><h4>Distributed Adaptive Optimization with Gradient Compression</h4></div></a>
+      <a class="trophy-card" href="https://tel.archives-ouvertes.fr/tel-02319140/document" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/phd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">PH.D. THESIS · 2019</p><h4>Nonconvex Optimization for Latent Data Models</h4></div></a>
+      <a class="trophy-card" href="/assets/downloads/misso.pdf" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/misso.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ALT · 2022</p><h4>Minimization by Incremental Stochastic Surrogate</h4></div></a>
+      <a class="trophy-card" href="https://openreview.net/pdf?id=Q06wKxnHRv" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/layerwise.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">UAI · 2023</p><h4>Layer-wise &amp; Dimension-wise Locally Adaptive FL</h4></div></a>
     </div>
   </div>
 </section>
@@ -851,9 +852,9 @@
   (function initDrag(){
     var track = document.getElementById('trophyTrack');
     if (!track) return;
-    var isDown = false, startX, scrollLeft;
+    var isDown = false, dragged = false, startX, scrollLeft, snapTimer;
     track.addEventListener('mousedown', function(e){
-      isDown = true; track.classList.add('grabbing');
+      isDown = true; dragged = false; track.classList.add('grabbing');
       startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft;
     });
     ['mouseleave','mouseup'].forEach(function(evt){
@@ -863,8 +864,27 @@
       if (!isDown) return;
       e.preventDefault();
       var x = e.pageX - track.offsetLeft;
+      if (Math.abs(x - startX) > 5) dragged = true;
       track.scrollLeft = scrollLeft - (x - startX) * 1.4;
     });
+    /* a drag that ends on a card must not open its paper */
+    track.addEventListener('click', function(e){
+      if (dragged) { e.preventDefault(); dragged = false; }
+    }, true);
+    /* mouse wheel scrolls the shelf sideways; hand back to the page at either end */
+    track.addEventListener('wheel', function(e){
+      if (e.ctrlKey || Math.abs(e.deltaX) >= Math.abs(e.deltaY)) return;
+      var max = track.scrollWidth - track.clientWidth;
+      if (max <= 0) return;
+      var delta = e.deltaY * (e.deltaMode === 1 ? 40 : e.deltaMode === 2 ? track.clientWidth : 1);
+      if ((delta < 0 && track.scrollLeft <= 0) || (delta > 0 && track.scrollLeft >= max - 1)) return;
+      e.preventDefault();
+      /* snapping would pull small wheel steps back to the same card */
+      track.style.scrollSnapType = 'none';
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(function(){ track.style.scrollSnapType = ''; }, 200);
+      track.scrollLeft += delta;
+    }, { passive: false });
   })();
 
   /* ---------- reveal on scroll ---------- */
