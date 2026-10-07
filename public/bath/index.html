@@ -310,7 +310,7 @@
           <div class="grp"><button id="v3walls" title="Walls between you and the room fade out; or cut all walls at 3'-6&quot;; or keep them solid">Walls: cutaway</button><button id="v3ceil" title="Sloped ceiling: fades when seen from outside / always solid / hidden">Ceiling: auto</button></div>
           <div class="grp"><button id="v3door" title="Open or close the door (or click the door itself)">Close door</button><button id="v3head" class="on" title="Shade the floor where the ceiling is under 6'-4&quot;">Headroom</button><button id="v3lbl" class="on" title="Fixture tags and ceiling heights">Labels</button></div>
         </div>
-        <div class="v3hint">Drag to orbit · right-drag to pan · scroll to zoom · click the door to open or close it</div>
+        <div class="v3hint">Drag to orbit · right-drag to pan · scroll to zoom · click the door or the shower glass to open or close it</div>
         <div class="v3msg" id="v3msg">Loading 3D…</div>
       </div>
     </div>
@@ -381,6 +381,43 @@ function showerHeadSpot(f) {
 // A pedestal sink stands on its column; a wall-hung one is fixed to the wall with nothing under it.
 const SINK_MOUNTS = { pedestal:['Pedestal (column to the floor)','PEDESTAL SINK'], wall:['Floating (wall-hung, nothing under it)','WALL-HUNG SINK'] };
 const SHOWER_SIDES = { auto:'Walls it touches (auto)', three:'3 walls: back + left + right', 'back-left':'2 walls: back + left', 'back-right':'2 walls: back + right', back:'Back wall only' };
+const SHOWER_TILED = { three:['back','left','right'], 'back-left':['back','left'], 'back-right':['back','right'], back:['back'] };
+// Shower-local (X across, centred; Z from the back -d/2 to the front +d/2) to plan coordinates,
+// the same frame the 3D builders use.
+function fxToPlan(f) {
+  const b = fxBox(f), cx = b.x + b.w/2, cy = b.y + b.h/2, th = -f.rot * Math.PI / 180, co = Math.cos(th), si = Math.sin(th);
+  return (x, z) => ({ x: cx + x*co + z*si, y: cy - x*si + z*co });
+}
+// An open (glass) front on the shower is a hinged glass door that swings out of the shower.
+// It hinges on the side that has a wall or tile next to it; real door panels run 24"-28", so
+// the door is at most 28" and a fixed glass panel fills the rest of the front.
+// Shower-local coordinates; null when the front is tiled or against a room wall.
+function showerDoorSpec(f, poly) {
+  const toPlan = fxToPlan(f), inside = (x, z) => { const p = toPlan(x, z); return pointInPoly(p.x, p.y, poly); };
+  const tiled = SHOWER_TILED[state.finish.shower.sides];
+  const shut = (k, x, z) => !inside(x, z) || (tiled ? tiled.includes(k) : false);
+  const w = f.w, d = f.d;
+  if (shut('front', 0, d/2 + 2)) return null;
+  const hx = shut('left', -w/2 - 2, 0) && !shut('right', w/2 + 2, 0) ? -w/2 + 0.5 : w/2 - 0.5;
+  return { hinge: { x: hx, z: d/2 }, along: { x: -Math.sign(hx), z: 0 }, out: { x: 0, z: 1 }, r: Math.min(28, w - 1), toPlan };
+}
+// Does the open shower door's sweep (a quarter circle outside the shower) hit the toilet?
+// Sampled on a 1/4" grid over the toilet's footprint; gap is how far the nearest bit of the
+// toilet is from the door's arc when it does not hit.
+function showerDoorVsToilet(shower, toilet, poly) {
+  const s = showerDoorSpec(shower, poly); if (!s) return null;
+  const h = s.toPlan(s.hinge.x, s.hinge.z), a = s.toPlan(s.hinge.x + s.along.x, s.hinge.z + s.along.z), o = s.toPlan(s.hinge.x + s.out.x, s.hinge.z + s.out.z);
+  const ua = { x: a.x - h.x, y: a.y - h.y }, uo = { x: o.x - h.x, y: o.y - h.y };
+  const tb = fxBox(toilet); let gap = Infinity, hit = false;
+  for (let x = tb.x; x <= tb.x + tb.w + 1e-9; x += 0.25) for (let y = tb.y; y <= tb.y + tb.h + 1e-9; y += 0.25) {
+    const dx = x - h.x, dy = y - h.y, pa = dx*ua.x + dy*ua.y, po = dx*uo.x + dy*uo.y;
+    if (po < 0) continue; // behind the shower front: the door never goes there
+    // distance from the swept quarter disc (between the closed and the 90 degree open position)
+    const dist = pa >= 0 ? Math.max(0, Math.hypot(pa, po) - s.r) : Math.hypot(Math.max(0, -pa), Math.max(0, po - s.r));
+    if (dist <= 0) hit = true; gap = Math.min(gap, dist);
+  }
+  return { hit, gap, r: s.r, hinge: h, ua, uo };
+}
 function colorName(mat, hex) { const s = swatchesFor(mat).find(([, c]) => c.toLowerCase() === String(hex).toLowerCase()); return s ? s[0] : String(hex).toUpperCase(); }
 const STORE = 'bathroom-blueprint-v1';
 let state = load();
@@ -1289,6 +1326,14 @@ function fixtureSVG(f, index) {
       <line x1="2" y1="${d-2}" x2="${dr.x-2}" y2="${dr.y+2}"/><line x1="${w-2}" y1="${d-2}" x2="${dr.x+2}" y2="${dr.y+2}"/>
       <circle cx="${dr.x}" cy="${dr.y}" r="2"/>
       <circle cx="${showerHeadSpot(f).p.x}" cy="${showerHeadSpot(f).p.y}" r="1" fill="#000"/>`; // shower head / valve mark
+    const sd = showerDoorSpec(f, polygon());
+    if (sd) { // glass door shown open 90 degrees out of the shower, with its swing arc
+      const hx = sd.hinge.x + w/2, hy = d, ex = hx + sd.along.x * sd.r, sweep = sd.along.x > 0 ? 1 : 0, fe = sd.along.x > 0 ? w - 0.5 : 0.5;
+      if (Math.abs(fe - ex) > 1) body += `<line x1="${r3(ex)}" y1="${hy}" x2="${r3(fe)}" y2="${hy}" stroke-width="${sw*2}" pointer-events="none"/>`; // fixed glass panel
+      // drawn only: the swing must not become a grab area for the shower over whatever it overlaps (.fx catches pointers everywhere)
+      body += `<g pointer-events="none"><line x1="${r3(hx)}" y1="${hy}" x2="${r3(hx)}" y2="${r3(hy + sd.r)}" stroke-width="${sw*2}"/>
+        <path d="M ${r3(ex)} ${hy} A ${r3(sd.r)} ${r3(sd.r)} 0 0 ${sweep} ${r3(hx)} ${r3(hy + sd.r)}" fill="none" stroke-dasharray="1.5 1"/></g>`;
+    }
   } else if (f.id === 'stairs') {
     body = `<rect x="0" y="0" width="${w}" height="${d}"/>`;
   } else if (f.id === 'towel') { // mounted above the floor, so drawn dashed like anything overhead; ticks are the rails
@@ -1603,6 +1648,10 @@ function codeReport(active, poly, bb, area) {
       add('Shower', 'Shower: 6\'-4" headroom over 24" x 30" inside the shower', best >= 76, bestR ? `Best 24" x 30" area inside the pan has a lowest ceiling of ${fmtIn(best)}.` : 'The pan is too small to hold a 24" x 30" area.', bestR || sb);
       headroom(shower, 30, 24, 'Shower', 'Shower: 6\'-4" headroom over 24" x 30" in front of the entry');
     }
+    const sd = toilet && showerDoorVsToilet(shower, toilet, poly);
+    if (sd) add('Shower', 'Shower: glass door swings open clear of the toilet', !sd.hit,
+      sd.hit ? `The ${fmtIn(sd.r)} glass door hits the toilet as it swings out.` : `The ${fmtIn(sd.r)} glass door swings out with ${fmtIn(sd.gap)} to spare before the toilet.`,
+      sd.hit ? fxBox(toilet) : undefined);
   } else add('Shower', 'Shower not placed', true, 'No shower on the plan; shower rules skipped.');
   if (ceil) {
     let tot=0, ok=0; for (let x=bb.minX+0.5; x<bb.maxX; x+=1) for (let y=bb.minY+0.5; y<bb.maxY; y+=1) if (pointInPoly(x, y, poly)) { tot++; if (ceilH(ceilDist(x, y, bb)) >= 80) ok++; }
@@ -2026,6 +2075,7 @@ function floorShapeGeo(pts, y) { const g = new THREE.ShapeGeometry(new THREE.Sha
 const roomG = new THREE.Group(), fxG = new THREE.Group(); scene.add(roomG, fxG);
 let walls = [], ceilMesh = null, ceilExtras = [], headMesh = null, doorRig = null, doorPick = [];
 let doorOpen = 1, doorTarget = 1;
+let showerRig = null, showerPick = [], showerOpen = 0, showerTarget = 0; // the shower's glass door starts closed
 function disposeTree(g) {
   for (const c of [...g.children]) { g.remove(c);
     c.traverse(o => { if (o.geometry) o.geometry.dispose();
@@ -2282,7 +2332,8 @@ function buildVanity(f, ctx) {
   return { g, top };
 }
 function buildShower(f, ctx) { // f.head picks the wall and spot for the head
-  const g = new THREE.Group(), w = f.w, d = f.d;
+  const g = new THREE.Group(), w = f.w, d = f.d, door = showerDoorSpec(f, POLY);
+  showerRig = null; showerPick = [];
   const rim = rrect(w - 0.8, d - 0.8, 1.2), well = new THREE.Path(); rrect(w - 5, d - 5, 0.8, 0, 0, well); rim.holes.push(well);
   g.add(mk(deck(rim, 4, 0), M.ceramic));
   g.add(mk(new THREE.BoxGeometry(w - 4.4, 1.6, d - 4.4), M.ceramic, 0, 0.8, 0));
@@ -2298,7 +2349,7 @@ function buildShower(f, ctx) { // f.head picks the wall and spot for the head
     const len = Math.hypot(sd.b[0] - sd.a[0], sd.b[1] - sd.a[1]), dir = [(sd.b[0] - sd.a[0]) / len, (sd.b[1] - sd.a[1]) / len];
     const mid = [(sd.a[0] + sd.b[0]) / 2, (sd.a[1] + sd.b[1]) / 2];
     sd.wall = !ctx.inside(mid[0] + sd.out[0] * 2, mid[1] + sd.out[1] * 2);
-    const pickSides = { three: ['back', 'left', 'right'], 'back-left': ['back', 'left'], 'back-right': ['back', 'right'], back: ['back'] }[state.finish.shower.sides];
+    const pickSides = SHOWER_TILED[state.finish.shower.sides];
     sd.tile = pickSides ? pickSides.includes(sd.k) : sd.wall;
     const at = s => [sd.a[0] + dir[0] * s - sd.out[0], sd.a[1] + dir[1] * s - sd.out[1]];
     const clg = s => ctx.ceil(...at(s));
@@ -2313,12 +2364,24 @@ function buildShower(f, ctx) { // f.head picks the wall and spot for the head
     } else if (!sd.wall) { // open side: glass (a plain room wall is left as painted wall)
       let mc = Infinity; for (let k = 0; k <= 8; k++) mc = Math.min(mc, clg(len * k / 8));
       const H = Math.min(72, mc - 6) - 4;
-      if (H > 10) {
+      if (H > 10 && sd.k === 'front' && door) { // hinged glass door: the frame's local X runs right to left, +Z into the shower
+        const hx = sd.a[0] - door.hinge.x, dir = Math.sign(-door.along.x) || 1, lw = door.r - 0.5; // door extends along +dir local X
+        const pivot = new THREE.Group(); pivot.position.set(hx, 0, 1); fr.add(pivot);
+        const gl = mk(new THREE.BoxGeometry(lw, H, 0.375), M.glass, dir * lw / 2, 4.3 + H / 2, 0); gl.castShadow = false; pivot.add(gl);
+        for (const y of [4.3 + H * 0.15, 4.3 + H * 0.85]) pivot.add(mk(new THREE.BoxGeometry(2.2, 3, 0.9), M.chrome, dir * 1.6, y, 0)); // hinges
+        for (const z of [-1.4, 1.4]) pivot.add(mk(new THREE.CylinderGeometry(0.35, 0.35, 14, 12), M.chrome, dir * (lw - 3), 40, z)); // pull, both faces
+        fr.add(mk(new THREE.BoxGeometry(len - 1, 0.4, 0.9), M.chrome, len / 2, 4.2, 1)); // threshold under it
+        const fs = hx + dir * (door.r + 0.25), fe = dir > 0 ? len - 0.5 : 0.5; // fixed panel beside it, out to the far end
+        if (Math.abs(fe - fs) > 1) { const fp = mk(new THREE.BoxGeometry(Math.abs(fe - fs), H, 0.375), M.glass, (fs + fe) / 2, 4.3 + H / 2, 1); fp.castShadow = false; fr.add(fp);
+          fr.add(mk(new THREE.BoxGeometry(Math.abs(fe - fs), 0.8, 0.9), M.chrome, (fs + fe) / 2, 4.6, 1)); }
+        showerPick = [gl];
+        showerRig = { apply: k => { pivot.rotation.y = dir * k * Math.PI / 2; } }; // positive dir swings toward -Z, out of the shower
+        showerRig.apply(showerOpen);
+        top = Math.max(top, 4 + H);
+      } else if (H > 10) {
         const gl = mk(new THREE.BoxGeometry(len - 1, H, 0.375), M.glass, len / 2, 4 + H / 2, 1); gl.castShadow = false; fr.add(gl);
         fr.add(mk(new THREE.BoxGeometry(len - 1, 0.8, 0.9), M.chrome, len / 2, 4.4, 1));
         fr.add(mk(new THREE.BoxGeometry(len - 1, 0.6, 0.7), M.chrome, len / 2, 4 + H, 1));
-        if (sd.k === 'front') { fr.add(mk(new THREE.CylinderGeometry(0.35, 0.35, 14, 12), M.chrome, len * 0.3, 40, -0.4));
-          fr.add(mk(new THREE.CylinderGeometry(0.35, 0.35, 14, 12), M.chrome, len * 0.3, 40, 2.4)); }
         top = Math.max(top, 4 + H);
       }
     }
@@ -2391,7 +2454,7 @@ function update() {
       const b = buildFixture(f, i); e.wrap.add(b.g); e.key = key; e.top = b.top; }
     const { cx, cy, th } = fxFrame(f); e.wrap.position.set(cx, 0, cy); e.wrap.rotation.y = th;
   });
-  for (const [id, e] of fxObjs) if (!seen.has(id)) { disposeTree(e.wrap); fxG.remove(e.wrap); fxObjs.delete(id); }
+  for (const [id, e] of fxObjs) if (!seen.has(id)) { disposeTree(e.wrap); fxG.remove(e.wrap); fxObjs.delete(id); if (id === 'shower') { showerRig = null; showerPick = []; } }
   applyToggles();
   if (!framed) { framed = true; setView('iso', true); }
 }
@@ -2446,23 +2509,27 @@ q('#v3lbl').onclick = () => { pref.labels = !pref.labels; savePref(); applyToggl
 q('#v3head').onclick = () => { pref.head = !pref.head; savePref(); applyToggles(); };
 q('#v3door').onclick = () => { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); };
 
-// ---------- picking the door ----------
-// Fixtures are view-only in 3D: move them on the plan or in the side panel. The only thing
-// you can click here is the door (fixtures are still cast against so they block the click).
+// ---------- picking the doors ----------
+// Fixtures are view-only in 3D: move them on the plan or in the side panel. The only things
+// you can click here are the room door and the shower's glass door (other fixtures are still
+// cast against so they block the click).
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 function castAt(e) {
   const r = renderer.domElement.getBoundingClientRect();
   ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   ray.setFromCamera(ndc, camera);
 }
-function pickDoor(e) {
+function pickDoor(e) { // 'room', 'shower' or null
   castAt(e);
   const hits = ray.intersectObjects([...fxG.children, ...doorPick], true).filter(h => h.object.visible && h.object.isMesh);
-  return hits.length > 0 && doorPick.includes(hits[0].object);
+  if (!hits.length) return null;
+  return doorPick.includes(hits[0].object) ? 'room' : showerPick.includes(hits[0].object) ? 'shower' : null;
 }
 host.addEventListener('pointerdown', e => { // capture phase: runs before OrbitControls sees the press
   if (e.button !== 0 || e.target !== renderer.domElement) return;
-  if (pickDoor(e)) { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); }
+  const which = pickDoor(e);
+  if (which === 'room') { doorTarget = doorTarget > 0.5 ? 0 : 1; applyToggles(); }
+  else if (which === 'shower') showerTarget = showerTarget > 0.5 ? 0 : 1;
 }, true);
 renderer.domElement.addEventListener('pointermove', e => {
   if (e.buttons) return;
@@ -2488,6 +2555,7 @@ function loop(now) {
     camera.position.lerpVectors(tween.p0, tween.p1, e); controls.target.lerpVectors(tween.t0, tween.t1, e); if (k >= 1) tween = null; }
   controls.update();
   if (doorRig && Math.abs(doorOpen - doorTarget) > 1e-3) { doorOpen += (doorTarget - doorOpen) * k; doorRig.apply(doorOpen); }
+  if (showerRig && Math.abs(showerOpen - showerTarget) > 1e-3) { showerOpen += (showerTarget - showerOpen) * k; showerRig.apply(showerOpen); }
   // Walls between the camera and the room fade out, dollhouse style; none do once you are inside.
   const cam = camera.position, inside = POLY.length > 2 && pointInPoly(cam.x, cam.z, POLY) && cam.y < topAt(cam.x, cam.z);
   tmp.subVectors(cam, controls.target).normalize(); const elev = tmp.y, horiz = Math.sqrt(Math.max(0, 1 - elev * elev));
