@@ -1,6 +1,6 @@
 {
   "index.html": {
-    "file": "assets/main-Doq7qwml.js",
+    "file": "assets/main-DjRPxoRV.js",
     "name": "main",
     "src": "index.html",
     "isEntry": true,
@@ -9,7 +9,7 @@
     ]
   },
   "src/basketball.js": {
-    "file": "assets/courtside-ufxOeUJB.js",
+    "file": "assets/courtside-DUH0H9-9.js",
     "name": "courtside",
     "src": "src/basketball.js",
     "isEntry": true,
@@ -18,7 +18,7 @@
     ]
   },
   "src/lib/basketballCourt.js": {
-    "file": "assets/basketballCourt-jc1V3F4m.js",
+    "file": "assets/basketballCourt-FFdLAM48.js",
     "name": "basketballCourt",
     "src": "src/lib/basketballCourt.js",
     "isDynamicEntry": true

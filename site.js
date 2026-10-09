@@ -2,7 +2,7 @@
   "use strict";
   var courtScript = document.createElement('script');
   courtScript.type = 'module';
-  courtScript.src = '/assets/courtside-ufxOeUJB.js';
+  courtScript.src = '/assets/courtside-DUH0H9-9.js';
   document.head.appendChild(courtScript);
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
