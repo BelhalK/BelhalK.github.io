@@ -2,7 +2,19 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-export function createBasketballCourt(container, { paused, onReady, onScore, onError }) {
+const GAME_SECONDS = 30;
+const HOOP_SCALE = 1.35;
+const RIM_RADIUS = 0.3 * HOOP_SCALE;
+const RELEASE = 0.22;
+const FLIGHT = 0.55;
+// Hoop speed in world units per second; each make in a row adds 14%.
+const MODES = {
+    classic: { speed: 2.1, max: 6 },
+    fast: { speed: 3.6, max: 8 },
+    orbit: { speed: 3, max: 7 },
+};
+
+export function createBasketballCourt(container, { paused, mode = 'classic', onReady, onGame, onError }) {
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25));
     renderer.setClearColor(0x000000, 0);
@@ -88,6 +100,12 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
     landing.visible = false;
     scene.add(landing);
 
+    // An invisible lane catches shots: the hoop's row in sideways modes, the whole viewport in orbit.
+    const lane = document.createElement('div');
+    lane.className = 'courtside-lane';
+    lane.hidden = true;
+    container.appendChild(lane);
+
     const rigs = [];
     let disposed = false;
     let ready = false;
@@ -106,6 +124,7 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
     let lastHover = -10;
     let facing = 0;
     let lastScrollAt = -10;
+    let game = null;
     const visited = new WeakMap();
     const hand = new THREE.Vector3();
     const ballRest = new THREE.Vector3();
@@ -138,7 +157,9 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
     }
 
     function surfaces() {
-        return [...document.querySelectorAll(surfaceSelector)].flatMap((element) => {
+        // Look through the shooting lane so it doesn't hide every landing spot during a game.
+        lane.style.pointerEvents = 'none';
+        const found = [...document.querySelectorAll(surfaceSelector)].flatMap((element) => {
             if (element.closest('.courtside, [hidden]') || element.disabled || element.closest('.reveal:not(.in-view)')) return [];
             const rect = surfaceRect(element);
             if (rect.width < 28 || rect.height < 12 || rect.top < pixels * 2.8 || rect.top > height - 85 || rect.right < 35 || rect.left > width - 35) return [];
@@ -150,6 +171,8 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
             if (hit && !element.contains(hit) && !hit.contains(element)) return [];
             return [{ element, fraction }];
         });
+        lane.style.pointerEvents = '';
+        return found;
     }
 
     function chooseSurface(preferred) {
@@ -184,6 +207,7 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
         camera.bottom = 0;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height);
+        layoutLane();
         if (ready) {
             action = null;
             anchor = chooseSurface(anchor?.element);
@@ -193,8 +217,127 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
         draw(0);
     }
 
-    function shoot() {
-        if (ready && !paused && !document.hidden) pendingShot = true;
+    function layoutLane() {
+        if (!game) return;
+        const top = height / pixels;
+        // Keep the whole hoop (backboard above the rim, net below it) inside the viewport.
+        game.low = 0.3 + 0.6 * HOOP_SCALE;
+        game.high = top - 0.3 - 0.85 * HOOP_SCALE;
+        game.laneY = THREE.MathUtils.clamp(top * 0.6, game.low, game.high);
+        if (mode === 'orbit') {
+            lane.style.top = '0px';
+            lane.style.height = '100%';
+        } else {
+            const laneTop = game.laneY + 0.85 * HOOP_SCALE;
+            const laneBottom = game.laneY - 0.55 * HOOP_SCALE;
+            lane.style.top = `${height - laneTop * pixels}px`;
+            lane.style.height = `${(laneTop - laneBottom) * pixels}px`;
+        }
+    }
+
+    function report(over = false) {
+        const { score, made, attempts, streak, remaining } = game;
+        onGame({ score, made, attempts, streak, remaining: Math.max(0, Math.ceil(remaining)), playing: !over, over, mode });
+    }
+
+    function startGame() {
+        if (!ready || game) return;
+        game = { x: 0, dir: 1, angle: Math.PI, rim: new THREE.Vector3(), laneY: 0, low: 0, high: 0, score: 0, made: 0, attempts: 0, streak: 0, remaining: GAME_SECONDS, shownSecond: GAME_SECONDS, start: time };
+        game.x = -Math.max(1, width / pixels / 2 - 1.2);
+        layoutLane();
+        lane.hidden = false;
+        pendingShot = false;
+        hovered = null;
+        // The player stays where they are; only a decorative shot in progress makes way for the game hoop.
+        if (action?.kind === 'shot') action = null;
+        report();
+    }
+
+    function setMode(value) {
+        if (!MODES[value]) return;
+        mode = value;
+        layoutLane();
+        if (game) report();
+    }
+
+    function stopGame() {
+        if (!game) return;
+        report(true);
+        game = null;
+        lane.hidden = true;
+        hoop.visible = false;
+        if (action?.kind === 'gameShot') action = null;
+        nextMove = time + 1;
+        if (paused) draw(0);
+    }
+
+    function callout(text, made, at) {
+        const element = document.createElement('div');
+        element.className = `courtside-callout${made ? ' made' : ''}`;
+        element.textContent = text;
+        element.style.left = `${width / 2 + at.x * pixels}px`;
+        element.style.top = `${height - (at.y + 0.9 * HOOP_SCALE) * pixels}px`;
+        container.appendChild(element);
+        element.addEventListener('animationend', () => element.remove());
+        setTimeout(() => element.remove(), 1500);
+    }
+
+    // Shots are judged when the ball arrives, against where the hoop is then, so players must lead it.
+    function resolveShot(shot) {
+        const dx = shot.target.x - game.rim.x;
+        const dy = shot.target.y - game.rim.y;
+        shot.hit = Math.abs(dx) <= RIM_RADIUS + shot.tolerance && Math.abs(dy) <= 0.45 + shot.tolerance;
+        shot.swish = shot.hit && Math.abs(dx) <= RIM_RADIUS * 0.35 && Math.abs(dy) <= 0.25;
+        shot.side = Math.sign(dx) || 1;
+        game.attempts++;
+        if (shot.hit) {
+            const value = shot.swish ? 3 : 2;
+            game.score += value;
+            game.made++;
+            game.streak++;
+            callout(shot.swish ? `Swish +${value}` : `+${value}`, true, game.rim);
+        } else {
+            game.streak = 0;
+            callout('Miss', false, shot.target);
+        }
+        report();
+    }
+
+    function onLanePointer(event) {
+        if (!game || paused || game.remaining <= 0) return;
+        if (action && !(action.kind === 'gameShot' && action.resolved)) return;
+        event.preventDefault();
+        const bounds = container.getBoundingClientRect();
+        const x = (event.clientX - bounds.left - width / 2) / pixels;
+        const y = mode === 'orbit' ? (height - (event.clientY - bounds.top)) / pixels : game.laneY;
+        const tolerance = event.pointerType === 'touch' ? 0.15 : 0.06;
+        action = { kind: 'gameShot', start: time, target: new THREE.Vector3(x, y, 0), tolerance, release: null, resolved: false, hit: false, drop: null };
+        container.dataset.action = 'shooting';
+    }
+
+    function updateGame(delta) {
+        const { speed: base, max } = MODES[mode];
+        const speed = Math.min(base * (1 + game.streak * 0.14), max);
+        const rangeX = Math.max(1, width / pixels / 2 - 1.2);
+        if (mode === 'orbit') {
+            // An ellipse spanning the viewport, at a constant speed along its edge.
+            const rangeY = Math.max(0.5, (game.high - game.low) / 2);
+            game.angle += speed / ((rangeX + rangeY) / 2) * delta;
+            game.x = Math.cos(game.angle) * rangeX;
+            game.rim.set(game.x, (game.low + game.high) / 2 + Math.sin(game.angle) * rangeY, 0);
+        } else {
+            game.x += game.dir * speed * delta;
+            if (game.x > rangeX) { game.x = rangeX; game.dir = -1; }
+            if (game.x < -rangeX) { game.x = -rangeX; game.dir = 1; }
+            game.rim.set(game.x, game.laneY, 0);
+        }
+        hoop.visible = true;
+        hoop.position.copy(game.rim).add(new THREE.Vector3(0, -2.3 * HOOP_SCALE, 0));
+        hoop.scale.setScalar(HOOP_SCALE * smooth((time - game.start) / 0.3));
+        game.remaining -= delta;
+        const second = Math.max(0, Math.ceil(game.remaining));
+        if (second !== game.shownSecond) { game.shownSecond = second; report(); }
+        if (game.remaining <= 0 && action?.kind !== 'gameShot') stopGame();
     }
 
     function startHop(destination) {
@@ -228,19 +371,24 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
         const landingAge = time - landTime;
         const impact = landingAge < 0.45 ? Math.sin(landingAge / 0.45 * Math.PI) * 0.6 * Math.exp(-landingAge * 3) : 0;
         crouch += impact;
-        hoop.visible = action?.kind === 'shot';
+        hoop.visible = action?.kind === 'shot' || Boolean(game);
         sparks.visible = false;
         landing.visible = false;
         shadow.visible = true;
 
         if (!action) {
             player.position.copy(base);
-            if (!paused && pendingShot) {
+            if (paused) {
+                // Hold still during a timeout.
+            } else if (game) {
+                // Game mode holds position unless scrolling carries the player out of view.
+                if (base.y < 0 || base.y > height / pixels - 1.9) startHop(chooseSurface());
+            } else if (pendingShot) {
                 const destination = chooseSurface(hovered);
-                action = { kind: 'shot', start: time, to: destination, release: null, scored: false };
+                action = { kind: 'shot', start: time, to: destination, release: null };
                 pendingShot = false;
                 container.dataset.action = 'shooting';
-            } else if (!paused && (time > nextMove || base.y < 1 || base.y > height / pixels - 1.9)) {
+            } else if (time > nextMove || base.y < 1 || base.y > height / pixels - 1.9) {
                 startHop(chooseSurface(hovered));
             }
         }
@@ -283,7 +431,7 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
                 landTime = time;
                 hops++;
                 nextMove = time + 2.2 + (hops % 3) * 0.45;
-                pendingShot = hops % 4 === 0;
+                pendingShot = !game && hops % 4 === 0;
                 action = null;
                 container.dataset.action = 'landing';
             }
@@ -300,6 +448,15 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
             player.position.y += jump;
             shotPose = smooth((t - 0.2) / 0.45) * (1 - smooth((t - 1.2) / 0.45));
             carrying = true;
+        } else if (action?.kind === 'gameShot') {
+            const t = time - action.start;
+            facing = Math.sign(action.target.x - base.x) * 0.45;
+            crouch = t < 0.18 ? Math.sin(t / 0.18 * Math.PI) * 0.55 : impact;
+            jump = t > 0.12 && t < 0.62 ? Math.sin((t - 0.12) / 0.5 * Math.PI) * 0.4 : 0;
+            player.position.copy(base);
+            player.position.y += jump;
+            shotPose = smooth((t - 0.04) / 0.18) * (1 - smooth((t - 0.6) / 0.3));
+            carrying = true;
         } else {
             facing *= Math.exp(-delta * 2);
             if (landingAge > 0.5) container.dataset.action = 'dribbling';
@@ -313,6 +470,7 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
             }
         }
 
+        if (game) updateGame(delta);
         player.rotation.y = THREE.MathUtils.damp(player.rotation.y, facing, 9, delta);
         player.rotation.z = lean;
         rigs.forEach(({ root, arms, elbows, legs, knees }) => {
@@ -349,7 +507,6 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
                 ball.position.y += Math.sin(p * Math.PI) * Math.max(0.7, action.release.distanceTo(target) * 0.22);
             } else if (t >= 1.75) {
                 const fall = t - 1.75;
-                if (!action.scored) { action.scored = true; onScore(); }
                 if (fall < 0.28) {
                     ball.position.copy(target);
                     ball.position.y -= fall * 2;
@@ -370,6 +527,46 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
                 action = null;
                 nextMove = time + 0.8;
                 hoop.visible = false;
+            }
+        }
+        if (action?.kind === 'gameShot' && game) {
+            const t = time - action.start;
+            if (t >= RELEASE && !action.release) action.release = hand.clone();
+            if (t >= RELEASE && t < RELEASE + FLIGHT) {
+                const p = (t - RELEASE) / FLIGHT;
+                ball.position.lerpVectors(action.release, action.target, p);
+                ball.position.y += Math.sin(p * Math.PI) * Math.max(0.9, action.release.distanceTo(action.target) * 0.18);
+            } else if (t >= RELEASE + FLIGHT) {
+                const fall = t - RELEASE - FLIGHT;
+                if (!action.resolved) { action.resolved = true; resolveShot(action); }
+                if (fall < 0.25) {
+                    const k = fall / 0.25;
+                    if (action.hit) {
+                        // Settle into the (still moving) rim and drop through the net.
+                        ball.position.lerpVectors(action.target, game.rim, smooth(k * 2));
+                        ball.position.y -= k * 0.56 * HOOP_SCALE;
+                    } else {
+                        // Clank off and fall away from the hoop.
+                        ball.position.copy(action.target);
+                        ball.position.x += action.side * k * 0.6;
+                        ball.position.y += Math.sin(k * Math.PI) * 0.3 - k * 0.8;
+                    }
+                } else {
+                    if (!action.drop) action.drop = ball.position.clone();
+                    const p = smooth((fall - 0.25) / 0.45);
+                    ball.position.lerpVectors(action.drop, hand, p);
+                    ball.position.y += Math.sin(p * Math.PI) * 0.8;
+                }
+                if (action.hit) {
+                    net.rotation.z = Math.sin(fall * 22) * Math.exp(-fall * 7) * 0.05;
+                    sparks.visible = fall < 0.6;
+                    sparkMaterial.opacity = Math.max(0, 1 - fall / 0.6);
+                    sparks.children.forEach((spark, index) => {
+                        const angle = index / 12 * Math.PI * 2;
+                        spark.position.copy(game.rim).add(new THREE.Vector3(Math.cos(angle) * fall * 1.4, Math.sin(angle) * fall * 1.4 - fall * fall, 0));
+                    });
+                }
+                if (fall > 0.7) action = null;
             }
         }
         if (action?.kind !== 'hop') {
@@ -400,7 +597,7 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
     }
 
     function onPointerOver(event) {
-        if (paused || time - lastHover < 1.5 || time - lastScrollAt < 0.5) return;
+        if (game || paused || time - lastHover < 1.5 || time - lastScrollAt < 0.5) return;
         const element = event.target.closest(surfaceSelector);
         if (!element || element.closest('.courtside') || element === anchor?.element) return;
         if (!surfaces().some((surface) => surface.element === element)) return;
@@ -426,6 +623,7 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
     document.addEventListener('visibilitychange', syncPlayback);
     window.addEventListener('scroll', onScroll, { passive: true });
     document.addEventListener('pointerover', onPointerOver, { passive: true });
+    lane.addEventListener('pointerdown', onLanePointer);
     const onContextLost = (event) => {
         event.preventDefault();
         ready = false;
@@ -539,7 +737,10 @@ export function createBasketballCourt(container, { paused, onReady, onScore, onE
         });
 
     return {
-        shoot,
+        startGame,
+        stopGame,
+        setMode,
+        get playing() { return Boolean(game); },
         setPaused(value) { paused = value; syncPlayback(); },
         dispose() {
             disposed = true;

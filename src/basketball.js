@@ -13,6 +13,7 @@ root.innerHTML = `
         <a class="courtside-number" href="/assets/kobe-bryant-license.txt" target="_blank" rel="noreferrer" aria-label="Kobe Bryant 3D model credit and license" title="3D model by uzumakiabi / CC BY 4.0">24</a>
         <button class="courtside-launch" aria-label="Show basketball companion">Courtside <span aria-hidden="true">&#9655;</span></button>
         <div class="courtside-label" hidden><span>Courtside</span><small></small></div>
+        <button class="courtside-mode" hidden></button>
         <button class="courtside-shoot" hidden>Shoot <span aria-hidden="true">&#8599;</span></button>
         <button class="courtside-icon courtside-pause" aria-label="Pause basketball animation" title="Timeout" hidden>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 5v14M16 5v14" /></svg>
@@ -26,6 +27,7 @@ document.body.appendChild(root);
 const stage = root.querySelector('.courtside-stage');
 const launch = root.querySelector('.courtside-launch');
 const label = root.querySelector('.courtside-label');
+const modeButton = root.querySelector('.courtside-mode');
 const shoot = root.querySelector('.courtside-shoot');
 const pause = root.querySelector('.courtside-pause');
 const hide = root.querySelector('.courtside-hide');
@@ -34,15 +36,33 @@ let court;
 let generation = 0;
 let visible = false;
 let paused = false;
-let points = 0;
+const MODES = { classic: 'Classic', fast: 'Fast', orbit: 'Orbit' };
+const MODE_HINTS = { classic: 'hoop slides sideways', fast: 'hoop slides sideways, faster', orbit: 'hoop circles the whole page' };
+let mode = 'classic';
+let best = {};
+let match = null;
 let status = 'loading';
 let dismissed = true;
 try {
     const stored = localStorage.getItem('courtside-hidden');
     dismissed = stored === null ? true : stored === 'true';
     paused = sessionStorage.getItem('courtside-paused') === 'true';
-    points = Number(sessionStorage.getItem('courtside-points')) || 0;
+    const storedMode = localStorage.getItem('courtside-mode');
+    if (MODES[storedMode]) mode = storedMode;
+    best = JSON.parse(localStorage.getItem('courtside-best') || '{}') || {};
+    if (typeof best !== 'object') best = {};
 } catch { /* Storage is optional. */ }
+
+const SHOOT_LABEL = 'Shoot <span aria-hidden="true">&#8599;</span>';
+const STOP_LABEL = 'Stop <span aria-hidden="true">&#9632;</span>';
+const pad = (value) => String(value).padStart(2, '0');
+
+function scoreline() {
+    if (match?.playing) return `${pad(match.score)} PTS · ${match.made}/${match.attempts} · 0:${pad(match.remaining)}`;
+    const record = best[mode] || 0;
+    if (match?.over && match.mode === mode) return `Final ${pad(match.score)} PTS · Best ${pad(record)}`;
+    return record ? `Best ${pad(record)} PTS / Page parkour` : 'Page parkour';
+}
 
 function update() {
     stage.hidden = !visible;
@@ -50,9 +70,17 @@ function update() {
     launch.hidden = visible;
     [label, hide].forEach((element) => { element.hidden = !visible; });
     shoot.hidden = !visible || status === 'error';
+    modeButton.hidden = shoot.hidden;
+    modeButton.disabled = status !== 'ready';
+    modeButton.textContent = MODES[mode];
+    modeButton.setAttribute('aria-label', `Game mode: ${MODES[mode]}, ${MODE_HINTS[mode]}. Click to change.`);
+    modeButton.title = `Mode: ${MODE_HINTS[mode]}`;
     pause.hidden = !visible || motion.matches || status === 'error';
-    shoot.disabled = status !== 'ready' || paused || motion.matches;
-    label.querySelector('small').textContent = status === 'error' ? 'Court unavailable' : status === 'loading' ? 'Warming up...' : motion.matches ? 'Motion off' : paused ? 'Timeout' : `${String(points).padStart(2, '0')} PTS / Page parkour`;
+    const playing = Boolean(match?.playing);
+    shoot.disabled = status !== 'ready' || (!playing && (paused || motion.matches));
+    shoot.innerHTML = playing ? STOP_LABEL : match?.over ? SHOOT_LABEL.replace('Shoot', 'Again') : SHOOT_LABEL;
+    shoot.setAttribute('aria-label', playing ? 'Stop shooting game' : 'Start shooting game: click where the moving hoop will be to shoot');
+    label.querySelector('small').textContent = status === 'error' ? 'Court unavailable' : status === 'loading' ? 'Warming up...' : motion.matches ? 'Motion off' : paused ? 'Timeout' : scoreline();
     pause.setAttribute('aria-label', paused ? 'Resume basketball animation' : 'Pause basketball animation');
     pause.title = paused ? 'Resume' : 'Timeout';
     pause.querySelector('path').setAttribute('d', paused ? 'm8 5 11 7-11 7Z' : 'M8 5v14M16 5v14');
@@ -68,10 +96,14 @@ async function showCourt() {
         if (current !== generation) return;
         court = createBasketballCourt(stage, {
             paused: paused || motion.matches,
+            mode,
             onReady() { status = 'ready'; update(); },
-            onScore() {
-                points += 2;
-                try { sessionStorage.setItem('courtside-points', String(points)); } catch { /* Optional score persistence. */ }
+            onGame(state) {
+                match = state;
+                if (state.over && state.score > (best[state.mode] || 0)) {
+                    best = { ...best, [state.mode]: state.score };
+                    try { localStorage.setItem('courtside-best', JSON.stringify(best)); } catch { /* Optional score persistence. */ }
+                }
                 update();
             },
             onError() { status = 'error'; update(); },
@@ -85,6 +117,7 @@ function hideCourt() {
     generation++;
     court?.dispose();
     court = null;
+    match = null;
     visible = false;
     update();
 }
@@ -99,7 +132,24 @@ hide.addEventListener('click', () => {
     try { localStorage.setItem('courtside-hidden', 'true'); } catch { /* Optional preference persistence. */ }
     launch.focus({ preventScroll: true });
 });
-shoot.addEventListener('click', () => court?.shoot());
+modeButton.addEventListener('click', () => {
+    const order = Object.keys(MODES);
+    mode = order[(order.indexOf(mode) + 1) % order.length];
+    // Switching mid-round restarts it so each mode's best score stays fair.
+    const restart = court?.playing;
+    if (restart) court.stopGame();
+    court?.setMode(mode);
+    if (restart) court.startGame();
+    try { localStorage.setItem('courtside-mode', mode); } catch { /* Optional preference persistence. */ }
+    update();
+});
+shoot.addEventListener('click', () => {
+    if (court?.playing) court.stopGame();
+    else court?.startGame();
+});
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && court?.playing) court.stopGame();
+});
 pause.addEventListener('click', () => {
     paused = !paused;
     court?.setPaused(paused || motion.matches);
