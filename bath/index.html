@@ -420,6 +420,7 @@ function showerDoorVsToilet(shower, toilet, poly) {
 }
 function colorName(mat, hex) { const s = swatchesFor(mat).find(([, c]) => c.toLowerCase() === String(hex).toLowerCase()); return s ? s[0] : String(hex).toUpperCase(); }
 const STORE = 'bathroom-blueprint-v1';
+let hadOwnSheet = false; try { hadOwnSheet = !!localStorage.getItem(STORE) || /[#&]s=/.test(location.hash); } catch(e) {} // before render() first saves
 let state = load();
 
 function ensureFixtures(s) { // older layouts get fixtures they predate (the stairs) and properties they predate (its colour)
@@ -763,6 +764,25 @@ const deep = o => JSON.parse(JSON.stringify(o));
 const uid = () => 'bp' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 function libRead() { try { const a = JSON.parse(localStorage.getItem(LIB)); return Array.isArray(a) ? a : []; } catch(e) { return []; } }
+
+// Shared blueprints: an "Export all" file committed to the repo as public/bath/projects.json is
+// published with the site, so every visitor sees it. Read-only here; ids are prefixed "sh:".
+let shared = [];
+function bpEntries(data) { // same shapes importLib accepts
+  return Array.isArray(data) ? data : Array.isArray(data.saved) ? data.saved
+       : data.state ? [data] : data.segments ? [{ name: (data.project && data.project.name) || 'Shared blueprint', state: data }] : [];
+}
+function bpFind(id) { return (String(id).startsWith('sh:') ? shared : libRead()).find(b => b.id === id); }
+async function loadShared() {
+  try {
+    const r = await fetch('/bath/projects.json', { cache: 'no-cache' }); if (!r.ok) return;
+    shared = bpEntries(await r.json()).map((raw, i) => ({ id: 'sh:' + i, name: String(raw.name || 'Shared blueprint'),
+      at: raw.at, state: normState(deep(raw.state || raw)) })).filter(b => b.state);
+  } catch(e) { return; }                    // missing file (served as index.html) or bad JSON: no shared list
+  renderLib();
+  // a visitor with nothing of their own on the sheet lands on the first shared blueprint
+  if (shared.length && !hadOwnSheet) openBlueprint(shared[0].id, true);
+}
 function libWrite(list) {
   try { localStorage.setItem(LIB, JSON.stringify(list)); return true; }
   catch(e) { alert('Could not save - this browser’s storage is full or blocked. Use Export all (.json) to keep what is already there.'); return false; }
@@ -798,13 +818,13 @@ function saveBlueprint() {
   }
   if (libWrite(list)) { renderLib(); toast(`Saved "${name}".`); }
 }
-function openBlueprint(id) {
-  const e = libRead().find(b => b.id === id); if (!e) return;
+function openBlueprint(id, quiet) {
+  const e = bpFind(id); if (!e) return;
   const s = normState(deep(e.state));
   if (!s) { alert('That saved blueprint is damaged - it has no walls in it.'); return; }
   pushHistory();                            // so Ctrl+Z gets you back to what was on the sheet
   state = s; currentId = id;
-  buildPanel(); render(); closeLib(); toast(`Opened "${e.name}".`);
+  buildPanel(); render(); closeLib(); if (!quiet) toast(`Opened "${e.name}".`);
 }
 function renameBlueprint(id) {
   const list = libRead(); const i = list.findIndex(b => b.id === id); if (i < 0) return;
@@ -823,7 +843,7 @@ function deleteBlueprint(id) {
 }
 const fileSafe = n => String(n).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'blueprint';
 function downloadBlueprint(id) {
-  const e = libRead().find(b => b.id === id); if (!e) return;
+  const e = bpFind(id); if (!e) return;
   download(`${fileSafe(e.name)}.blueprint.json`, new Blob([JSON.stringify(e, null, 2)], {type:'application/json'}));
 }
 function exportLib() {
@@ -853,15 +873,16 @@ function importLib(text) {
 }
 
 function renderLib() {
-  const list = libRead();
+  const list = shared.concat(libRead());
   $('#openLib').textContent = list.length ? `Saved (${list.length})` : 'Saved';
   const ul = $('#libList');
-  ul.innerHTML = list.map(b => `<li class="${b.id === currentId ? 'cur' : ''}" data-id="${esc(b.id)}">
-      <button class="nm" data-act="open" title="Open this blueprint"><b>${esc(b.name)}</b><span>${esc(bpSummary(b.state))} &middot; saved ${esc(bpWhen(b.at))}</span></button>
-      <button class="small" data-act="rename" title="Rename">Rename</button>
+  ul.innerHTML = list.map(b => { const sh = b.id.startsWith('sh:');
+    return `<li class="${b.id === currentId ? 'cur' : ''}" data-id="${esc(b.id)}">
+      <button class="nm" data-act="open" title="Open this blueprint"><b>${esc(b.name)}</b><span>${sh ? 'shared &middot; ' : ''}${esc(bpSummary(b.state))}${b.at ? ` &middot; saved ${esc(bpWhen(b.at))}` : ''}</span></button>
+      ${sh ? '' : '<button class="small" data-act="rename" title="Rename">Rename</button>'}
       <button class="small" data-act="json" title="Download this one as .json">JSON</button>
-      <button class="small" data-act="del" title="Delete">&#10005;</button>
-    </li>`).join('');
+      ${sh ? '' : '<button class="small" data-act="del" title="Delete">&#10005;</button>'}
+    </li>`; }).join('');
   ul.hidden = !list.length;
   $('#libEmpty').hidden = !!list.length;
 }
@@ -1835,6 +1856,7 @@ syncGridBtn();
 syncUnitBtn();
 render();
 renderLib();
+loadShared();
 setupSections();
 </script>
 <script type="importmap">
