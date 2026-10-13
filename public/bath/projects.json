@@ -1,0 +1,525 @@
+{
+  "kind": "bathroom-blueprints",
+  "v": 1,
+  "saved": [
+    {
+      "id": "bpmuhawhz91wmy",
+      "name": "angle-wallheater",
+      "at": 1790361317637,
+      "state": {
+        "project": {
+          "name": "KARIMI RESIDENCE",
+          "addr": "SECOND FLOOR BATHROOM",
+          "by": "OWNER"
+        },
+        "wallT": 4.5,
+        "segments": [
+          {
+            "dir": "R",
+            "len": 37.5,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "U",
+            "len": 34,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "R",
+            "len": 57,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "D",
+            "len": 71.5,
+            "ex": true,
+            "grp": "R"
+          },
+          {
+            "dir": "L",
+            "len": 94.5,
+            "ex": false,
+            "grp": "B"
+          },
+          {
+            "dir": "U",
+            "len": 37.5,
+            "ex": false,
+            "grp": "L"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "sink",
+            "tag": "P-1",
+            "name": "WALL-HUNG SINK",
+            "on": true,
+            "w": 22,
+            "d": 18,
+            "x": 41.5,
+            "y": -33,
+            "rot": 0,
+            "mount": "wall"
+          },
+          {
+            "id": "toilet",
+            "tag": "P-2",
+            "name": "TOILET",
+            "on": true,
+            "w": 20,
+            "d": 28,
+            "x": 64.5,
+            "y": 8.5,
+            "rot": 90
+          },
+          {
+            "id": "shower",
+            "tag": "P-3",
+            "name": "SHOWER BASE",
+            "on": true,
+            "w": 36,
+            "d": 36,
+            "x": 1,
+            "y": 0.5,
+            "rot": 270,
+            "head": {
+              "side": "right",
+              "pos": 50,
+              "h": 80
+            }
+          },
+          {
+            "id": "other",
+            "tag": "P-4",
+            "name": "VANITY",
+            "on": false,
+            "w": 30,
+            "d": 21,
+            "x": -1,
+            "y": 0.5,
+            "rot": 0
+          },
+          {
+            "id": "stairs",
+            "tag": "S-1",
+            "name": "STAIRS",
+            "on": true,
+            "w": 36,
+            "d": 60,
+            "x": -2.5,
+            "y": -60,
+            "rot": 0,
+            "color": "#dbeafe"
+          },
+          {
+            "id": "towel",
+            "tag": "P-5",
+            "name": "TOWEL WARMER",
+            "on": true,
+            "w": 20,
+            "d": 4,
+            "x": 67.5,
+            "y": -33.5,
+            "rot": 0,
+            "h": 32,
+            "elev": 26
+          }
+        ],
+        "door": {
+          "on": true,
+          "seg": 4,
+          "off": 26,
+          "w": 28,
+          "swing": "out",
+          "hinge": "end",
+          "panel": "smoke"
+        },
+        "ceiling": {
+          "on": true,
+          "side": "R",
+          "flat": 96,
+          "pts": [
+            {
+              "d": 0,
+              "h": 52
+            },
+            {
+              "d": 12,
+              "h": 69
+            },
+            {
+              "d": 36,
+              "h": 81
+            },
+            {
+              "d": 62,
+              "h": 96
+            }
+          ]
+        },
+        "notes": [
+          "MAX SMALL WIDTH: 68in",
+          "MAX BIG WIDTH: 104in",
+          ""
+        ],
+        "chase": {
+          "on": true,
+          "x": 105.5,
+          "y": 9.5,
+          "size": 6
+        },
+        "finish": {
+          "floor": {
+            "mat": "lvp",
+            "color": "#5a3a24",
+            "grout": "grey"
+          },
+          "shower": {
+            "mat": "subway",
+            "color": "#9fae99",
+            "grout": "light",
+            "sides": "auto"
+          }
+        }
+      }
+    },
+    {
+      "id": "bpmuh99rel9mgf",
+      "name": "angle-2",
+      "at": 1790358577149,
+      "state": {
+        "project": {
+          "name": "KARIMI RESIDENCE",
+          "addr": "SECOND FLOOR BATHROOM",
+          "by": "OWNER"
+        },
+        "wallT": 4.5,
+        "segments": [
+          {
+            "dir": "R",
+            "len": 37.5,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "U",
+            "len": 34,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "R",
+            "len": 57,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "D",
+            "len": 71.5,
+            "ex": true,
+            "grp": "R"
+          },
+          {
+            "dir": "L",
+            "len": 94.5,
+            "ex": false,
+            "grp": "B"
+          },
+          {
+            "dir": "U",
+            "len": 37.5,
+            "ex": false,
+            "grp": "L"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "sink",
+            "tag": "P-1",
+            "name": "WALL-HUNG SINK",
+            "on": true,
+            "w": 22,
+            "d": 18,
+            "x": 41.5,
+            "y": -33,
+            "rot": 0,
+            "mount": "wall"
+          },
+          {
+            "id": "toilet",
+            "tag": "P-2",
+            "name": "TOILET",
+            "on": true,
+            "w": 20,
+            "d": 28,
+            "x": 64.5,
+            "y": 8.5,
+            "rot": 90
+          },
+          {
+            "id": "shower",
+            "tag": "P-3",
+            "name": "SHOWER BASE",
+            "on": true,
+            "w": 36,
+            "d": 36,
+            "x": 1,
+            "y": 0.5,
+            "rot": 270,
+            "head": {
+              "side": "right",
+              "pos": 50,
+              "h": 80
+            }
+          },
+          {
+            "id": "other",
+            "tag": "P-4",
+            "name": "VANITY",
+            "on": false,
+            "w": 30,
+            "d": 21,
+            "x": -1,
+            "y": 0.5,
+            "rot": 0
+          },
+          {
+            "id": "stairs",
+            "tag": "S-1",
+            "name": "STAIRS",
+            "on": true,
+            "w": 36,
+            "d": 60,
+            "x": -2.5,
+            "y": -60,
+            "rot": 0,
+            "color": "#dbeafe"
+          },
+          {
+            "id": "towel",
+            "tag": "P-5",
+            "name": "TOWEL WARMER",
+            "on": true,
+            "w": 20,
+            "d": 4,
+            "x": 71.5,
+            "y": -33.5,
+            "rot": 0,
+            "h": 32,
+            "elev": 36
+          }
+        ],
+        "door": {
+          "on": true,
+          "seg": 4,
+          "off": 26,
+          "w": 28,
+          "swing": "out",
+          "hinge": "end",
+          "panel": "smoke"
+        },
+        "ceiling": {
+          "on": true,
+          "side": "R",
+          "flat": 96,
+          "pts": [
+            {
+              "d": 0,
+              "h": 52
+            },
+            {
+              "d": 12,
+              "h": 69
+            },
+            {
+              "d": 36,
+              "h": 81
+            },
+            {
+              "d": 62,
+              "h": 96
+            }
+          ]
+        },
+        "notes": [
+          "MAX SMALL WIDTH: 68in",
+          "MAX BIG WIDTH: 104in",
+          ""
+        ],
+        "chase": {
+          "on": true,
+          "x": 105.5,
+          "y": 9.5,
+          "size": 6
+        },
+        "finish": {
+          "floor": {
+            "mat": "lvp",
+            "color": "#5a3a24",
+            "grout": "grey"
+          },
+          "shower": {
+            "mat": "subway",
+            "color": "#9fae99",
+            "grout": "light",
+            "sides": "auto"
+          }
+        }
+      }
+    },
+    {
+      "id": "bpmu9dww90d1c1",
+      "name": "angle-3",
+      "at": 1789936759039,
+      "state": {
+        "project": {
+          "name": "KARIMI RESIDENCE",
+          "addr": "SECOND FLOOR BATHROOM",
+          "by": "OWNER"
+        },
+        "wallT": 4.5,
+        "segments": [
+          {
+            "dir": "R",
+            "len": 37.5,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "U",
+            "len": 34,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "R",
+            "len": 57.5,
+            "ex": false,
+            "grp": "T"
+          },
+          {
+            "dir": "D",
+            "len": 71.5,
+            "ex": true,
+            "grp": "R"
+          },
+          {
+            "dir": "L",
+            "len": 95,
+            "ex": false,
+            "grp": "B"
+          },
+          {
+            "dir": "U",
+            "len": 37.5,
+            "ex": false,
+            "grp": "L"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "sink",
+            "tag": "P-1",
+            "name": "PEDESTAL SINK",
+            "on": true,
+            "w": 22,
+            "d": 18,
+            "x": 41.5,
+            "y": -33,
+            "rot": 0
+          },
+          {
+            "id": "toilet",
+            "tag": "P-2",
+            "name": "TOILET",
+            "on": true,
+            "w": 20,
+            "d": 28,
+            "x": 66,
+            "y": 12,
+            "rot": 90
+          },
+          {
+            "id": "shower",
+            "tag": "P-3",
+            "name": "SHOWER BASE",
+            "on": true,
+            "w": 36,
+            "d": 36,
+            "x": 1,
+            "y": 0.5,
+            "rot": 270
+          },
+          {
+            "id": "other",
+            "tag": "P-4",
+            "name": "VANITY",
+            "on": false,
+            "w": 30,
+            "d": 21,
+            "x": -1,
+            "y": 0.5,
+            "rot": 0
+          },
+          {
+            "id": "stairs",
+            "tag": "S-1",
+            "name": "STAIRS",
+            "on": true,
+            "w": 36,
+            "d": 60,
+            "x": -5.5,
+            "y": -65,
+            "rot": 0,
+            "color": "#dbeafe"
+          }
+        ],
+        "door": {
+          "on": true,
+          "seg": 4,
+          "off": 26,
+          "w": 28,
+          "swing": "slide-out",
+          "hinge": "end"
+        },
+        "ceiling": {
+          "on": true,
+          "side": "R",
+          "flat": 96,
+          "pts": [
+            {
+              "d": 0,
+              "h": 52
+            },
+            {
+              "d": 12,
+              "h": 69
+            },
+            {
+              "d": 36,
+              "h": 81
+            },
+            {
+              "d": 62,
+              "h": 96
+            }
+          ]
+        },
+        "notes": [
+          "MAX SMALL WIDTH: 68in",
+          "MAX BIG WIDTH: 104in",
+          ""
+        ],
+        "chase": {
+          "on": true,
+          "x": 104.5,
+          "y": 12,
+          "size": 6
+        }
+      }
+    }
+  ]
+}
