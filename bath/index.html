@@ -106,7 +106,10 @@
     #app.nopanel #stage { height: 100vh; }
     #panes { flex-direction: column; gap: 8px; }
     #planPane { -webkit-overflow-scrolling: touch; }
-    #viewbar { margin-bottom: 6px; }
+    #viewbar { margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+    #viewbar > span { display: none; }   /* the sync hint pushed Plan / Split / 3D off-screen in portrait */
+    #viewbar .seg { flex: none; }
+    #viewbar button, #viewbar .seg button { font-size: 14px; padding: 6px 10px; }
     .v3hint { display: none; }
     #zoombar { top: 0; margin: 0 0 6px; }
     #sheet { width: calc((100vw - 16px) * var(--zoom, 1)); margin: 0; }
