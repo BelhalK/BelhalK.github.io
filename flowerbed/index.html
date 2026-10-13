@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elevated Bed Build</title>
+<style>
+  :root { --bg:#2b2f36; --panel:#f4f4f2; --ink:#1a1a1a; --accent:#1f4e79; --line:#d0d0cc; --wood:#b8734a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 13px/1.4 -apple-system, "Helvetica Neue", Arial, sans-serif; background: var(--bg); color: var(--ink); }
+  #app { display:grid; grid-template-columns: 380px 1fr; min-height:100vh; }
+  #panel { background: var(--panel); padding:14px 16px 40px; overflow-y:auto; max-height:100vh; border-right:1px solid #999; }
+  #panel h1 { font-size:16px; margin:0 0 4px; letter-spacing:.04em; text-transform:uppercase; }
+  #panel .sub { color:#555; margin-bottom:12px; }
+  fieldset { border:1px solid var(--line); border-radius:4px; padding:8px 10px 10px; margin:0 0 12px; background:#fff; }
+  legend { font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent); padding:3px 6px; margin-left:-2px; border-radius:3px; cursor:pointer; user-select:none; }
+  legend:hover { background:#eef4fa; }
+  legend::before { content:'\25B8'; display:inline-block; width:9px; margin-right:5px; transform:rotate(90deg); transition:transform .12s; }
+  fieldset.collapsed > legend::before { transform:rotate(0deg); }
+  fieldset.collapsed > *:not(legend) { display:none !important; }
+  label.lb { display:block; font-size:11px; color:#444; text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px; }
+  label.chk { display:flex; gap:7px; align-items:flex-start; margin:6px 0; cursor:pointer; }
+  label.chk input { margin:2px 0 0; }
+  input[type=number], select { padding:4px 6px; border:1px solid #bbb; border-radius:3px; font:inherit; background:#fff; min-width:0; }
+  button { font:inherit; padding:6px 10px; border:1px solid #888; border-radius:3px; background:#fff; cursor:pointer; color:inherit; }
+  button:hover { background:#eee; }
+  button:disabled { opacity:.4; cursor:default; }
+  button.small { padding:3px 8px; font-size:12px; }
+  button.primary { background: var(--accent); color:#fff; border-color: var(--accent); font-weight:600; width:100%; padding:10px; font-size:13px; letter-spacing:.04em; text-transform:uppercase; }
+  button.primary:hover { background:#173c5e; }
+  .seg2 { display:inline-flex; border:1px solid #999; border-radius:4px; overflow:hidden; }
+  .seg2 button { border:none; border-radius:0; padding:5px 14px; font-weight:600; }
+  .seg2 button + button { border-left:1px solid #999; }
+  .seg2 button.on { background:var(--accent); color:#fff; }
+  .hint { font-size:11px; color:#666; margin-top:4px; }
+  .actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  table { width:100%; border-collapse:collapse; }
+  th { font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:#555; text-align:left; padding:3px 3px; font-weight:600; border-bottom:1px solid var(--line); }
+  td { padding:3px 3px; vertical-align:top; border-bottom:1px solid #f0f0ee; }
+  td.n { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  tr.tot td { font-weight:700; border-bottom:none; }
+  #stepList { margin:0; padding:0; list-style:none; counter-reset:st; }
+  #stepList li { counter-increment:st; display:flex; gap:8px; padding:5px 6px; border-radius:4px; cursor:pointer; align-items:baseline; }
+  #stepList li::before { content:counter(st); flex:none; width:20px; height:20px; border-radius:50%; background:#e4e6ea; color:#555; font-size:11px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; transform:translateY(4px); }
+  #stepList li:hover { background:#f2f5f9; }
+  #stepList li.done::before { background:#cfe3d4; color:#1e6b34; content:'\2713'; }
+  #stepList li.cur { background:#eef4fa; }
+  #stepList li.cur::before { background:var(--accent); color:#fff; content:counter(st); }
+  #stepList li small { display:block; color:#777; font-size:11px; }
+  /* inventory */
+  #inv { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
+  .card { display:grid; grid-template-columns: 1fr auto; gap:2px 8px; padding:7px 9px; border:1px solid #d6d3cc; border-radius:5px; background:#fbfaf7; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+  .card:hover { border-color:var(--wood); background:#fff7ef; }
+  .card:active { cursor:grabbing; }
+  .card b { font-size:13px; }
+  .card .ct { font-size:11px; color:#666; text-align:right; white-space:nowrap; }
+  .card .ct.over { color:#b45309; font-weight:700; }
+  .card .ct.ok { color:#1e6b34; font-weight:700; }
+  .card svg { grid-column:1 / -1; width:100%; height:14px; display:block; }
+  .card .del { border:none; background:none; padding:0 2px; color:#999; font-size:13px; }
+  .invHead { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#777; margin:8px 0 0; font-weight:600; }
+  .custom { display:flex; gap:6px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+  .custom input { width:70px; text-align:right; }
+  #cuts svg { width:100%; display:block; }
+  .note { background:#fff8e6; border:1px solid #f0dca8; border-radius:4px; padding:6px 8px; font-size:12px; margin-top:8px; }
+  ul.tips { margin:4px 0 0; padding-left:18px; } ul.tips li { margin:3px 0; }
+  /* stage */
+  #stage { padding:14px 20px 20px; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+  #viewbar { display:flex; align-items:center; gap:8px; margin-bottom:10px; color:#c9ced6; font-size:12px; }
+  #viewbar button { background:transparent; color:#e1e5ea; border:1px solid #59606b; border-radius:5px; padding:5px 11px; font-weight:600; }
+  #viewbar button:hover { background:rgba(255,255,255,.08); }
+  #viewbar button.on { background:#f4f4f2; color:#1a1a1a; border-color:#f4f4f2; }
+  #playBtn { min-width:76px; }
+  #scrub { flex:1; min-width:60px; accent-color:#8ec5ff; }
+  #tlbl { font-variant-numeric:tabular-nums; white-space:nowrap; min-width:64px; text-align:right; }
+  #buildBtn.on { background:#f0b45a; border-color:#f0b45a; color:#1a1a1a; }
+  #app.nopanel { grid-template-columns: 1fr; }
+  #app.nopanel #panel { display:none; }
+  #view3d { flex:1; min-height:0; position:relative; overflow:hidden; border-radius:6px; box-shadow:0 10px 40px rgba(0,0,0,.5);
+            background:radial-gradient(ellipse at 50% 30%, #56606a 0%, #353b43 55%, #23272d 100%); touch-action:none; }
+  #view3d canvas { position:absolute; inset:0; width:100%; height:100%; display:block; outline:none; }
+  #view3d .lbl-layer { position:absolute; inset:0; pointer-events:none; }
+  .v3bar { position:absolute; top:10px; left:10px; right:10px; display:flex; flex-wrap:wrap; gap:6px; z-index:2; pointer-events:none; }
+  .grp { display:inline-flex; background:rgba(20,24,30,.72); border:1px solid rgba(255,255,255,.12); border-radius:6px; overflow:hidden; pointer-events:auto; backdrop-filter:blur(6px); }
+  .grp button { background:transparent; border:none; border-radius:0; color:#dfe4ea; font-size:12px; padding:5px 10px; }
+  .grp button + button { border-left:1px solid rgba(255,255,255,.1); }
+  .grp button:hover { background:rgba(255,255,255,.1); }
+  .grp button.on { background:rgba(142,197,255,.22); color:#fff; }
+  .grp .tag { color:#fff; font-size:12px; padding:5px 10px; font-weight:600; border-right:1px solid rgba(255,255,255,.1); white-space:nowrap; }
+  #selbar[hidden] { display:none; }
+  #caption { position:absolute; left:12px; bottom:12px; max-width:min(460px, calc(100% - 24px)); z-index:2; background:rgba(20,24,30,.82); color:#e8ebef; border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:10px 13px; backdrop-filter:blur(6px); pointer-events:none; }
+  #caption .k { font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#8ec5ff; font-weight:700; }
+  #caption .t { font-size:15px; font-weight:700; margin:2px 0 3px; color:#fff; }
+  #caption .d { font-size:12px; color:#c9ced6; }
+  #caption.build .k { color:#f0b45a; }
+  .v3msg { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#dfe4ea; padding:20px; text-align:center; }
+  .dim3d { background:rgba(20,24,30,.85); color:#fff; font:700 11px/1.2 -apple-system,"Helvetica Neue",Arial,sans-serif; padding:2px 7px; border-radius:9px; white-space:nowrap; }
+  #toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:200; background:#1a1a1a; color:#fff; padding:8px 14px; border-radius:4px; font-size:13px; box-shadow:0 6px 20px rgba(0,0,0,.35); }
+  #toast[hidden] { display:none; }
+  .proj { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin:0 0 12px; }
+  .proj button { text-align:left; padding:8px 10px; border:1px solid #c9c6bf; border-radius:6px; background:#fff; }
+  .proj button b { display:block; font-size:13px; text-transform:uppercase; letter-spacing:.05em; }
+  .proj button span { display:block; font-size:11px; color:#666; margin-top:2px; line-height:1.3; }
+  .proj button.on { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent) inset; background:#eef4fa; }
+  .proj button.on b { color:var(--accent); }
+  #app.minimal .classicOnly { display:none !important; }
+  .hlrow { cursor:pointer; }
+  .hlrow td { transition:background .1s; }
+  .hlrow:hover td, .hlrow.hov td { background:color-mix(in srgb, var(--hl) 12%, #fff); }
+  .hlrow.pinned td { background:color-mix(in srgb, var(--hl) 20%, #fff); }
+  .hlrow .chip { display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; border:1.5px solid var(--hl); background:transparent; }
+  .hlrow.pinned .chip, .hlrow:hover .chip, .hlrow.hov .chip { background:var(--hl); }
+  #cuts .cutgrp, #cuts .cutseg { cursor:pointer; }
+  #cuts .cutbg { fill:transparent; }
+  #cuts .cutgrp:hover .cutbg, #cuts .cutgrp.hov .cutbg { fill:color-mix(in srgb, var(--hl) 12%, transparent); }
+  #cuts .cutgrp.pinned .cutbg { fill:color-mix(in srgb, var(--hl) 22%, transparent); }
+  #cuts .cutseg:hover, #cuts .cutseg.hov, #cuts .cutseg.pinned { stroke:var(--hl); stroke-width:2; fill:var(--hl); }
+  #cutInfo { margin:6px 0; }
+  .hlrow.flash td { animation:flash 1.2s ease-out; }
+  @keyframes flash { 0%, 30% { background:color-mix(in srgb, var(--hl) 45%, #fff); } }
+  .cmp { margin-top:8px; padding:6px 8px; border-radius:4px; background:#e6f4ea; border:1px solid #b7dfc1; font-size:12px; }
+  #app:not(.building) .bOnly { display:none !important; }
+  #app.building .aOnly { display:none !important; }
+  @media (max-width: 900px) {
+    #app { display:flex; flex-direction:column; width:100%; overflow-x:hidden; }
+    #panel, #stage { min-width:0; width:100%; }
+    #stage { order:-1; position:sticky; top:0; height:58vh; padding:8px; z-index:10; background:var(--bg); }
+    #app.nopanel #stage { height:100vh; }
+    #panel { max-height:none; border-right:none; padding:12px 16px 60px; }
+    #viewbar { gap:5px; margin-bottom:6px; flex-wrap:wrap; }
+    #viewbar button { padding:5px 8px; }
+    #caption { padding:7px 10px; } #caption .t { font-size:13px; } #caption .d { display:none; }
+    #app.building #caption { display:none; }
+    input[type=number], select { font-size:16px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <h1>Elevated flower bed</h1>
+    <div class="sub" id="sub"></div>
+    <div class="proj" id="projSeg">
+      <button data-p="classic"><b>Classic</b><span>Stretchers, shelf, ledge, filled-in floor</span></button>
+      <button data-p="minimal"><b>Minimal</b><span>Just legs, box and floor: fewer parts, still sturdy</span></button>
+      <button data-p="fewest"><b>Fewest pieces</b><span>2×12 walls, plywood floor: least to cut and order</span></button>
+    </div>
+
+    <fieldset id="fsBed"><legend>Bed</legend>
+      <label class="lb">Size</label>
+      <div class="seg2" id="wSeg"><button data-w="24">2 ft wide</button><button data-w="36">3 ft wide</button></div>
+      <div class="seg2" id="sizeSeg" style="margin-left:6px"><button data-size="96">8 ft long</button><button data-size="120">10 ft long</button></div>
+      <label class="lb" style="margin-top:8px">Working height (top of the box)</label>
+      <div class="seg2" id="hSeg"><button data-h="30">30″</button><button data-h="31.5">31½″</button><button data-h="36">36″</button></div>
+      <label class="chk classicOnly"><input type="checkbox" id="optShelf"><span>Lower shelf<br><span class="hint">Slats across the stretchers for tools and bags of mix</span></span></label>
+      <label class="chk classicOnly"><input type="checkbox" id="optCap"><span>Top ledge<br><span class="hint">2×6s laid flat on the top edge</span></span></label>
+    </fieldset>
+
+    <fieldset id="fsSteps" class="aOnly"><legend>Steps</legend>
+      <ol id="stepList"></ol>
+    </fieldset>
+
+    <fieldset id="fsBuild"><legend>Build mode · inventory</legend>
+      <div class="aOnly">
+        <div class="hint" style="margin:0 0 8px">Pause at any step and build the rest yourself: drag pieces from the inventory onto the scene, move them, rotate them, stack them. Use it to try a different design (taller, L-shaped, two tiers…). The cut list and cost update as you go.</div>
+        <button class="primary" id="enterBuild">Pause &amp; build it yourself</button>
+      </div>
+      <div class="bOnly">
+        <div class="hint" style="margin-top:0">Drag a piece onto the scene, or tap it to drop one in front of the bed. <b>Drag</b> a piece to move it. It snaps flush to its neighbours and rests on whatever is underneath. <b>R</b> rotates, <b>F</b> lays it flat or on edge, <b>U</b> stands it up, <b>D</b> stacks a copy on top, <b>Del</b> removes it, <b>arrow keys</b> nudge it.</div>
+        <label class="chk"><input type="checkbox" id="optGravity"><span>Gravity: pieces settle onto what's below</span></label>
+        <div class="invHead">Cut pieces from the plan</div>
+        <div id="invPlan" class="inv"></div>
+        <div class="invHead">Full-length boards &amp; your custom cuts</div>
+        <div id="invStock" class="inv"></div>
+        <div class="custom">
+          <span>Custom cut:</span>
+          <select id="cKind"><option value="2x6">2×6</option><option value="2x4">2×4</option><option value="2x12">2×12</option><option value="4x4">4×4</option></select>
+          <input type="number" id="cLen" value="48" min="2" max="240" step="0.5"> in
+          <button class="small" id="cAdd">Add to inventory</button>
+        </div>
+        <div class="actions">
+          <button class="small" id="bUndo" disabled>Undo</button>
+          <button class="small" id="bFull" title="Replace the scene with the finished plan">Load full plan</button>
+          <button class="small" id="bClear">Clear all</button>
+          <button class="small" id="bRestore" hidden>Restore my last build</button>
+        </div>
+        <div class="invHead" style="margin-top:12px">Your design</div>
+        <div id="tally"></div>
+        <div class="actions"><button class="small" id="exitBuild">◂ Back to the animation</button></div>
+      </div>
+    </fieldset>
+
+    <fieldset id="fsShop"><legend>Shopping list</legend>
+      <div class="actions" style="margin:0 0 8px"><button class="small" id="dlShop" title="Save the shopping list and cut list as a text file">⬇ Download shopping list (.txt)</button></div>
+      <div id="shop"></div>
+      <div class="invHead" style="margin-top:10px">Cut diagram</div>
+      <div id="cuts"></div>
+      <div class="custom" style="margin-top:10px">
+        <span>Cedar $/ft:</span> 2×6 <input type="number" id="p26" step="0.1" min="0" style="width:58px"> 2×4 <input type="number" id="p24" step="0.1" min="0" style="width:58px"> 2×12 <input type="number" id="p212" step="0.1" min="0" style="width:58px"> 4×4 <input type="number" id="p44" step="0.1" min="0" style="width:58px">
+      </div>
+    </fieldset>
+
+    <fieldset id="fsTips"><legend>Before you build</legend>
+      <ul class="tips">
+        <li><b>Width:</b> 2 ft is easy to reach all the way across from one side, so it suits a bed against a wall, fence or pergola post. It holds about 40% less soil, so it's lighter but dries out faster. 3 ft gives half again as much growing space, but you need to reach it from both sides.</li>
+        <li><b>Height:</b> 30–32″ is about kitchen-counter height, so you garden standing up with no bending. 36″ suits taller people. Around 30″ also works from a chair or wheelchair.</li>
+        <li><b>Weight:</b> wet soil weighs about 100 lb per cu ft, so a full 3×8 bed is roughly a ton. Build it where it will stay, on level ground, pavers or a patio, and don't skip the middle legs.</li>
+        <li><b>Depth:</b> ~10″ of soil is plenty for flowers, herbs, lettuce, strawberries and other shallow roots. It isn't enough for carrots, potatoes or big tomatoes.</li>
+        <li><b>Water:</b> elevated soil dries out faster than a bed on the ground. A drip line or a soaker hose on a timer helps. The slat gaps and fabric let water drain, so set it where drips won't stain the patio.</li>
+        <li><b>Sun:</b> most vegetables want 6+ hours of direct sun. Pergola slats give dappled shade, which suits lettuce, herbs, greens and many flowers.</li>
+        <li><b>Wood:</b> cedar looks best and lasts. Douglas fir or modern pressure-treated lumber costs about half as much and is generally considered fine for edible beds.</li>
+        <li><b>Tools:</b> circular saw (or have the store make the cuts), drill/driver, tape measure, speed square, level, and a couple of clamps.</li>
+      </ul>
+    </fieldset>
+  </aside>
+
+  <main id="stage">
+    <div id="viewbar">
+      <button id="panelBtn" title="Hide or show the side panel">☰</button>
+      <button id="prevBtn" title="Back one step">⏮</button>
+      <button id="playBtn">▶ Play</button>
+      <button id="nextBtn" title="Forward one step">⏭</button>
+      <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Timeline">
+      <span id="tlbl"></span>
+      <button id="speedBtn" title="Playback speed">1×</button>
+      <button id="buildBtn" title="Pause and place the pieces yourself">🔨 Build</button>
+    </div>
+    <div id="view3d">
+      <div class="v3msg" id="v3msg">Loading 3D…</div>
+      <div class="v3bar">
+        <div class="grp"><button data-view="iso">Overview</button><button data-view="top">Top</button><button data-view="front">Front</button><button data-view="end">End</button></div>
+        <div class="grp aOnly"><button id="dimsBtn" title="Show overall dimensions">Dimensions</button></div>
+        <div class="grp" id="selbar" hidden>
+          <span class="tag" id="selName"></span>
+          <button data-act="rot" title="Rotate 90° (R)">⟳ Rotate</button>
+          <button data-act="flat" title="Lay flat / back on edge (F)">Flat / edge</button>
+          <button data-act="up" title="Stand upright (U)">Stand up</button>
+          <button data-act="raise" title="Raise ½″ (shift: 5½″)">▲</button>
+          <button data-act="lower" title="Lower ½″ (shift: 5½″)">▼</button>
+          <button data-act="dup" title="Copy, stacked on top (D)">Copy</button>
+          <button data-act="del" title="Remove (Delete)">✕</button>
+        </div>
+      </div>
+      <div id="caption"><div class="k" id="capK"></div><div class="t" id="capT"></div><div class="d" id="capD"></div></div>
+    </div>
+  </main>
+</div>
+<div id="toast" hidden></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+// A 3x8 (or 3x10) cedar raised bed. Animation mode plays a fixed build plan along a timeline;
+// build mode hands the lumber over to the user as free pieces they can drag, rotate and stack.
+// 1 scene unit = 1 inch. The bed is centred on the origin, length along x, width along z, y up.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('flowerbed.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('flowerbed.' + k, JSON.stringify(v)); } catch { /* private mode */ } },
+};
+const S = Object.assign({ project: 'classic', width: 24, size: 96, height: 31.5, shelf: true, cap: true, speed: 1, dims: true, gravity: true, p26: 3.6, p24: 2, p212: 7.5, p44: 6 }, store.get('opts2', {}));
+const saveOpts = () => store.set('opts2', S);
+if (/^#(classic|minimal|fewest)$/.test(location.hash)) S.project = location.hash.slice(1);
+
+let W = S.width;   // outside width of the box; set from the panel
+const KERF = 0.125;
+const SECTION = { '2x6': [5.5, 1.5], '2x4': [3.5, 1.5], '2x12': [11.25, 1.5], '4x4': [3.5, 3.5] };   // [width, thickness], actual dimensions
+// Plywood is kind 'ply<width>' (e.g. 'ply21'): a 3/4" panel whose width rides in the kind, so every
+// piece is still just {kind, len} for the inventory, the cut list and build mode.
+const sec = k => k.startsWith('ply') ? [parseFloat(k.slice(3)), 0.75] : SECTION[k];
+const PLY_PRICE = { panel: 40, sheet: 65 };   // 3/4" exterior/PT plywood: 2x8 ft handy panel, 4x8 ft sheet
+const STOCK = { '2x6': [72, 96, 120, 144], '2x4': [96, 120, 144], '2x12': [96, 120, 144], '4x4': [96, 120, 144] };
+const clamp01 = x => Math.max(0, Math.min(1, x));
+const easeIO = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+const easeOut = x => 1 - Math.pow(1 - x, 3);
+const easeBack = x => 1 + 2.2 * Math.pow(x - 1, 3) + 1.2 * Math.pow(x - 1, 2);
+function frac(x) {
+  const w = Math.floor(x + 1e-6), r = Math.round((x - w) * 8);
+  if (!r) return String(w);
+  const [n, d] = r % 4 === 0 ? [r / 4, 2] : r % 2 === 0 ? [r / 2, 4] : [r, 8];
+  return (w ? w + ' ' : '') + n + '/' + d;
+}
+const inch = x => frac(x) + '″';
+const ftIn = x => { const f = Math.floor(x / 12 + 1e-6), i = x - f * 12; return i > 1e-6 ? `${f}′-${frac(i)}″` : `${f}′`; };
+const kindName = k => k.startsWith('ply') ? `¾″ plywood ${k.slice(3)}″ wide` : k.replace('x', '×');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let toastT; function toast(msg) { const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2200); }
+
+// Axis-aligned size of a piece. pose: 'edge' (board standing on its narrow edge, the way the
+// walls go), 'flat' (lying on its face), 'up' (length vertical). rot 1 turns it 90° about y.
+function dims(p) {
+  const [w, t] = sec(p.kind);
+  let sx, sy, sz;
+  if (p.pose === 'flat') { sx = p.len; sy = t; sz = w; }
+  else if (p.pose === 'up') { sx = w; sy = p.len; sz = t; }
+  else { sx = p.len; sy = w; sz = t; }
+  return p.rot ? { sx: sz, sy, sz: sx } : { sx, sy, sz };
+}
+const AX = new THREE.Vector3(1, 0, 0), AY = new THREE.Vector3(0, 1, 0), AZ = new THREE.Vector3(0, 0, 1);
+function poseQuat(pose, rot) {
+  const qp = new THREE.Quaternion();
+  if (pose === 'flat') qp.setFromAxisAngle(AX, Math.PI / 2); else if (pose === 'up') qp.setFromAxisAngle(AZ, Math.PI / 2);
+  return new THREE.Quaternion().setFromAxisAngle(AY, rot * Math.PI / 2).multiply(qp);
+}
+
+// ---------- the plan ----------
+// An elevated bed: 4x4 legs run from the ground to the top of a three-board-deep box. The box
+// floor is spaced 2x6 slats on 2x4 cleats; 2x4 stretchers low on the legs stop it racking.
+function planSpec() {
+  if (S.project === 'fewest') return planFewest();
+  const L = S.size, hx = L / 2, hz = W / 2, H = S.height;
+  const iw = W - 3, crossLen = W - 10;      // inside width (ends, floor slats); gap between a pair of legs
+  const minimal = S.project === 'minimal', shelf = S.shelf && !minimal, cap = S.cap && !minimal;
+  const yb = H - 16.5;                       // underside of the box (three 2x6 rows)
+  const yf = yb + 3.5;                       // top of the floor cleats = underside of the slats
+  const floorTop = yf + 1.5;
+  const pz = hz - 1.5 - 1.75, cx = hx - 1.5 - 1.75;
+  const midX = L >= 120 ? [-20, 20] : [0];
+  const legX = [-cx, ...midX, cx];
+  const steps = [];
+  const lum = (kind, len, pose, rot, x, y, z, role, screws = []) => ({ type: 'lumber', role, piece: { kind, len, pose, rot, x, y, z }, screws });
+  const nMid = midX.length * 2, nLegs = 4 + nMid;
+  const two = (p, n, d = 1.4) => [{ p: [p[0], p[1] + d, p[2]], n }, { p: [p[0], p[1] - d, p[2]], n }];  // a screw pair, one above the other
+
+  steps.push({ title: 'Stand the four corner legs', short: `4×4s cut to ${inch(H)}`,
+    text: `Cut the 4×4s to ${inch(H)}, which is the finished height of the bed and a comfortable height to work at standing up. Build it where it will live, on level ground or a patio, because a full bed is too heavy to move.`,
+    items: [[-cx, -pz], [cx, -pz], [cx, pz], [-cx, pz]].map(([x, z]) => ({ ...lum('4x4', H, 'up', 0, x, 0, z, 'Leg'), dur: 0.9 })) });
+  steps.push({ title: `Add the ${nMid} middle legs`, short: 'A full bed weighs about a ton',
+    text: `Wet soil weighs about 100 lb per cubic foot, so this bed holds roughly ${(Math.round(soilCuFt() * 1.15) * 100).toLocaleString()} lb. The middle legs stop the long sides and floor from sagging.`,
+    items: midX.flatMap(x => [lum('4x4', H, 'up', 0, x, 0, -pz, 'Leg'), lum('4x4', H, 'up', 0, x, 0, pz, 'Leg')]) });
+  if (!minimal) {
+    const ys = 5, it = [];
+    for (const s of [1, -1]) it.push(lum('2x4', L - 3, 'edge', 0, 0, ys, s * (hz - 0.75), 'Long stretcher',
+      legX.flatMap(x => two([x, ys + 1.75, s * hz], [0, 0, s], 0.8))));
+    for (const s of [1, -1]) it.push(lum('2x4', W, 'edge', 1, s * (hx - 0.75), ys, 0, 'End stretcher',
+      [-pz, pz].flatMap(z => two([s * hx, ys + 1.75, z], [s, 0, 0], 0.8))));
+    steps.push({ title: 'Brace the legs with stretchers', short: '2×4s low on the legs',
+      text: `Screw 2×4 stretchers around the legs about 5″ off the ground, flush with the outside faces. They square the legs up and stop the bed from wobbling or racking. Check that the legs are plumb and the diagonals match before you drive the second screw in each.`,
+      items: it });
+  }
+  if (minimal && W < 30) {
+    // A 2 ft stance under a 30"+ bed wants a little side-to-side bracing: one 2x4 across each end.
+    const ys = 5, it = [];
+    for (const s of [1, -1]) it.push(lum('2x4', iw, 'edge', 1, s * (hx - 0.75), ys, 0, 'End brace',
+      [-pz, pz].flatMap(z => two([s * hx, ys + 1.75, z], [s, 0, 0], 0.8))));
+    steps.push({ title: 'Brace the ends', short: `Two ${inch(iw)} 2×4s`,
+      text: `On a 2 ft wide bed the legs stand close together, so screw one ${inch(iw)} 2×4 across each end about 5″ off the ground, two screws per leg. It stops the bed from rocking side to side, which matters most while it's empty.`,
+      items: it });
+  }
+  const rowNames = ['Bottom', 'Middle', 'Top'];
+  for (let c = 0; c < 3; c++) {
+    const y = yb + c * 5.5, yc = y + 2.75, it = [];
+    for (const s of [1, -1]) it.push(lum('2x6', L, 'edge', 0, 0, y, s * (hz - 0.75), 'Long side', legX.flatMap(x => two([x, yc, s * hz], [0, 0, s]))));
+    for (const s of [1, -1]) it.push(lum('2x6', iw, 'edge', 1, s * (hx - 0.75), y, 0, 'End', [-pz, pz].flatMap(z => two([s * hx, yc, z], [s, 0, 0]))));
+    steps.push({ title: `${rowNames[c]} row of the box`, short: c === 0 ? `${inch(yb)} off the ground` : c === 2 ? 'Flush with the leg tops' : `Up to ${inch(y + 5.5 - yb)} deep`,
+      text: c === 0
+        ? `Screw the first ${ftIn(L)} boards and ${inch(iw)} end boards to the legs ${inch(yb)} off the ground, with two 3″ deck screws into every leg. The ends fit between the long sides (${inch(W)} − 2 × 1½″ = ${inch(iw)}). ${minimal ? `Set the bottom boards on scrap blocks cut to ${inch(yb)} so they sit level while you screw them.` : `A scrap block cut to ${inch(yb - 5 - 3.5)} resting on the stretchers holds each board at the right height while you screw it.`}`
+        : c === 2 ? `The third row finishes the box 16½″ deep, flush with the top of the legs.${minimal ? ' With six screws per leg into a box that deep, the frame is stiff enough to skip the stretchers.' : ''}`
+          : 'Stack the next row tight on the first, and drive two screws into every leg.',
+      items: it });
+  }
+  {
+    const it = [];
+    for (let i = 0; i < legX.length - 1; i++) {
+      const a = legX[i] + 1.75, b = legX[i + 1] - 1.75, len = b - a, xm = (a + b) / 2;
+      for (const s of [1, -1]) it.push(lum('2x4', len, 'edge', 0, xm, yb, s * (hz - 2.25), 'Floor cleat',
+        [-len / 3, 0, len / 3].map(dx => ({ p: [xm + dx, yb + 1.75, s * (hz - 3)], n: [0, 0, -s] }))));
+    }
+    if (!minimal) for (const x of legX) it.push(lum('2x4', crossLen, 'edge', 1, x, yb, 0, 'Cross cleat'));
+    steps.push({ title: 'Screw in the floor cleats', short: '2×4s along the bottom inside edge',
+      text: minimal ? `Screw 2×4 cleats to the inside of the bottom boards, flush with the bottom edge, between the legs, with a screw every 8–10″. The floor slats rest on these.` : `Screw 2×4 cleats to the inside of the bottom boards, flush with the bottom edge, between the legs. Add a short cross cleat (${inch(crossLen)}) between each pair of legs. The floor slats rest on these.`,
+      items: it });
+  }
+  if (minimal) {
+    // One continuous run of slats with ~1" gaps. Slats that land on a leg get a corner notch;
+    // the leg hides the notched-out part, so a plain box reads correctly in 3D.
+    const it = [], a = -(hx - 1.5), span = L - 3, n = Math.floor((span + 1) / 6.5), gap = (span - n * 5.5) / (n - 1);
+    let notched = 0;
+    for (let k = 0; k < n; k++) {
+      const x = a + 2.75 + k * (5.5 + gap), hit = legX.some(lx => Math.abs(lx - x) < 4.5);
+      if (hit) notched++;
+      it.push(lum('2x6', iw, 'flat', 1, x, yf, 0, hit ? 'Notched floor slat' : 'Floor slat', [-(hz - 2.25), hz - 2.25].map(z => ({ p: [x, yf + 1.5, z], n: [0, 1, 0] }))));
+    }
+    steps.push({ title: 'Lay the floor slats', short: `${n} slats, ~1″ gaps`,
+      text: `Lay ${n} ${inch(iw)} 2×6 slats across the cleats about ${frac(Math.round(gap * 4) / 4)}″ apart. That's fewer boards, and the fabric still holds the soil. Screw down each end. ${notched} slats land on a leg: notch 3½″ × 3½″ out of each corner that meets one, with a jigsaw or a few circular-saw cuts.`,
+      items: it });
+  } else {
+    const it = [];
+    for (let i = 0; i < legX.length - 1; i++) {
+      const a = legX[i] + 1.75, b = legX[i + 1] - 1.75, span = b - a, n = Math.max(1, Math.floor((span + 0.375) / 5.875));
+      const gap = n > 1 ? (span - n * 5.5) / (n - 1) : 0;
+      for (let k = 0; k < n; k++) {
+        const x = a + 2.75 + k * (5.5 + gap);
+        it.push(lum('2x6', iw, 'flat', 1, x, yf, 0, 'Floor slat', [-(hz - 2.25), hz - 2.25].map(z => ({ p: [x, yf + 1.5, z], n: [0, 1, 0] }))));
+      }
+    }
+    for (const x of legX) it.push(lum('2x4', crossLen, 'flat', 1, x, yf, 0, 'Floor filler', [-crossLen / 3, crossLen / 3].map(z => ({ p: [x, yf + 1.5, z], n: [0, 1, 0] }))));
+    steps.push({ title: 'Lay the floor slats', short: 'Leave ¼–½″ gaps to drain',
+      text: `Lay ${inch(iw)} 2×6 slats across the cleats with ¼–½″ gaps between them so water can drain, and screw down each end. Between each pair of legs, a ${inch(crossLen)} 2×4 laid flat fills the gap.`,
+      items: it });
+  }
+  if (shelf) {
+    const it = [];
+    for (let i = 0; i < legX.length - 1; i++) {
+      const a = legX[i] + 1.75, b = legX[i + 1] - 1.75, span = b - a, n = Math.max(2, Math.round(span / 10));
+      for (let k = 0; k < n; k++) {
+        const x = a + 2.75 + k * (span - 5.5) / (n - 1);
+        it.push(lum('2x6', W, 'flat', 1, x, 8.5, 0, 'Shelf slat', [-(hz - 0.75), hz - 0.75].map(z => ({ p: [x, 10, z], n: [0, 1, 0] }))));
+      }
+    }
+    steps.push({ title: 'Add the lower shelf', short: 'Slats across the stretchers',
+      text: `Lay ${inch(W)} 2×6 slats across the long stretchers and screw them down. The shelf holds tools, gloves and bags of potting mix.`,
+      items: it });
+  }
+  steps.push({ title: 'Line it with landscape fabric', short: 'Keeps the soil in, lets water out',
+    text: 'Staple landscape fabric over the floor and up the inside walls. It holds the soil in but lets water drain. Don\'t use plastic, because the roots would sit in water.',
+    items: [{ type: 'liner', floorTop, H }] });
+  if (cap) {
+    const it = [];
+    for (const s of [1, -1]) it.push(lum('2x6', L, 'flat', 0, 0, H, s * (hz - 2.75), 'Ledge', legX.flatMap(px => [px - 0.9, px + 0.9]).map(x => ({ p: [x, H + 1.5, s * pz], n: [0, 1, 0] }))));
+    for (const s of [1, -1]) it.push(lum('2x6', W - 11, 'flat', 1, s * (hx - 2.75), H, 0, 'Ledge end', [-(W - 11) / 3, 0, (W - 11) / 3].map(z => ({ p: [s * (hx - 0.75), H + 1.5, z], n: [0, 1, 0] }))));
+    steps.push({ title: 'Screw on the top ledge', short: '2×6s laid flat',
+      text: `Lay 2×6s flat on top: two ${ftIn(L)} pieces and two ${inch(W - 11)} ends between them, screwed down into the legs and end boards. It covers the end grain and gives you somewhere to rest a pot or your elbows.`,
+      items: it });
+  }
+  const soil = soilYards();
+  steps.push({ title: 'Fill with soil', short: `≈ ${soil.toFixed(1)} cu yd, ~10″ deep`,
+    text: `Fill with a raised-bed or potting mix to about 1″ below the top. That's about ${soil.toFixed(1)} cu yd (${Math.round(soil * 27)} cu ft) including settling, or about ${Math.ceil(soil * 27 / 1.5)} bags of 1.5 cu ft. Use a light mix rather than heavy garden soil.`,
+    items: [{ type: 'soil', dur: 2.6, floorTop, H }] });
+  steps.push({ title: 'Plant', short: 'Flowers, herbs, greens',
+    text: 'About 10″ of soil suits flowers, herbs, lettuce, strawberries and other shallow-rooted plants. Deep-rooted crops like carrots, potatoes and big tomatoes want a deeper bed. Raised soil dries out faster, so water more often.',
+    items: [{ type: 'plants', dur: 2.2, H }] });
+  return { steps, L, hx, hz, pz, legX, cap, minimal, top: H + (cap ? 1.5 : 0) };
+}
+// Fewest pieces: 2x12 + 2x6 walls (two rows), legs inside the box (corners + middle), and one
+// plywood floor on 2x4 cleats. The plywood is notched around every leg, so it stays one panel.
+function planFewest() {
+  const L = S.size, hx = L / 2, hz = W / 2, H = S.height, iw = W - 3;
+  const yb = H - 16.75, yf = yb + 3.5, floorTop = yf + 0.75;
+  const pz = hz - 3.25, cx = hx - 3.25, midX = L >= 120 ? [-20, 20] : [0], legX = [-cx, ...midX, cx], ply = 'ply' + iw;
+  const nLegs = legX.length * 2;
+  const steps = [];
+  const lum = (kind, len, pose, rot, x, y, z, role, screws = []) => ({ type: 'lumber', role, piece: { kind, len, pose, rot, x, y, z }, screws });
+  const screwsAt = (pts, n) => pts.map(p => ({ p, n }));
+  const oneLeg = 4 * H + 3 * KERF <= 144;
+  steps.push({ title: 'Cut the legs, stand the four corners', short: oneLeg ? `Corners from one 12′ 4×4` : `4×4s cut to ${inch(H)}`,
+    text: `Cut ${nLegs} legs to ${inch(H)}${oneLeg ? ' (the four corner ones all come from a single 12 ft 4×4)' : ''} and stand four at the inside corners. Build it where it will live, because a full bed is too heavy to move.`,
+    items: [[-cx, -pz], [cx, -pz], [cx, pz], [-cx, pz]].map(([x, z]) => ({ ...lum('4x4', H, 'up', 0, x, 0, z, 'Leg'), dur: 0.9 })) });
+  steps.push({ title: `Add the ${nLegs - 4} middle legs`, short: 'Inside the box, like the corners',
+    text: `A full bed weighs roughly ${(Math.round(soilCuFt() * 1.15) * 100).toLocaleString()} lb, so each long side gets ${midX.length > 1 ? 'two more legs, at the thirds' : 'a leg in the middle'}. ${midX.length > 1 ? 'They sit' : 'It sits'} inside the box like the corner legs, so ${midX.length > 1 ? 'they don\'t' : 'it doesn\'t'} show from outside.`,
+    items: midX.flatMap(x => [lum('4x4', H, 'up', 0, x, 0, -pz, 'Leg'), lum('4x4', H, 'up', 0, x, 0, pz, 'Leg')]).map(i => ({ ...i, dur: 0.9 })) });
+  if (W < 30) {
+    const it = [];
+    for (const s of [1, -1]) it.push(lum('2x6', iw, 'edge', 1, s * (hx - 0.75), 5, 0, 'End brace', screwsAt([-pz, pz].flatMap(z => [[s * hx, 7.75 + 1.2, z], [s * hx, 7.75 - 1.2, z]]), [s, 0, 0])));
+    steps.push({ title: 'Brace the ends', short: `Two ${inch(iw)} 2×6s`,
+      text: `Screw a ${inch(iw)} 2×6 across each end about 5″ off the ground, two screws per leg, to stop side-to-side rocking on the 2 ft stance. These come out of the same 2×6s as the top row.`,
+      items: it });
+  }
+  {
+    const it = [], yc = yb + 11.25 / 2;
+    for (const s of [1, -1]) it.push(lum('2x12', L, 'edge', 0, 0, yb, s * (hz - 0.75), 'Long side', screwsAt(legX.flatMap(x => [-3.6, 0, 3.6].map(d => [x, yc + d, s * hz])), [0, 0, s])));
+    for (const s of [1, -1]) it.push(lum('2x12', iw, 'edge', 1, s * (hx - 0.75), yb, 0, 'End', screwsAt([-pz, pz].flatMap(z => [-3.6, 0, 3.6].map(d => [s * hx, yc + d, z])), [s, 0, 0])));
+    steps.push({ title: 'Bottom row: 2×12s', short: `One wide board does the work of two`,
+      text: `Screw the ${ftIn(L)} 2×12 sides and ${inch(iw)} 2×12 ends to the legs ${inch(yb)} off the ground, three screws into every leg. Prop them on scrap blocks so they sit level while you drive the screws. One 2×12 replaces two rows of 2×6.`,
+      items: it });
+  }
+  {
+    const it = [], y = yb + 11.25, yc = y + 2.75;
+    for (const s of [1, -1]) it.push(lum('2x6', L, 'edge', 0, 0, y, s * (hz - 0.75), 'Long side', screwsAt(legX.flatMap(x => [[x, yc + 1.4, s * hz], [x, yc - 1.4, s * hz]]), [0, 0, s])));
+    for (const s of [1, -1]) it.push(lum('2x6', iw, 'edge', 1, s * (hx - 0.75), y, 0, 'End', screwsAt([-pz, pz].flatMap(z => [[s * hx, yc + 1.4, z], [s * hx, yc - 1.4, z]]), [s, 0, 0])));
+    steps.push({ title: 'Top row: 2×6s', short: 'Box is 16¾″ deep',
+      text: 'A single row of 2×6 on top brings the box to 16¾″ deep, flush with the leg tops. That makes two rows in all instead of three.',
+      items: it });
+  }
+  {
+    const it = [];
+    for (let i = 0; i < legX.length - 1; i++) {
+      const a = legX[i] + 1.75, b = legX[i + 1] - 1.75, len = b - a, xm = (a + b) / 2;
+      for (const s of [1, -1]) it.push(lum('2x4', len, 'edge', 0, xm, yb, s * (hz - 2.25), 'Floor cleat',
+        [-len / 3, 0, len / 3].map(dx => ({ p: [xm + dx, yb + 1.75, s * (hz - 3)], n: [0, 0, -s] }))));
+    }
+    const len0 = it[0].piece.len;
+    steps.push({ title: 'Screw in the floor cleats', short: `${it.length} × 2×4, between the legs`,
+      text: `Screw a 2×4 cleat along the inside bottom of each 2×12, between each pair of legs (${it.length} cleats, about ${inch(len0)} each), with a screw every 10–12″. The plywood floor rests on them.`,
+      items: it });
+  }
+  {
+    const n = Math.round((L - 10) / 16), sc = [];
+    for (const s of [1, -1]) for (let k = 0; k <= n; k++) sc.push([-(L - 10) / 2 + k * (L - 10) / n, yf + 0.75, s * (hz - 2.25)]);
+    steps.push({ title: 'Drop in the plywood floor', short: 'One panel instead of a dozen slats',
+      text: `Cut one ¾″ exterior plywood panel to ${inch(iw)} × ${inch(L - 3)}${W < 30 ? ' (a 2 × 8 ft handy panel needs just one rip and one crosscut)' : ' from a 4 × 8 ft sheet'}, notch it 3½″ × 3½″ around all ${nLegs} legs (the four corners plus ${nLegs - 4} along the sides), and drill ½″ drainage holes every 6″ or so. Screw it down to the cleats.`,
+      items: [lum(ply, L - 3, 'flat', 0, 0, yf, 0, 'Floor panel', screwsAt(sc, [0, 1, 0]))] });
+  }
+  steps.push({ title: 'Line it with landscape fabric', short: 'Protects the plywood, lets water out',
+    text: 'Staple landscape fabric over the floor and up the inside walls. It keeps the soil off the plywood so it lasts longer, and lets water out through the drainage holes. Don\'t use plastic.',
+    items: [{ type: 'liner', floorTop, H }] });
+  const soil = soilYards();
+  steps.push({ title: 'Fill with soil', short: `≈ ${soil.toFixed(1)} cu yd, ~11″ deep`,
+    text: `Fill with a raised-bed or potting mix to about 1″ below the top: about ${soil.toFixed(1)} cu yd (${Math.round(soil * 27)} cu ft) including settling, or about ${Math.ceil(soil * 27 / 1.5)} bags of 1.5 cu ft.`,
+    items: [{ type: 'soil', dur: 2.6, floorTop, H }] });
+  steps.push({ title: 'Plant', short: 'Flowers, herbs, greens',
+    text: 'About 11″ of soil suits flowers, herbs, lettuce, strawberries and other shallow-rooted plants. Raised soil dries out faster, so water more often.',
+    items: [{ type: 'plants', dur: 2.2, H }] });
+  return { steps, L, hx, hz, pz, legX, cap: false, minimal: true, fewest: true, yb, top: H };
+}
+function soilCuFt() {
+  const fewest = S.project === 'fewest';
+  const L = S.size, nLegs = L >= 120 ? 8 : 6, depth = fewest ? 11.5 : 10.5;
+  return ((L - 3) * (W - 3) * depth - nLegs * 3.5 * 3.5 * depth) / 1728;
+}
+function soilYards() { return soilCuFt() / 27 * 1.15; }
+
+// ---------- cut list: first-fit-decreasing into stock lengths ----------
+// preferLong: open every new board at the longest stock length, so cuts share boards and there
+// are fewer to order (each board is still trimmed back to the shortest stock that fits).
+function pack(list, preferLong = false) {
+  const out = [];
+  for (const kind of ['2x6', '2x4', '2x12', '4x4']) {
+    const items = list.filter(p => p.kind === kind).sort((a, b) => b.len - a.len);
+    const st = STOCK[kind], maxS = st[st.length - 1];
+    const boards = [];
+    for (const ref of items) {
+      const len = ref.len;
+      if (len > maxS + 1e-6) { boards.push({ cap: len, used: len, cuts: [len], refs: [ref], over: true }); continue; }
+      let best = null;
+      for (const b of boards) {
+        if (b.over) continue;
+        const left = b.cap - (b.used + KERF + len);
+        if (left >= -1e-6 && (!best || left < best.left)) best = { b, left };
+      }
+      if (best) { best.b.used += KERF + len; best.b.cuts.push(len); best.b.refs.push(ref); }
+      else boards.push({ cap: preferLong ? maxS : Math.max(96, st.find(s => s >= len - 1e-6)), used: len, cuts: [len], refs: [ref] });
+    }
+    for (const b of boards) out.push({ kind, stock: b.over ? null : st.find(s => s >= b.used - 1e-6), cuts: b.cuts, refs: b.refs, used: b.used, over: !!b.over });
+  }
+  return out;
+}
+function costOf(boards) {
+  return boards.reduce((s, b) => s + (b.stock || 0) / 12 * ({ '4x4': S.p44, '2x4': S.p24, '2x12': S.p212 }[b.kind] ?? S.p26), 0);
+}
+function groupBoards(boards) {
+  const m = new Map();
+  for (const b of boards) { const k = b.kind + '|' + b.stock + '|' + b.cuts.join(','); if (!m.has(k)) m.set(k, { ...b, n: 0, boards: [] }); const g = m.get(k); g.n++; g.boards.push(b); }
+  return [...m.values()];
+}
+function stockLines(boards) {
+  const m = new Map();
+  for (const b of boards) {
+    if (b.over) continue; const k = b.kind + '|' + b.stock;
+    if (!m.has(k)) m.set(k, { n: 0, refs: [] }); const e = m.get(k); e.n++; e.refs.push(...b.refs);
+  }
+  return [...m.entries()].sort().map(([k, e]) => { const [kind, len] = k.split('|'); return { kind, len: +len, n: e.n, refs: e.refs, key: k }; });
+}
+
+// ---------- three.js setup ----------
+const host = $('view3d');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+host.prepend(renderer.domElement);
+const css2d = new CSS2DRenderer(); css2d.domElement.className = 'lbl-layer'; host.appendChild(css2d.domElement);
+$('v3msg').remove();
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 1, 5000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 20; controls.maxDistance = 900;
+
+scene.add(new THREE.HemisphereLight(0xeef4ff, 0x5a4a38, 1.1));
+const sun = new THREE.DirectionalLight(0xfff0d8, 2.4);
+sun.position.set(-90, 180, 120); sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.4;
+Object.assign(sun.shadow.camera, { left: -130, right: 130, top: 130, bottom: -130, near: 10, far: 500 });
+scene.add(sun);
+
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+function canvasTex(w, h, draw) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = renderer.capabilities.getMaxAnisotropy(); return t;
+}
+const woodTex = canvasTex(1024, 128, (g, w, h) => {
+  g.fillStyle = '#d29a6c'; g.fillRect(0, 0, w, h);
+  for (let k = 0; k < 70; k++) {
+    const y0 = rnd() * h, a = 0.05 + rnd() * 0.14, dark = rnd() > 0.35;
+    g.strokeStyle = dark ? `rgba(110,52,24,${a})` : `rgba(255,225,190,${a})`; g.lineWidth = 0.6 + rnd() * 2.4;
+    g.beginPath(); for (let x = 0; x <= w; x += 32) { const y = y0 + Math.sin(x / 140 + k) * 3 + (rnd() - 0.5) * 1.2; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke();
+  }
+  for (let k = 0; k < 3; k++) { const x = rnd() * w, y = rnd() * h; g.fillStyle = 'rgba(90,40,18,.45)'; g.beginPath(); g.ellipse(x, y, 7 + rnd() * 6, 3 + rnd() * 2, 0, 0, Math.PI * 2); g.fill(); }
+});
+const grassTex = canvasTex(256, 256, (g, w, h) => {
+  g.fillStyle = '#5f7f45'; g.fillRect(0, 0, w, h);
+  for (let k = 0; k < 6000; k++) { const v = rnd(); g.fillStyle = v > .5 ? `rgba(140,175,90,${.15 + rnd() * .2})` : `rgba(40,60,25,${.15 + rnd() * .2})`; g.fillRect(rnd() * w, rnd() * h, 1 + rnd() * 2, 2 + rnd() * 4); }
+});
+grassTex.repeat.set(30, 30);
+const soilTex = canvasTex(256, 256, (g, w, h) => {
+  g.fillStyle = '#3e2a1c'; g.fillRect(0, 0, w, h);
+  for (let k = 0; k < 9000; k++) { const v = rnd(); g.fillStyle = v > .6 ? `rgba(120,90,60,${.2 + rnd() * .3})` : `rgba(15,8,4,${.2 + rnd() * .35})`; const s = 1 + rnd() * 3; g.fillRect(rnd() * w, rnd() * h, s, s); }
+});
+const ground = new THREE.Mesh(new THREE.CircleGeometry(600, 64), new THREE.MeshStandardMaterial({ map: grassTex, roughness: 1 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; ground.receiveShadow = true; scene.add(ground);
+const grid = new THREE.GridHelper(480, 40, 0xffffff, 0xffffff);
+grid.material.transparent = true; grid.material.opacity = 0.13; grid.position.y = 0.02; grid.visible = false; scene.add(grid);
+
+const animGroup = new THREE.Group(), buildGroup = new THREE.Group(), dimsGroup = new THREE.Group();
+scene.add(animGroup, buildGroup, dimsGroup);
+
+const TINTS = [0xffffff, 0xf3e6dc, 0xffeedd, 0xe8d6c8, 0xfff3ea];
+const edgeMat = new THREE.LineBasicMaterial({ color: 0x4a2a14, transparent: true, opacity: 0.35 });
+const geoCache = new Map();
+function boardGeo(kind, len) {
+  const k = kind + len; if (geoCache.has(k)) return geoCache.get(k);
+  const [w, t] = sec(kind); const box = new THREE.BoxGeometry(len, w, t);
+  const v = { box, edges: new THREE.EdgesGeometry(box) }; geoCache.set(k, v); return v;
+}
+const screwGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.12, 10);
+const screwMat = new THREE.MeshStandardMaterial({ color: 0x8a8f94, metalness: 0.8, roughness: 0.35 });
+// Shopping-list highlights: each row of the list maps to items in the 3D model. Hovering a row
+// tints them; clicking pins the row (several can be pinned, each in its own colour).
+const HL_COLORS = ['#e8590c', '#1c7ed6', '#2f9e44', '#ae3ec9', '#f59f00', '#0ca678', '#d6336c', '#4263eb', '#82c91e', '#fd7e14', '#15aabf'];
+const HL = { rows: new Map(), pinned: new Set(), hover: null, screws: null, screwMat: new THREE.MeshStandardMaterial({ metalness: 0.4, roughness: 0.4, emissiveIntensity: 0.6 }) };
+// A board or post as a group: centred box, its local x along the length, y across the wide face.
+// `screws` are in world coordinates (with the face normal) and get converted into the board's frame.
+function lumberObj(p, screws = [], tint = 0) {
+  const { box, edges } = boardGeo(p.kind, p.len);
+  const mat = new THREE.MeshStandardMaterial({ map: woodTex, color: TINTS[tint % TINTS.length], roughness: 0.82, emissive: 0x000000 });
+  const mesh = new THREE.Mesh(box, mat); mesh.castShadow = mesh.receiveShadow = true;
+  const g = new THREE.Group(); g.add(mesh, new THREE.LineSegments(edges, edgeMat));
+  placeObj(g, p);
+  const qi = g.quaternion.clone().invert(), c = g.position.clone();
+  g.userData.screws = screws.map(s => {
+    const m = new THREE.Mesh(screwGeo, screwMat);
+    const n = new THREE.Vector3(...s.n).applyQuaternion(qi);
+    m.position.set(...s.p).sub(c).applyQuaternion(qi).addScaledVector(n, 0.05);
+    m.quaternion.setFromUnitVectors(AY, n); g.add(m); return m;
+  });
+  g.userData.mat = mat;
+  return g;
+}
+function placeObj(g, p) { const d = dims(p); g.position.set(p.x, p.y + d.sy / 2, p.z); g.quaternion.copy(poseQuat(p.pose, p.rot)); }
+
+// ---------- animation items ----------
+let plan, T = 0, t = 0, playing = false, frameDone = 0;
+function disposeGroup(gr) { for (const o of [...gr.children]) { gr.remove(o); o.traverse(n => { if (n.material && n.material !== edgeMat && n.material !== screwMat) n.material.dispose?.(); if (n.geometry && !isShared(n.geometry)) n.geometry.dispose(); }); } }
+const isShared = geo => geo === screwGeo || [...geoCache.values()].some(v => v.box === geo || v.edges === geo);
+
+function makeItem(it, P, tint) {
+  const { L, hx, hz } = P;
+  if (it.type === 'lumber') {
+    const g = lumberObj(it.piece, it.screws, tint); animGroup.add(g);
+    const base = g.position.clone(), q0 = g.quaternion.clone();
+    const out = new THREE.Vector3(it.piece.x, 0, it.piece.z); if (out.lengthSq() < 1) out.set(0, 0, 1); out.normalize();
+    const start = base.clone().addScaledVector(out, 38); start.y += 46;
+    const tilt = new THREE.Vector3(-out.z, 0, out.x), tq = new THREE.Quaternion(), mat = g.userData.mat;
+    mat.emissive.setHex(0xff9a3c);
+    const [mesh, edges] = g.children, baseColor = mat.color.getHex();
+    let ghost = false;
+    const setGhost = v => { if (v === ghost) return; ghost = v; mat.transparent = v; mat.opacity = v ? 0.45 : 1; mat.depthWrite = !v; mat.needsUpdate = true; };
+    it.apply = pr => {
+      const hl = it.hl, sh = HL.screws;
+      g.visible = pr > 0 || !!hl || !!sh; if (!g.visible) return;
+      if (pr <= 0 || (hl && pr < 1)) {
+        // Not built yet at this point in the timeline: a highlighted piece shows see-through where
+        // it will go, and highlighted screws show on their own so you can see the pattern.
+        g.position.copy(base); g.quaternion.copy(q0);
+        mesh.visible = edges.visible = !!hl; setGhost(!!hl);
+        mat.emissiveIntensity = 0;
+        for (const s of g.userData.screws) { s.visible = !!sh || !!hl; s.scale.setScalar(1); }
+      } else {
+        mesh.visible = edges.visible = true; setGhost(false);
+        const m = clamp01(pr / 0.8), e = easeIO(m);
+        g.position.lerpVectors(start, base, e); g.position.y += Math.sin(e * Math.PI) * 8;
+        g.quaternion.copy(q0).premultiply(tq.setFromAxisAngle(tilt, (1 - e) * 0.6));
+        mat.emissiveIntensity = pr < 1 ? 0.35 * (1 - m * 0.5) : 0;
+        for (const s of g.userData.screws) { const k = sh ? 1 : clamp01((pr - 0.78) / 0.2); s.visible = k > 0; s.scale.setScalar(Math.max(0.01, easeBack(k))); }
+      }
+      for (const s of g.userData.screws) s.material = sh ? HL.screwMat : screwMat;
+      if (hl) { mat.color.set(hl); mat.emissive.set(hl); mat.emissiveIntensity = 0.3; }
+      else { mat.color.setHex(baseColor); mat.emissive.setHex(0xff9a3c); }
+    };
+  } else if (it.type === 'liner') {
+    const g = new THREE.Group(); animGroup.add(g);
+    const mat = new THREE.MeshStandardMaterial({ color: 0x2b2d30, roughness: 1, side: THREE.DoubleSide });
+    const ix = L - 3.1, iz = W - 3.1, h = it.H - 0.5 - it.floorTop;
+    const floor = new THREE.Mesh(new THREE.BoxGeometry(ix, 0.06, iz), mat); floor.position.y = it.floorTop + 0.04; floor.receiveShadow = true; g.add(floor);
+    const walls = [[ix, iz / 2, 0], [ix, -iz / 2, 0], [iz, ix / 2, 1], [iz, -ix / 2, 1]].map(([len, off, r]) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(len, h).translate(0, h / 2, 0), mat);
+      if (r) { m.rotation.y = Math.PI / 2; m.position.set(off, it.floorTop, 0); } else m.position.set(0, it.floorTop, off);
+      g.add(m); return m;
+    });
+    it.apply = pr => {
+      g.visible = pr > 0; if (!g.visible) return;
+      const e = easeOut(clamp01(pr / 0.55)); floor.position.y = it.floorTop + 0.04 + (1 - e) * 30; floor.scale.set(0.6 + 0.4 * e, 1, 0.6 + 0.4 * e);
+      const k = easeIO(clamp01((pr - 0.5) / 0.5)); walls.forEach(w => { w.visible = k > 0; w.scale.y = Math.max(0.01, k); });
+    };
+    it.mats = [mat];
+  } else if (it.type === 'soil') {
+    const tex = soilTex.clone(); tex.repeat.set(L / 24, W / 24); tex.needsUpdate = true;
+    const h = it.H - 1 - it.floorTop - 0.1, m = new THREE.Mesh(new THREE.BoxGeometry(L - 3.3, 1, W - 3.3).translate(0, 0.5, 0), new THREE.MeshStandardMaterial({ map: tex, roughness: 1 }));
+    m.position.y = it.floorTop + 0.1; m.receiveShadow = true; animGroup.add(m);
+    it.apply = pr => { m.visible = pr > 0; if (!m.visible) return; m.scale.y = Math.max(0.01, easeIO(clamp01(pr)) * h); };
+    it.mats = [m.material];
+  } else if (it.type === 'plants') {
+    const g = new THREE.Group(); animGroup.add(g);
+    const greens = [0x6fae4b, 0x4f8f3a, 0x8bc25a, 0x3d7a3a, 0x9c5a8a].map(c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.75 }));
+    const leaf = new THREE.SphereGeometry(1, 10, 8), plants = [];
+    const rows = W >= 30 ? [-8, 8] : [0], cols = Math.round((L - 12) / (rows.length > 1 ? 14 : 11));
+    for (let c = 0; c < cols; c++) for (const z of rows) {
+      const p = new THREE.Group(), mat = greens[Math.floor(rnd() * greens.length)], big = 3.5 + rnd() * 2.5;
+      for (let k = 0; k < 7; k++) {
+        const s = new THREE.Mesh(leaf, mat), a = k / 7 * Math.PI * 2;
+        s.scale.set(big * 0.55, big * 0.35, big * 0.3); s.position.set(Math.cos(a) * big * 0.45, big * 0.3, Math.sin(a) * big * 0.45);
+        s.rotation.y = -a; s.castShadow = true; p.add(s);
+      }
+      const ctr = new THREE.Mesh(leaf, mat); ctr.scale.set(big * 0.4, big * 0.55, big * 0.4); ctr.position.y = big * 0.45; p.add(ctr);
+      p.position.set(-hx + 6 + (L - 12) * (c + 0.5) / cols, it.H - 1, z + (c % 2 ? 2 : -2)); g.add(p); plants.push(p);
+    }
+    it.apply = pr => {
+      g.visible = pr > 0; if (!g.visible) return;
+      plants.forEach((p, i) => { const k = clamp01(pr * 1.7 - i / plants.length * 0.7); p.visible = k > 0; p.scale.setScalar(Math.max(0.01, easeBack(k))); });
+    };
+  }
+}
+
+// Liner and soil: when highlighted, show them finished (see-through if not reached yet) and tinted.
+function wrapHighlight(it) {
+  const raw = it.apply;
+  for (const m of it.mats) m.userData.c0 = m.color.getHex();
+  it.apply = (pr, now) => {
+    const hl = it.hl, early = hl && pr < 1;
+    raw(early ? 1 : pr, now);
+    for (const m of it.mats) {
+      if (m.transparent !== !!early) { m.transparent = !!early; m.needsUpdate = true; }
+      m.opacity = early ? 0.55 : 1;
+      m.color.set(hl || m.userData.c0); m.emissive.set(hl || 0x000000); m.emissiveIntensity = hl ? 0.35 : 0;
+    }
+  };
+}
+
+function buildDims(P) {
+  disposeGroup(dimsGroup);
+  const { hx, hz, top } = P, mat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.75 });
+  const line = (a, b) => dimsGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a), new THREE.Vector3(...b)]), mat));
+  const label = (txt, pos) => { const d = document.createElement('div'); d.className = 'dim3d'; d.textContent = txt; const o = new CSS2DObject(d); o.position.set(...pos); dimsGroup.add(o); };
+  const o = 9;
+  line([-hx, 0.3, hz + o], [hx, 0.3, hz + o]); line([-hx, 0.3, hz + 2], [-hx, 0.3, hz + o + 2]); line([hx, 0.3, hz + 2], [hx, 0.3, hz + o + 2]);
+  label(`${ftIn(P.L)} (${P.L}″)`, [0, 0.3, hz + o]);
+  line([hx + o, 0.3, -hz], [hx + o, 0.3, hz]); line([hx + 2, 0.3, -hz], [hx + o + 2, 0.3, -hz]); line([hx + 2, 0.3, hz], [hx + o + 2, 0.3, hz]);
+  label(`${ftIn(W)} (${W}″)`, [hx + o, 0.3, 0]);
+  line([hx + o * 0.7, 0, -hz], [hx + o * 0.7, top, -hz]); line([hx, top, -hz], [hx + o, top, -hz]);
+  label(P.cap ? `${inch(S.height)} (${inch(top)} with ledge)` : inch(top), [hx + o * 0.7, top / 2, -hz]);
+}
+
+function rebuildPlan(keepT = true) {
+  const frac0 = T ? t / T : 0;
+  disposeGroup(animGroup);
+  seed = 11;
+  plan = planSpec();
+  let time = 0, tint = 0;
+  for (const st of plan.steps) {
+    st.t0 = time;
+    const stagger = st.items.length > 4 ? 0.32 : 0.5;
+    st.items.forEach((it, k) => {
+      it.t0 = time + 0.4 + k * stagger; it.t1 = it.t0 + (it.dur || (it.type === 'lumber' ? 1.1 : 1.6));
+      makeItem(it, plan, tint++);
+      if (it.mats) wrapHighlight(it);
+    });
+    st.t1 = Math.max(time + 1.6, ...st.items.map(i => i.t1)) + 0.9;
+    time = st.t1;
+  }
+  T = time;
+  frameDone = plan.steps.find(s => s.title.startsWith('Top row')).t1;
+  buildDims(plan);
+  t = keepT ? Math.min(T, frac0 * T) : 0;
+  renderSteps(); renderShop(); applyTime(true);
+  $('sub').textContent = `${PROJECTS[S.project]}: ${ftIn(W)} × ${ftIn(plan.L)} elevated cedar bed on legs, ${inch(S.height)} high with ~${plan.fewest ? 11 : 10}″ of soil`;
+}
+
+// ---------- timeline ----------
+let curStep = -1;
+function stepAt(time) { let i = 0; for (let k = 0; k < plan.steps.length; k++) if (plan.steps[k].t0 <= time + 1e-6) i = k; return i; }
+function applyTime(force) {
+  for (const st of plan.steps) for (const it of st.items) it.apply(clamp01((t - it.t0) / (it.t1 - it.t0)), t);
+  dimsGroup.visible = S.mode !== 'build' && S.dims && t >= frameDone - 0.3;
+  const i = stepAt(t);
+  if (i !== curStep || force) {
+    curStep = i; const st = plan.steps[i];
+    if (S.mode !== 'build') {
+      $('caption').className = '';
+      $('capK').textContent = `Step ${i + 1} of ${plan.steps.length}`; $('capT').textContent = st.title; $('capD').textContent = st.text;
+    }
+    [...$('stepList').children].forEach((li, k) => { li.classList.toggle('cur', k === i && t < T); li.classList.toggle('done', k < i || t >= T); });
+  }
+  if (!scrubbing) $('scrub').value = Math.round(t / T * 1000);
+  $('tlbl').textContent = `${Math.min(curStep + 1, plan.steps.length)} / ${plan.steps.length}`;
+}
+function setPlaying(v) {
+  if (v && S.mode === 'build') exitBuild();
+  if (v && t >= T - 1e-3) t = 0;
+  playing = v; $('playBtn').textContent = v ? '❚❚ Pause' : '▶ Play';
+}
+function renderSteps() {
+  $('stepList').innerHTML = plan.steps.map(s => `<li><span>${esc(s.title)}<small>${esc(s.short)}</small></span></li>`).join('');
+  [...$('stepList').children].forEach((li, k) => li.onclick = () => { if (S.mode === 'build') exitBuild(); t = plan.steps[k].t0; setPlaying(true); applyTime(true); });
+  curStep = -1;
+}
+let scrubbing = false;
+$('scrub').addEventListener('input', () => { scrubbing = true; if (S.mode === 'build') exitBuild(); t = $('scrub').value / 1000 * T; applyTime(); });
+$('scrub').addEventListener('change', () => scrubbing = false);
+$('scrub').addEventListener('pointerdown', () => { scrubbing = true; setPlaying(false); });
+$('scrub').addEventListener('pointerup', () => scrubbing = false);
+$('playBtn').onclick = () => setPlaying(!playing);
+$('nextBtn').onclick = () => {
+  if (S.mode === 'build') exitBuild();
+  setPlaying(false); const i = stepAt(t), st = plan.steps[i];
+  t = t < st.t1 - 0.05 ? st.t1 - 0.01 : plan.steps[Math.min(i + 1, plan.steps.length - 1)].t1 - 0.01;
+  if (i === plan.steps.length - 1) t = T;
+  applyTime(true);
+};
+$('prevBtn').onclick = () => {
+  if (S.mode === 'build') exitBuild();
+  setPlaying(false); const i = stepAt(t - 0.05);
+  t = i > 0 ? plan.steps[i - 1].t1 - 0.01 : 0; applyTime(true);
+};
+const SPEEDS = [0.5, 1, 2, 4];
+$('speedBtn').onclick = () => { S.speed = SPEEDS[(SPEEDS.indexOf(S.speed) + 1) % SPEEDS.length] || 1; $('speedBtn').textContent = S.speed + '×'; saveOpts(); };
+$('speedBtn').textContent = S.speed + '×';
+
+// ---------- camera ----------
+let camTween = null;
+function view(name, instant) {
+  const L = S.size, tgt = new THREE.Vector3(0, 16, 0), pos = new THREE.Vector3();
+  if (name === 'top') pos.set(0, L * 1.9, 1);
+  else if (name === 'front') pos.set(0, 34, L * 1.75);
+  else if (name === 'end') pos.set(L * 1.2, 36, 0);
+  else pos.set(L * 0.95, L * 0.8, L * 1.3);
+  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === name));
+  if (instant) { camera.position.copy(pos); controls.target.copy(tgt); controls.update(); return; }
+  camTween = { p0: camera.position.clone(), t0: controls.target.clone(), p1: pos, t1: tgt, k: 0 };
+}
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => view(b.dataset.view));
+controls.addEventListener('start', () => { camTween = null; document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('on')); });
+
+// ---------- build mode ----------
+const B = { pieces: [], sel: null, hist: [], nextId: 1 };
+const meshes = new Map();
+const piece = id => B.pieces.find(p => p.id === id);
+const keyOf = p => p.kind + '|' + p.len;
+
+function enterBuild() {
+  setPlaying(false);
+  S.mode = 'build'; $('app').classList.add('building'); $('buildBtn').classList.add('on');
+  const done = [];
+  for (const st of plan.steps) for (const it of st.items) if (it.type === 'lumber' && t >= it.t1 - 1e-3) done.push({ ...it.piece });
+  B.pieces = done.map(p => ({ ...p, id: B.nextId++ })); B.hist = []; B.sel = null;
+  animGroup.visible = false; buildGroup.visible = true; dimsGroup.visible = false; grid.visible = true;
+  const prev = store.get('build', null);
+  $('bRestore').hidden = !(prev && prev.length);
+  if (prev && prev.length) $('bRestore').textContent = `Restore my last build (${prev.length} pieces)`;
+  $('caption').className = 'build';
+  $('capK').textContent = 'Build mode';
+  $('capT').textContent = done.length ? `You've taken over at step ${curStep + 1}. ${done.length} pieces are in place.` : 'Empty site. Drag pieces in from the inventory.';
+  $('capD').textContent = 'Drag pieces from the inventory into the scene. Drag a piece to move it; R / F / U / D / Del while one is selected.';
+  syncBuild(); renderInv();
+  if (matchMedia('(max-width: 900px)').matches) $('fsBuild').scrollIntoView({ behavior: 'smooth' });
+}
+function exitBuild() {
+  S.mode = 'anim'; $('app').classList.remove('building'); $('buildBtn').classList.remove('on');
+  select(null); animGroup.visible = true; buildGroup.visible = false; grid.visible = false; applyTime(true);
+}
+$('buildBtn').onclick = () => S.mode === 'build' ? exitBuild() : enterBuild();
+$('enterBuild').onclick = enterBuild;
+$('exitBuild').onclick = exitBuild;
+
+function commit(before) {
+  B.hist.push(before); if (B.hist.length > 200) B.hist.shift();
+  $('bUndo').disabled = false;
+  store.set('build', B.pieces.map(({ id, ...p }) => p));
+  $('bRestore').hidden = true;
+  syncBuild(); renderInv();
+}
+const snap = () => JSON.stringify(B.pieces);
+function undo() {
+  if (!B.hist.length) return;
+  B.pieces = JSON.parse(B.hist.pop()); $('bUndo').disabled = !B.hist.length;
+  if (!piece(B.sel)) B.sel = null;
+  store.set('build', B.pieces.map(({ id, ...p }) => p)); syncBuild(); renderInv();
+}
+$('bUndo').onclick = undo;
+$('bClear').onclick = () => { if (!B.pieces.length) return; const b = snap(); B.pieces = []; B.sel = null; commit(b); toast('Cleared. Undo brings it back.'); };
+$('bFull').onclick = () => {
+  const b = snap(); B.pieces = [];
+  for (const st of plan.steps) for (const it of st.items) if (it.type === 'lumber') B.pieces.push({ ...it.piece, id: B.nextId++ });
+  B.sel = null; commit(b);
+};
+$('bRestore').onclick = () => {
+  const prev = store.get('build', []); const b = snap();
+  B.pieces = prev.map(p => ({ ...p, id: B.nextId++ })); B.sel = null; commit(b);
+};
+
+function syncBuild() {
+  const ids = new Set(B.pieces.map(p => p.id));
+  for (const [id, g] of meshes) if (!ids.has(id)) { buildGroup.remove(g); g.userData.mat.dispose(); meshes.delete(id); }
+  for (const p of B.pieces) {
+    let g = meshes.get(p.id);
+    if (!g || g.userData.key !== keyOf(p)) {
+      if (g) { buildGroup.remove(g); g.userData.mat.dispose(); }
+      g = lumberObj(p, [], p.id); g.userData.id = p.id; g.userData.key = keyOf(p);
+      g.traverse(n => n.userData.id = p.id); buildGroup.add(g); meshes.set(p.id, g);
+    }
+    placeObj(g, p);
+    g.userData.mat.emissive.setHex(p.id === B.sel ? 0x2f7fd0 : 0x000000); g.userData.mat.emissiveIntensity = 0.45;
+  }
+  const s = piece(B.sel);
+  $('selbar').hidden = !s;
+  if (s) $('selName').textContent = `${kindName(s.kind)} · ${inch(s.len)} · ${{ edge: 'on edge', flat: 'flat', up: 'upright' }[s.pose]}`;
+  renderTally();
+}
+function select(id) { B.sel = id; if (S.mode === 'build') syncBuild(); else $('selbar').hidden = true; }
+
+// Resting height: on top of the highest piece whose footprint overlaps this one.
+function box(p) { const d = dims(p); return { x0: p.x - d.sx / 2, x1: p.x + d.sx / 2, z0: p.z - d.sz / 2, z1: p.z + d.sz / 2, y0: p.y, y1: p.y + d.sy }; }
+function restY(p) {
+  const a = box(p); let y = 0;
+  for (const q of B.pieces) {
+    if (q.id === p.id) continue; const b = box(q);
+    if (a.x0 < b.x1 - 0.05 && a.x1 > b.x0 + 0.05 && a.z0 < b.z1 - 0.05 && a.z1 > b.z0 + 0.05) y = Math.max(y, b.y1);
+  }
+  return y;
+}
+// Snap to a ¼″ grid, then pull flush against a neighbour's face if one is within 1¼″.
+function settle(p, magnet = true) {
+  p.x = Math.round(p.x * 4) / 4; p.z = Math.round(p.z * 4) / 4;
+  if (magnet) {
+    const a = box(p); let bx = { d: 1.25, v: 0 }, bz = { d: 1.25, v: 0 };
+    for (const q of B.pieces) {
+      if (q.id === p.id) continue; const b = box(q);
+      const nearZ = a.z0 < b.z1 + 6 && a.z1 > b.z0 - 6, nearX = a.x0 < b.x1 + 6 && a.x1 > b.x0 - 6;
+      if (nearZ) for (const d of [b.x1 - a.x0, b.x0 - a.x1, b.x0 - a.x0, b.x1 - a.x1]) if (Math.abs(d) < bx.d) bx = { d: Math.abs(d), v: d };
+      if (nearX) for (const d of [b.z1 - a.z0, b.z0 - a.z1, b.z0 - a.z0, b.z1 - a.z1]) if (Math.abs(d) < bz.d) bz = { d: Math.abs(d), v: d };
+    }
+    p.x += bx.v; p.z += bz.v;
+  }
+  if (S.gravity) p.y = restY(p);
+}
+
+function act(a, shift) {
+  const p = piece(B.sel); if (!p) return;
+  const before = snap();
+  if (a === 'rot') { p.rot ^= 1; settle(p); }
+  else if (a === 'flat') { p.pose = p.pose === 'flat' ? 'edge' : 'flat'; settle(p); }
+  else if (a === 'up') { p.pose = p.pose === 'up' ? 'edge' : 'up'; settle(p); }
+  else if (a === 'raise') p.y += shift ? 5.5 : 0.5;
+  else if (a === 'lower') p.y = Math.max(0, p.y - (shift ? 5.5 : 0.5));
+  else if (a === 'dup') {
+    const d = dims(p), q = { ...p, id: B.nextId++ };
+    if (p.pose === 'up') { q.x += d.sx + 2; settle(q); } else { q.y = p.y + d.sy; }
+    B.pieces.push(q); B.sel = q.id;
+  } else if (a === 'del') { B.pieces = B.pieces.filter(q => q !== p); B.sel = null; }
+  commit(before);
+}
+document.querySelectorAll('#selbar [data-act]').forEach(b => b.onclick = e => act(b.dataset.act, e.shiftKey));
+window.addEventListener('keydown', e => {
+  if (e.target.closest('input, select, textarea')) return;
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z' && S.mode === 'build') { e.preventDefault(); undo(); return; }
+  if (e.key === ' ' && !e.target.closest('button')) { e.preventDefault(); setPlaying(!playing); return; }
+  if (S.mode !== 'build' || e.metaKey || e.ctrlKey) return;
+  const p = piece(B.sel);
+  const k = e.key.toLowerCase();
+  if (k === 'escape') return select(null);
+  if (!p) return;
+  const map = { r: 'rot', f: 'flat', u: 'up', d: 'dup', delete: 'del', backspace: 'del' };
+  if (map[k]) { e.preventDefault(); act(map[k], e.shiftKey); return; }
+  const step = e.shiftKey ? 6 : 0.5, mv = { arrowleft: [-step, 0], arrowright: [step, 0], arrowup: [0, -step], arrowdown: [0, step] }[k];
+  if (mv) { e.preventDefault(); const b = snap(); p.x += mv[0]; p.z += mv[1]; settle(p, false); commit(b); }
+});
+
+// pointer: pick and drag pieces on a horizontal plane through the grab point
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), hitPt = new THREE.Vector3();
+function setRay(e) { const r = renderer.domElement.getBoundingClientRect(); ndc.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(ndc, camera); }
+function overCanvas(e) { const r = renderer.domElement.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }
+let drag = null, downAt = null;
+host.addEventListener('pointerdown', e => {
+  if (S.mode !== 'build' || e.button !== 0 || e.target !== renderer.domElement) return;
+  setRay(e);
+  const hit = ray.intersectObjects(buildGroup.children, true).find(h => h.object.isMesh);
+  downAt = { x: e.clientX, y: e.clientY, hit: !!hit };
+  if (!hit) return;
+  const p = piece(hit.object.userData.id); if (!p) return;
+  controls.enabled = false; B.sel = p.id; syncBuild();
+  drag = { id: p.id, plane: new THREE.Plane(AY.clone(), -hit.point.y), ox: p.x - hit.point.x, oz: p.z - hit.point.z, before: snap(), moved: false };
+  renderer.domElement.setPointerCapture(e.pointerId);
+}, { capture: true });
+window.addEventListener('pointermove', e => {
+  if (!drag) return; setRay(e);
+  if (!ray.ray.intersectPlane(drag.plane, hitPt)) return;
+  const p = piece(drag.id); p.x = hitPt.x + drag.ox; p.z = hitPt.z + drag.oz; settle(p);
+  drag.moved = true; placeObj(meshes.get(p.id), p);
+});
+window.addEventListener('pointerup', e => {
+  if (drag) { controls.enabled = true; if (drag.moved) commit(drag.before); drag = null; return; }
+  if (downAt && !downAt.hit && S.mode === 'build' && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 5) select(null);
+  downAt = null;
+});
+
+// inventory: pointer-drag a card onto the canvas (works with touch too), or tap to drop one in
+const groundPlane = new THREE.Plane(AY.clone(), 0);
+function defaultPose(kind, len) { return kind.startsWith('ply') ? 'flat' : kind === '4x4' && len <= 48 ? 'up' : 'edge'; }
+function startCardDrag(e, spec) {
+  e.preventDefault();
+  const gp = { kind: spec.kind, len: spec.len, pose: defaultPose(spec.kind, spec.len), rot: 0, x: 0, y: 0, z: 0, id: -1 };
+  const ghost = lumberObj(gp); ghost.userData.mat.transparent = true; ghost.userData.mat.opacity = 0.6; ghost.visible = false; scene.add(ghost);
+  const x0 = e.clientX, y0 = e.clientY;
+  const move = ev => {
+    if (!overCanvas(ev)) { ghost.visible = false; return; }
+    setRay(ev); if (!ray.ray.intersectPlane(groundPlane, hitPt)) return;
+    gp.x = hitPt.x; gp.z = hitPt.z; settle(gp); placeObj(ghost, gp); ghost.visible = true;
+  };
+  const up = ev => {
+    window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+    scene.remove(ghost); ghost.userData.mat.dispose();
+    const tap = Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6;
+    if (!tap && !ghost.visible) return;
+    if (tap) { gp.x = 0; gp.z = W / 2 + 14 + (B.pieces.filter(q => q.z > W / 2 + 8).length % 6) * 7; settle(gp); }
+    const b = snap(); const p = { ...gp, id: B.nextId++ }; B.pieces.push(p); B.sel = p.id; commit(b);
+  };
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
+}
+
+function invSpecs() {
+  const planM = new Map();
+  for (const st of plan.steps) for (const it of st.items) if (it.type === 'lumber') {
+    const k = keyOf(it.piece); if (!planM.has(k)) planM.set(k, { kind: it.piece.kind, len: it.piece.len, roles: [], plan: 0 });
+    const e = planM.get(k); e.plan++; if (!e.roles.includes(it.role)) e.roles.push(it.role);
+  }
+  for (const e of planM.values()) e.name = e.roles.join(' / ');
+  const planL = [...planM.values()];
+  const extra = [...STOCK['2x6'].map(len => ({ kind: '2x6', len })), { kind: '2x4', len: 96 }, { kind: '2x12', len: 96 }, { kind: '4x4', len: 96 }, ...store.get('custom', [])]
+    .filter((s, i, a) => !planM.has(keyOf(s)) && a.findIndex(o => keyOf(o) === keyOf(s)) === i)
+    .map(s => ({ ...s, name: STOCK[s.kind].includes(s.len) ? `Full ${ftIn(s.len)} board` : 'Custom cut', custom: !STOCK[s.kind].includes(s.len) }));
+  return { planL, extra };
+}
+function cardHtml(s, used) {
+  const w = Math.min(100, s.len / 144 * 100), h = s.kind === '4x4' ? 12 : 9;
+  const ct = s.plan != null ? `<span class="ct ${used > s.plan ? 'over' : used === s.plan ? 'ok' : ''}">${used} / ${s.plan} placed</span>` : `<span class="ct">${used ? used + ' placed' : ''}${s.custom ? ` <button class="del" data-k="${s.kind}|${s.len}" title="Remove from inventory">✕</button>` : ''}</span>`;
+  return `<div class="card" data-kind="${s.kind}" data-len="${s.len}"><span><b>${kindName(s.kind)} · ${inch(s.len)}</b> <span class="hint">${esc(s.name)}</span></span>${ct}
+    <svg viewBox="0 0 100 14" preserveAspectRatio="none"><rect x="0" y="${(14 - h) / 2}" width="${w}" height="${h}" rx="1" fill="#c98b5c" stroke="#7a4a2a" stroke-width=".4" vector-effect="non-scaling-stroke"/></svg></div>`;
+}
+function renderInv() {
+  if (!plan) return;
+  const { planL, extra } = invSpecs(), cnt = new Map();
+  for (const p of B.pieces) cnt.set(keyOf(p), (cnt.get(keyOf(p)) || 0) + 1);
+  $('invPlan').innerHTML = planL.map(s => cardHtml(s, cnt.get(keyOf(s)) || 0)).join('');
+  $('invStock').innerHTML = extra.map(s => cardHtml(s, cnt.get(keyOf(s)) || 0)).join('');
+  document.querySelectorAll('.card').forEach(c => c.addEventListener('pointerdown', e => {
+    if (e.target.closest('.del')) return;
+    startCardDrag(e, { kind: c.dataset.kind, len: +c.dataset.len });
+  }));
+  document.querySelectorAll('.card .del').forEach(b => b.onclick = () => {
+    store.set('custom', store.get('custom', []).filter(s => keyOf(s) !== b.dataset.k)); renderInv();
+  });
+}
+$('cAdd').onclick = () => {
+  const len = Math.round(parseFloat($('cLen').value) * 8) / 8, kind = $('cKind').value;
+  if (!(len >= 2 && len <= 240)) return toast('Pick a length between 2″ and 240″');
+  const cur = store.get('custom', []);
+  if (!cur.some(s => s.kind === kind && s.len === len)) store.set('custom', [...cur, { kind, len }]);
+  renderInv(); toast(`${kindName(kind)} · ${inch(len)} added to the inventory`);
+};
+
+function renderTally() {
+  if (!B.pieces.length) { $('tally').innerHTML = '<div class="hint">Nothing placed yet.</div>'; return; }
+  const boards = pack(B.pieces, S.project === 'fewest'), cnt = new Map();
+  for (const p of B.pieces) cnt.set(keyOf(p), (cnt.get(keyOf(p)) || 0) + 1);
+  const rows = [...cnt.entries()].sort().map(([k, n]) => { const [kind, len] = k.split('|'); return `<tr><td>${kindName(kind)} · ${inch(+len)}</td><td class="n">× ${n}</td></tr>`; }).join('');
+  const st = stockLines(boards).map(s => `${s.n} × ${kindName(s.kind)}, ${s.len / 12} ft long`).join(', ');
+  const over = boards.filter(b => b.over);
+  const all = B.pieces.map(box), bb = all.reduce((a, b) => ({ x0: Math.min(a.x0, b.x0), x1: Math.max(a.x1, b.x1), z0: Math.min(a.z0, b.z0), z1: Math.max(a.z1, b.z1), y1: Math.max(a.y1, b.y1) }), { x0: 1e9, x1: -1e9, z0: 1e9, z1: -1e9, y1: 0 });
+  $('tally').innerHTML = `<table><tr><th>Piece</th><th class="n">Qty</th></tr>${rows}</table>
+    <div class="hint" style="margin-top:6px"><b>Buy:</b> ${st || '—'}<br><b>Lumber ≈ $${Math.round(costOf(boards))}</b> · overall ${inch(bb.x1 - bb.x0)} × ${inch(bb.z1 - bb.z0)} × ${inch(bb.y1)} tall</div>
+    ${over.length ? `<div class="note">${over.length} piece${over.length > 1 ? 's are' : ' is'} longer than 12′. You'll need special-order stock.</div>` : ''}`;
+}
+
+// ---------- shopping list ----------
+function planTotals(P) {
+  const lum = []; let screws = 0;
+  for (const st of P.steps) for (const it of st.items) if (it.type === 'lumber') { lum.push(it.piece); screws += it.screws.length; }
+  const boards = pack(lum, !!P.fewest), plys = lum.filter(p => p.kind.startsWith('ply'));
+  const plyCost = plys.reduce((s, p) => s + (sec(p.kind)[0] <= 24 ? PLY_PRICE.panel : PLY_PRICE.sheet), 0);
+  return { lum, screws, boards, plys, cost: costOf(boards) + plyCost, nOrder: boards.length + plys.length, nBoards: boards.length };
+}
+// Outside surface that gets stained, in sq ft. The inside of the box, the floor and the cleats
+// stay bare (soil and roots touch them); legs count only below the box, plus their bottom end grain.
+function stainSqFt(P) {
+  const yb = P.yb ?? S.height - 16.5; let a = 0;
+  for (const st of P.steps) for (const it of st.items) {
+    if (it.type !== 'lumber') continue;
+    const { kind, len } = it.piece, [w, t] = sec(kind);
+    if (it.role === 'Long side' || it.role === 'End') a += len * w;
+    else if (it.role === 'Leg') a += 4 * w * yb + w * w;
+    else if (/stretcher|brace|Shelf/i.test(it.role)) a += 2 * len * (w + t);
+    else if (/Ledge/.test(it.role)) a += len * (w + t);
+  }
+  if (!P.cap) a += 2 * (P.L + W) * 1.5;   // exposed top edges of the walls
+  return a / 144;
+}
+function applyHighlights(redraw = true) {
+  const on = [...HL.pinned]; if (HL.hover && !HL.pinned.has(HL.hover)) on.push(HL.hover);
+  for (const st of plan.steps) for (const it of st.items) it.hl = null;
+  HL.screws = null;
+  for (const k of on) {
+    const r = HL.rows.get(k); if (!r) continue;
+    for (const it of r.items) if (it) it.hl = r.color;
+    if (r.screws) HL.screws = r.color;
+  }
+  if (HL.screws) { HL.screwMat.color.set(HL.screws); HL.screwMat.emissive.set(HL.screws); }
+  $('fsShop').querySelectorAll('[data-hl]').forEach(el => { el.classList.toggle('pinned', HL.pinned.has(el.dataset.hl)); el.classList.toggle('hov', HL.hover === el.dataset.hl); });
+  const c = $('hlClear'); if (c) c.hidden = !HL.pinned.size;
+  if (redraw && S.mode !== 'build') applyTime();
+}
+let shopText = '';
+$('dlShop').onclick = () => {
+  const name = `flowerbed-${S.project}-${W / 12}x${S.size / 12}ft-shopping-list.txt`;
+  const url = URL.createObjectURL(new Blob([shopText], { type: 'text/plain;charset=utf-8' }));
+  const a = Object.assign(document.createElement('a'), { href: url, download: name });
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast('Shopping list saved as ' + name);
+};
+const PROJECTS = { classic: 'Classic', minimal: 'Minimal', fewest: 'Fewest pieces' };
+function renderShop() {
+  const me = planTotals(plan), { lum, screws, boards, plys, cost } = me;
+  const cur = S.project, all = {};
+  for (const k of Object.keys(PROJECTS)) { S.project = k; all[k] = k === cur ? me : planTotals(planSpec()); }
+  S.project = cur;
+  // Which plan items each row stands for; the order fixes each row's colour.
+  const itemOf = new Map(); for (const st of plan.steps) for (const it of st.items) itemOf.set(it.piece || it, it);
+  const allItems = plan.steps.flatMap(st => st.items);
+  const rowDefs = [];
+  for (const sl of stockLines(boards)) rowDefs.push({ key: 'stock:' + sl.key, items: sl.refs.map(r => itemOf.get(r)) });
+  for (const p of plys) rowDefs.push({ key: 'ply:' + p.kind, items: [itemOf.get(p)] });
+  rowDefs.push({ key: 'screws', items: [], screws: true });
+  rowDefs.push({ key: 'fabric', items: allItems.filter(i => i.type === 'liner') });
+  rowDefs.push({ key: 'soil', items: allItems.filter(i => i.type === 'soil') });
+  rowDefs.push({ key: 'stain', items: allItems.filter(i => i.type === 'lumber' && /^(Long side|End|Leg)$|stretcher|brace|Shelf|Ledge/i.test(i.role)) });
+  HL.rows = new Map(rowDefs.map((r, i) => [r.key, { ...r, color: HL_COLORS[i % HL_COLORS.length] }]));
+  for (const k of [...HL.pinned]) if (!HL.rows.has(k)) HL.pinned.delete(k);
+  const hr = key => `class="hlrow" data-hl="${key}" style="--hl:${HL.rows.get(key).color}"`;
+  const chip = '<i class="chip"></i>';
+  const lines = stockLines(boards).map(s => `<tr ${hr('stock:' + s.key)}><td>${chip}${kindName(s.kind)} cedar board, ${s.len / 12} ft long <span class="hint">(actual size ${frac(sec(s.kind)[1])}″ × ${frac(sec(s.kind)[0])}″)</span></td><td class="n">${s.n}</td></tr>`).join('')
+    + plys.map(p => { const w = sec(p.kind)[0]; return `<tr ${hr('ply:' + p.kind)}><td>${chip}¾″ exterior or pressure-treated plywood, ${w <= 24 ? '2 × 8 ft handy panel' : '4 × 8 ft sheet'} <span class="hint">(cut to ${inch(w)} × ${inch(p.len)})</span></td><td class="n">1</td></tr>`; }).join('');
+  const L = S.size, yd = soilYards();
+  const sqft = stainSqFt(plan), stainQt = Math.max(1, Math.ceil(sqft * 1.5 / 125 * 4));   // ~125 sq ft/gal on rough cedar; the 2nd coat takes about half
+  const cmpRows = Object.entries(PROJECTS).map(([k, name]) => { const o = all[k];
+    return `<tr${k === cur ? ' style="font-weight:700"' : ''}><td>${name}</td><td class="n">${o.nOrder}</td><td class="n">${o.lum.length}</td><td class="n">${o.screws}</td><td class="n">$${Math.round(o.cost)}</td></tr>`; }).join('');
+  $('shop').innerHTML = `<div class="hint" style="margin:0 0 6px">Hover an item to see it in 3D. Click to keep it coloured; click several to compare. <button class="small" id="hlClear" ${HL.pinned.size ? '' : 'hidden'}>Clear colours</button></div>
+    <table><tr><th>Item</th><th class="n">Qty</th></tr>${lines}
+    <tr ${hr('screws')}><td>${chip}3″ exterior deck screws, coated or stainless <span class="hint">(${screws} used; buy a 5 lb box)</span></td><td class="n">~${Math.ceil(screws / 10) * 10 + 10}</td></tr>
+    <tr ${hr('fabric')}><td>${chip}Landscape fabric (not plastic) + staples</td><td class="n">${Math.ceil(((L + 30) * (W + 30)) / 144)} sq ft</td></tr>
+    <tr ${hr('soil')}><td>${chip}Raised-bed / potting mix</td><td class="n">${yd.toFixed(1)} yd³</td></tr>
+    <tr ${hr('stain')}><td>${chip}Penetrating oil-based semi-transparent exterior stain, cedar tone <span class="hint">(optional; ~${Math.round(sqft)} sq ft of outside faces, legs and leg bottoms, two coats wet-on-wet. Leave the inside bare.)</span></td><td class="n">${stainQt} qt</td></tr>
+    <tr class="tot"><td>Wood, estimated</td><td class="n">$${Math.round(cost)}</td></tr></table>
+    <div class="hint">Cedar 2×6s run about $25–35 per 8-ft board. Douglas fir or pressure-treated lumber costs about half as much.</div>
+    <div class="cmp"><table><tr><th>Project</th><th class="n">To order</th><th class="n">Pieces</th><th class="n">Screws</th><th class="n">Wood</th></tr>${cmpRows}</table></div>`;
+  $('shop').querySelectorAll('.hlrow').forEach(tr => {
+    const key = tr.dataset.hl;
+    tr.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { HL.hover = key; applyHighlights(); } });
+    tr.addEventListener('pointerleave', () => { if (HL.hover === key) { HL.hover = null; applyHighlights(); } });
+    tr.addEventListener('click', () => { HL.pinned.has(key) ? HL.pinned.delete(key) : HL.pinned.add(key); applyHighlights(); });
+  });
+  $('hlClear').onclick = () => { HL.pinned.clear(); applyHighlights(); };
+  // Cut diagram. A board row maps to its shopping-list row (same highlight key); each cut maps to
+  // the pieces made from that position on those boards. Clicking either explains the link.
+  const groups = groupBoards(boards), maxL = 144, rowH = 24, wpx = 300, sc = wpx / maxL;
+  const colors = { 33: '#c98b5c', 25: '#e0b07f', 26: '#a8714a', 36: '#d49a68' };
+  const rolesOf = its => { const m = new Map(); for (const it of its) if (it) m.set(it.role, (m.get(it.role) || 0) + 1); return [...m].map(([r, n]) => `${r}${n > 1 ? ' ×' + n : ''}`).join(', '); };
+  const shopName = g => `${kindName(g.kind)} cedar board, ${g.stock / 12} ft long`;
+  const cutInfo = new Map();
+  let y = 0, svg = '', nCol = HL.rows.size;
+  groups.forEach((g, gi) => {
+    const rowKey = 'stock:' + g.kind + '|' + g.stock, h = g.kind === '4x4' ? 8 : 7, by = y + 14;
+    const parts = g.cuts.map((c, ci) => ({ c, its: g.boards.map(b => itemOf.get(b.refs[ci])) }));
+    if (!g.over) cutInfo.set(rowKey, `<b>${g.n} × ${kindName(g.kind)} board, ${g.stock / 12} ft long</b> is the shopping-list line <b>“${shopName(g)}”</b>${stockLines(boards).find(l => 'stock:' + l.key === rowKey)?.n > g.n ? ' (part of it: some of those boards are cut differently)' : ''}. Each one is cut into: ${parts.map(p => `${inch(p.c)} ${rolesOf(p.its)}`).join(' · ')}.`);
+    svg += `<g class="cutgrp" ${g.over ? '' : `data-hl="${rowKey}"`} style="--hl:${HL.rows.get(rowKey)?.color || '#888'}"><rect class="cutbg" x="-2" y="${y}" width="${wpx + 4}" height="${rowH}" rx="3"/>
+      <text x="0" y="${y + 10}" font-size="10" fill="#555">${g.n} × ${kindName(g.kind)} board, ${(g.stock || g.used) / 12} ft long</text>
+      <rect x="0" y="${by}" width="${(g.stock || g.used) * sc}" height="${h}" fill="#eee" stroke="#999" stroke-width=".5"/></g>`;
+    let x = 0;
+    parts.forEach((pt, ci) => {
+      const key = `cut:${gi}:${ci}`, color = HL_COLORS[nCol++ % HL_COLORS.length];
+      HL.rows.set(key, { key, items: pt.its, color });
+      cutInfo.set(key, `<b>${inch(pt.c)} cut</b> from ${g.n > 1 ? `each of the ${g.n}` : 'the'} ${kindName(g.kind)} board${g.n > 1 ? 's' : ''}, ${(g.stock || g.used) / 12} ft long → <b>${rolesOf(pt.its)}</b>. Shopping-list line: “${g.over ? 'special order' : shopName(g)}”.`);
+      svg += `<rect class="cutseg" data-hl="${key}" style="--hl:${color}" x="${x * sc}" y="${by}" width="${pt.c * sc}" height="${h}" fill="${colors[pt.c] || '#b8734a'}" stroke="#5a3a22" stroke-width=".5"><title>${inch(pt.c)}: ${rolesOf(pt.its)}</title></rect>`;
+      if (pt.c * sc > 20) svg += `<text x="${(x + pt.c / 2) * sc}" y="${by + 5.6}" font-size="6.5" fill="#fff" text-anchor="middle" pointer-events="none">${inch(pt.c)}</text>`;
+      x += pt.c + KERF;
+    });
+    y += rowH + 4;
+  });
+  for (const k of [...HL.pinned]) if (!HL.rows.has(k)) HL.pinned.delete(k);
+  // Plain-text version for the download button: what to buy, then how to cut it.
+  const box = '[ ]', price = { '2x6': S.p26, '2x4': S.p24, '2x12': S.p212, '4x4': S.p44 };
+  shopText = [
+    'ELEVATED FLOWER BED: SHOPPING LIST',
+    `Project: ${PROJECTS[S.project]}`,
+    `Bed: ${ftIn(W)} wide × ${ftIn(L)} long, ${inch(S.height)} high, ~${plan.fewest ? 11 : 10}″ of soil`,
+    `Made: ${new Date().toLocaleDateString()}  ·  ${location.origin}${location.pathname}#${S.project}`,
+    '',
+    'LUMBER (cedar)',
+    ...stockLines(boards).map(l => `${box} ${l.n} × ${kindName(l.kind)} board, ${l.len / 12} ft long   (actual size ${frac(sec(l.kind)[1])}″ × ${frac(sec(l.kind)[0])}″)`),
+    ...boards.filter(b => b.over).map(b => `${box} 1 × ${kindName(b.kind)}, ${inch(b.used)} long (special order, longer than 12 ft)`),
+    ...plys.map(p => { const w = sec(p.kind)[0]; return `${box} 1 × ¾″ exterior or pressure-treated plywood, ${w <= 24 ? '2 × 8 ft handy panel' : '4 × 8 ft sheet'}   (cut to ${inch(w)} × ${inch(p.len)})`; }),
+    '',
+    'HARDWARE & SUPPLIES',
+    `${box} ~${Math.ceil(screws / 10) * 10 + 10} × 3″ exterior deck screws, coated or stainless (${screws} used; a 5 lb box covers it)`,
+    `${box} ${Math.ceil(((L + 30) * (W + 30)) / 144)} sq ft landscape fabric (not plastic) + staples`,
+    `${box} ${yd.toFixed(1)} cu yd raised-bed / potting mix (about ${Math.ceil(yd * 27 / 1.5)} bags of 1.5 cu ft)`,
+    `${box} ${stainQt} qt penetrating oil-based semi-transparent exterior stain, cedar tone (optional; outside only)`,
+    '',
+    'CUT LIST (what each board becomes)',
+    ...groups.map(g => `${g.n} × ${kindName(g.kind)} board, ${(g.stock || g.used) / 12} ft long  →  ` + g.cuts.map((c, ci) => `${inch(c)} ${rolesOf(g.boards.map(b => itemOf.get(b.refs[ci])))}`).join('  ·  ')),
+    ...plys.map(p => `1 × plywood  →  ${inch(sec(p.kind)[0])} × ${inch(p.len)} floor panel, notched 3½″ × 3½″ around every leg, ½″ drainage holes every ~6″`),
+    '',
+    `ESTIMATED WOOD COST: about $${Math.round(cost)}`,
+    `  (cedar per linear ft: ${Object.entries(price).filter(([k]) => boards.some(b => b.kind === k)).map(([k, v]) => `${kindName(k)} $${v.toFixed(2)}`).join(', ')}${plys.length ? '; plywood about $' + plys.reduce((t, p) => t + (sec(p.kind)[0] <= 24 ? PLY_PRICE.panel : PLY_PRICE.sheet), 0) : ''})`,
+    '',
+  ].join('\n');
+  $('cuts').innerHTML = `<svg viewBox="-2 0 ${wpx + 4} ${y}" role="img" aria-label="How each stock board is cut">${svg}</svg>
+    <div id="cutInfo" class="note" hidden></div>
+    <div class="hint">Click a board to find its line in the shopping list, or click a single cut to see what it becomes. Grey is offcut. Ask the yard to make the cuts if you don't have a saw.</div>`;
+  $('cuts').querySelectorAll('[data-hl]').forEach(el => {
+    const key = el.dataset.hl;
+    el.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') { HL.hover = key; applyHighlights(); } });
+    el.addEventListener('pointerleave', () => { if (HL.hover === key) { HL.hover = null; applyHighlights(); } });
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const on = !HL.pinned.has(key); on ? HL.pinned.add(key) : HL.pinned.delete(key);
+      const info = $('cutInfo'); info.hidden = !on; if (on) info.innerHTML = cutInfo.get(key) || '';
+      const row = $('shop').querySelector(`.hlrow[data-hl="${key}"]`);
+      if (on && row) { row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash'); }
+      applyHighlights();
+    });
+  });
+  applyHighlights(false);
+}
+
+// ---------- panel wiring ----------
+function syncForm() {
+  document.querySelectorAll('#projSeg button').forEach(b => b.classList.toggle('on', b.dataset.p === S.project));
+  $('app').classList.toggle('minimal', S.project !== 'classic');
+  document.querySelectorAll('#sizeSeg button').forEach(b => b.classList.toggle('on', +b.dataset.size === S.size));
+  document.querySelectorAll('#wSeg button').forEach(b => b.classList.toggle('on', +b.dataset.w === S.width));
+  document.querySelectorAll('#hSeg button').forEach(b => b.classList.toggle('on', +b.dataset.h === S.height));
+  $('optShelf').checked = S.shelf; $('optCap').checked = S.cap; $('optGravity').checked = S.gravity;
+  $('p26').value = S.p26; $('p24').value = S.p24; $('p212').value = S.p212; $('p44').value = S.p44; $('dimsBtn').classList.toggle('on', S.dims);
+}
+function optChanged() { W = S.width; saveOpts(); syncForm(); rebuildPlan(true); if (S.mode === 'build') { renderInv(); renderTally(); } }
+document.querySelectorAll('#sizeSeg button').forEach(b => b.onclick = () => { S.size = +b.dataset.size; optChanged(); view('iso'); });
+document.querySelectorAll('#projSeg button').forEach(b => b.onclick = () => {
+  S.project = b.dataset.p; try { history.replaceState(null, '', '#' + S.project); } catch { /* sandboxed */ }
+  optChanged(); t = 0; setPlaying(true);
+});
+document.querySelectorAll('#wSeg button').forEach(b => b.onclick = () => { S.width = +b.dataset.w; optChanged(); });
+document.querySelectorAll('#hSeg button').forEach(b => b.onclick = () => { S.height = +b.dataset.h; optChanged(); });
+$('optShelf').onchange = e => { S.shelf = e.target.checked; optChanged(); };
+$('optCap').onchange = e => { S.cap = e.target.checked; optChanged(); };
+$('optGravity').onchange = e => { S.gravity = e.target.checked; saveOpts(); };
+$('p26').oninput = e => { S.p26 = +e.target.value || 0; saveOpts(); renderShop(); renderTally(); };
+$('p212').oninput = e => { S.p212 = +e.target.value || 0; saveOpts(); renderShop(); renderTally(); };
+$('p24').oninput = e => { S.p24 = +e.target.value || 0; saveOpts(); renderShop(); renderTally(); };
+$('p44').oninput = e => { S.p44 = +e.target.value || 0; saveOpts(); renderShop(); renderTally(); };
+$('dimsBtn').onclick = () => { S.dims = !S.dims; saveOpts(); syncForm(); applyTime(); };
+$('panelBtn').onclick = () => { $('app').classList.toggle('nopanel'); };
+document.querySelectorAll('fieldset > legend').forEach(lg => lg.onclick = () => lg.parentElement.classList.toggle('collapsed'));
+
+// ---------- loop ----------
+function resize() {
+  const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return;
+  renderer.setSize(w, h, false); css2d.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(host);
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(0.1, (now - last) / 1000); last = now;
+  if (playing && S.mode !== 'build') { t += dt * S.speed; if (t >= T) { t = T; setPlaying(false); } applyTime(); }
+  if (camTween) {
+    camTween.k = Math.min(1, camTween.k + dt / 0.7); const e = easeIO(camTween.k);
+    camera.position.lerpVectors(camTween.p0, camTween.p1, e); controls.target.lerpVectors(camTween.t0, camTween.t1, e);
+    if (camTween.k >= 1) camTween = null;
+  }
+  controls.update(); renderer.render(scene, camera); css2d.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+S.mode = 'anim';
+syncForm(); resize(); view('iso', true); rebuildPlan(false);
+requestAnimationFrame(tick);
+setTimeout(() => setPlaying(true), 600);
+</script>
+</body>
+</html>
