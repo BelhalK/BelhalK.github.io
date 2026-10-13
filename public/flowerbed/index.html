@@ -276,7 +276,17 @@ const SECTION = { '2x6': [5.5, 1.5], '2x4': [3.5, 1.5], '2x12': [11.25, 1.5], '4
 // Plywood is kind 'ply<width>' (e.g. 'ply21'): a 3/4" panel whose width rides in the kind, so every
 // piece is still just {kind, len} for the inventory, the cut list and build mode.
 const sec = k => k.startsWith('ply') ? [parseFloat(k.slice(3)), 0.75] : SECTION[k];
-const PLY_PRICE = { panel: 40, sheet: 65 };   // 3/4" exterior/PT plywood: 2x8 ft handy panel, 4x8 ft sheet
+const PLY_PRICE = { panel: 40, sheet: 65 };
+// Drainage holes in a plywood floor panel (w wide, len long), in the panel's own frame (x along the
+// length, y across). ½" holes on a ~6" grid gives about ½% open area, plenty under landscape fabric.
+// Rows stay 5" in from the long edges, clear of the cleats and the leg notches; columns 3" from the ends.
+function plyHoles(w, len) {
+  const yMax = w / 2 - 5, xMax = len / 2 - 3;
+  const ny = Math.round(2 * yMax / 6) + 1, nx = Math.round(2 * xMax / 6) + 1, pts = [];
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) pts.push([-xMax + i * 2 * xMax / (nx - 1), -yMax + j * 2 * yMax / (ny - 1)]);
+  return { d: 0.5, nx, ny, sx: 2 * xMax / (nx - 1), sy: 2 * yMax / (ny - 1), n: pts.length, pts };
+}
+const holesText = h => `${h.n} drainage holes, ${inch(h.d)} across: ${h.ny} rows of ${h.nx}, about ${inch(Math.round(h.sx * 4) / 4)} apart along the length and ${inch(Math.round(h.sy * 4) / 4)} across`;   // 3/4" exterior/PT plywood: 2x8 ft handy panel, 4x8 ft sheet
 const STOCK = { '2x6': [72, 96, 120, 144], '2x4': [96, 120, 144], '2x12': [96, 120, 144], '4x4': [96, 120, 144] };
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const easeIO = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
@@ -496,7 +506,7 @@ function planFewest() {
     const n = Math.round((L - 10) / 16), sc = [];
     for (const s of [1, -1]) for (let k = 0; k <= n; k++) sc.push([-(L - 10) / 2 + k * (L - 10) / n, yf + 0.75, s * (hz - 2.25)]);
     steps.push({ title: 'Drop in the plywood floor', short: 'One panel instead of a dozen slats',
-      text: `Cut one ¾″ exterior plywood panel to ${inch(iw)} × ${inch(L - 3)}${W < 30 ? ' (a 2 × 8 ft handy panel needs just one rip and one crosscut)' : ' from a 4 × 8 ft sheet'}, notch it 3½″ × 3½″ around all ${nLegs} legs (the four corners plus ${nLegs - 4} along the sides), and drill ½″ drainage holes every 6″ or so. Screw it down to the cleats.`,
+      text: `Cut one ¾″ exterior plywood panel to ${inch(iw)} × ${inch(L - 3)}${W < 30 ? ' (a 2 × 8 ft handy panel needs just one rip and one crosscut)' : ' from a 4 × 8 ft sheet'}, notch it 3½″ × 3½″ around all ${nLegs} legs (the four corners plus ${nLegs - 4} along the sides), and drill ${holesText(plyHoles(iw, L - 3))}, keeping 5″ in from the long edges so they clear the cleats and legs. Screw it down to the cleats.`,
       items: [lum(ply, L - 3, 'flat', 0, 0, yf, 0, 'Floor panel', screwsAt(sc, [0, 1, 0]))] });
   }
   steps.push({ title: 'Line it with landscape fabric', short: 'Protects the plywood, lets water out',
@@ -628,6 +638,7 @@ function boardGeo(kind, len) {
 }
 const screwGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.12, 10);
 const screwMat = new THREE.MeshStandardMaterial({ color: 0x8a8f94, metalness: 0.8, roughness: 0.35 });
+const holeGeo = new THREE.CircleGeometry(0.25, 12), holeMat = new THREE.MeshBasicMaterial({ color: 0x1a0f08 });
 // Shopping-list highlights: each row of the list maps to items in the 3D model. Hovering a row
 // tints them; clicking pins the row (several can be pinned, each in its own colour).
 const HL_COLORS = ['#e8590c', '#1c7ed6', '#2f9e44', '#ae3ec9', '#f59f00', '#0ca678', '#d6336c', '#4263eb', '#82c91e', '#fd7e14', '#15aabf'];
@@ -639,6 +650,16 @@ function lumberObj(p, screws = [], tint = 0) {
   const mat = new THREE.MeshStandardMaterial({ map: woodTex, color: TINTS[tint % TINTS.length], roughness: 0.82, emissive: 0x000000 });
   const mesh = new THREE.Mesh(box, mat); mesh.castShadow = mesh.receiveShadow = true;
   const g = new THREE.Group(); g.add(mesh, new THREE.LineSegments(edges, edgeMat));
+  if (p.kind.startsWith('ply')) {
+    // Drainage holes as dark dots on both faces, children of the mesh so they hide and show with it.
+    const { pts } = plyHoles(sec(p.kind)[0], p.len), t = sec(p.kind)[1];
+    const holes = new THREE.InstancedMesh(holeGeo, holeMat, pts.length * 2), m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
+    pts.forEach(([x, y], i) => [1, -1].forEach((s, k) => {
+      q.setFromAxisAngle(AX, s > 0 ? 0 : Math.PI);
+      holes.setMatrixAt(i * 2 + k, m4.compose(new THREE.Vector3(x, y, s * (t / 2 + 0.02)), q, new THREE.Vector3(1, 1, 1)));
+    }));
+    mesh.add(holes);
+  }
   placeObj(g, p);
   const qi = g.quaternion.clone().invert(), c = g.position.clone();
   g.userData.screws = screws.map(s => {
@@ -654,8 +675,8 @@ function placeObj(g, p) { const d = dims(p); g.position.set(p.x, p.y + d.sy / 2,
 
 // ---------- animation items ----------
 let plan, T = 0, t = 0, playing = false, frameDone = 0;
-function disposeGroup(gr) { for (const o of [...gr.children]) { gr.remove(o); o.traverse(n => { if (n.material && n.material !== edgeMat && n.material !== screwMat) n.material.dispose?.(); if (n.geometry && !isShared(n.geometry)) n.geometry.dispose(); }); } }
-const isShared = geo => geo === screwGeo || [...geoCache.values()].some(v => v.box === geo || v.edges === geo);
+function disposeGroup(gr) { for (const o of [...gr.children]) { gr.remove(o); o.traverse(n => { if (n.material && n.material !== edgeMat && n.material !== screwMat && n.material !== holeMat) n.material.dispose?.(); if (n.geometry && !isShared(n.geometry)) n.geometry.dispose(); }); } }
+const isShared = geo => geo === screwGeo || geo === holeGeo || [...geoCache.values()].some(v => v.box === geo || v.edges === geo);
 
 function makeItem(it, P, tint) {
   const { L, hx, hz } = P;
@@ -1230,7 +1251,7 @@ function renderShop() {
     '',
     'CUT LIST (what each board becomes)',
     ...groups.map(g => `${g.n} × ${kindName(g.kind)} board, ${(g.stock || g.used) / 12} ft long  →  ` + g.cuts.map((c, ci) => `${inch(c)} ${rolesOf(g.boards.map(b => itemOf.get(b.refs[ci])))}`).join('  ·  ')),
-    ...plys.map(p => `1 × plywood  →  ${inch(sec(p.kind)[0])} × ${inch(p.len)} floor panel, notched 3½″ × 3½″ around every leg, ½″ drainage holes every ~6″`),
+    ...plys.map(p => `1 × plywood  →  ${inch(sec(p.kind)[0])} × ${inch(p.len)} floor panel, notched 3½″ × 3½″ around every leg, ${holesText(plyHoles(sec(p.kind)[0], p.len))}`),
     '',
     `ESTIMATED WOOD COST: about $${Math.round(cost)}`,
     `  (cedar per linear ft: ${Object.entries(price).filter(([k]) => boards.some(b => b.kind === k)).map(([k, v]) => `${kindName(k)} $${v.toFixed(2)}`).join(', ')}${plys.length ? '; plywood about $' + plys.reduce((t, p) => t + (sec(p.kind)[0] <= 24 ? PLY_PRICE.panel : PLY_PRICE.sheet), 0) : ''})`,
