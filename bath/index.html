@@ -292,7 +292,7 @@
     <ul id="warnings"></ul>
   </aside>
 
-  <main id="stage" data-mode="split">
+  <main id="stage" data-mode="3d">
     <div id="viewbar">
       <button id="panelBtn" title="Hide or show the settings panel"></button>
       <button id="codeLight" class="gray" title="Open the panel to see the full check list"><span class="dot"></span><span class="txt">Not checked yet</span></button>
@@ -308,7 +308,7 @@
         <div class="v3bar">
           <div class="grp"><button data-view="iso" title="Three-quarter view of the whole room">Overview</button><button data-view="top" title="Straight down">Top</button><button data-view="eye" title="Standing in the doorway at eye height">Eye level</button></div>
           <div class="grp"><button id="v3walls" title="Walls between you and the room fade out; or cut all walls at 3'-6&quot;; or keep them solid">Walls: cutaway</button><button id="v3ceil" title="Sloped ceiling: fades when seen from outside / always solid / hidden">Ceiling: auto</button></div>
-          <div class="grp"><button id="v3door" title="Open or close the door (or click the door itself)">Close door</button><button id="v3head" class="on" title="Shade the floor where the ceiling is under 6'-4&quot;">Headroom</button><button id="v3lbl" class="on" title="Fixture tags and ceiling heights">Labels</button></div>
+          <div class="grp"><button id="v3door" title="Open or close the door (or click the door itself)">Close door</button><button id="v3head" title="Shade the floor where the ceiling is under 6'-4&quot;">Headroom</button><button id="v3lbl" title="Fixture tags and ceiling heights">Labels</button></div>
         </div>
         <div class="v3hint">Drag to orbit · right-drag to pan · scroll to zoom · click the door or the shower glass to open or close it</div>
         <div class="v3msg" id="v3msg">Loading 3D…</div>
@@ -694,14 +694,12 @@ $('#draw').onclick = () => { readPanel(); render(); };
 let liveT = 0;
 $('#panel').addEventListener('input', () => { clearTimeout(liveT); liveT = setTimeout(() => { readPanel(); render(); }, 120); });
 // ---------- plan / split / 3D ----------
-const VIEWK = 'bathroom-blueprint-view-v1';
 function setViewMode(m) {
   $('#stage').dataset.mode = m;
   document.querySelectorAll('#viewbar [data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
-  try { localStorage.setItem(VIEWK, m); } catch(e) {}
 }
 document.querySelectorAll('#viewbar [data-mode]').forEach(b => b.onclick = () => setViewMode(b.dataset.mode));
-setViewMode((() => { try { return localStorage.getItem(VIEWK) || 'split'; } catch(e) { return 'split'; } })());
+setViewMode('3d');                           // every visit opens on the 3D view
 setTimeout(() => { if (!window.bath3d) $('#v3msg').textContent = 'The 3D view could not load three.js (it comes from cdn.jsdelivr.net). Check your connection and reload.'; }, 10000);
 // ---------- hide / show the settings panel ----------
 const PANELK = 'bathroom-blueprint-panel-hidden-v1';
@@ -2510,7 +2508,8 @@ controls.addEventListener('start', () => { tween = null; document.querySelectorA
 
 // ---------- toggles ----------
 const PREFK = 'bathroom-blueprint-3d-v1';
-const pref = (() => { try { return { walls: 'cutaway', ceil: 'auto', labels: true, head: true, ...JSON.parse(localStorage.getItem(PREFK) || '{}') }; } catch (e) { return { walls: 'cutaway', ceil: 'auto', labels: true, head: true }; } })();
+// labels and headroom start off on every visit; walls / ceiling are remembered
+const pref = (() => { try { return { walls: 'cutaway', ceil: 'auto', ...JSON.parse(localStorage.getItem(PREFK) || '{}'), labels: false, head: false }; } catch (e) { return { walls: 'cutaway', ceil: 'auto', labels: false, head: false }; } })();
 const savePref = () => { try { localStorage.setItem(PREFK, JSON.stringify(pref)); } catch (e) {} };
 const WALLS = ['cutaway', 'low', 'solid'], CEILS = ['auto', 'solid', 'hidden'];
 const q = s => host.querySelector(s);
