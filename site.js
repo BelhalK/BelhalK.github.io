@@ -2,7 +2,7 @@
   "use strict";
   var courtScript = document.createElement('script');
   courtScript.type = 'module';
-  courtScript.src = '/assets/courtside-DUH0H9-9.js';
+  courtScript.src = '/assets/courtside-Bes9Lwh2.js';
   document.head.appendChild(courtScript);
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -104,9 +104,11 @@
     var pills = row.querySelectorAll('.filter-pill');
     var items = document.querySelectorAll('[data-cat]');
     pills.forEach(function(pill){
+      pill.setAttribute('aria-pressed', String(pill.classList.contains('active')));
       pill.addEventListener('click', function(){
-        pills.forEach(function(p){ p.classList.remove('active'); });
+        pills.forEach(function(p){ p.classList.remove('active'); p.setAttribute('aria-pressed', 'false'); });
         pill.classList.add('active');
+        pill.setAttribute('aria-pressed', 'true');
         var filter = pill.getAttribute('data-filter');
         items.forEach(function(item){
           var cats = (item.getAttribute('data-cat') || '').split(' ');

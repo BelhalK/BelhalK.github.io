@@ -23,6 +23,26 @@
     --muted:#6d6c64;
     --accent:#ff5a1f;
     --accent-soft: rgba(255,90,31,0.10);
+  --accent-line: rgba(255,90,31,0.45);
+  --radius-card:16px;
+
+  /* type scale: one value per role, shared by every page */
+  --font-display:'Anton', 'Arial Narrow', sans-serif;
+  --font-sans:'Space Grotesk', system-ui, sans-serif;
+  --font-mono:'Space Mono', ui-monospace, monospace;
+  --fs-meta:11px;        /* mono: dates, venues, status, nav labels */
+  --fs-label:12px;       /* mono: eyebrows, roles, links, pills */
+  --fs-label-lg:13px;    /* mono: hero kicker, buttons */
+  --fs-tag:13px;         /* sans: small tags */
+  --fs-body:15px;        /* sans: card and list copy */
+  --fs-item:16px;        /* sans: list-item titles */
+  --fs-lead:clamp(16px,1.6vw,18px); /* sans: intro paragraphs */
+  --fs-title:20px;       /* display: card titles */
+  --fs-title-lg:24px;    /* display: feature card titles */
+  --lh-body:1.6;
+  --text:#4b4a44;        /* secondary prose */
+  --track-label:.08em;
+  --track-eyebrow:.14em;
   }
   *,*::before,*::after{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -30,7 +50,7 @@
     margin:0;
     background:var(--bg);
     color:var(--ink);
-    font-family:'Space Grotesk', system-ui, sans-serif;
+    font-family:var(--font-sans);
     overflow-x:hidden;
     -webkit-font-smoothing:antialiased;
   }
@@ -39,6 +59,10 @@
   button{font-family:inherit;cursor:pointer;}
   ::-moz-selection{background:var(--accent);color:var(--paper);}
   ::selection{background:var(--accent);color:var(--paper);}
+
+/* ---------- keyboard focus + browser surfaces ---------- */
+html{scrollbar-color:rgba(22,22,15,0.28) var(--bg);}
+:where(a,button,summary,[tabindex]):focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 
   /* ---------- custom cursor ---------- */
   .cursor-dot,.cursor-ring{
@@ -54,15 +78,15 @@
   .wrap{max-width:1160px;margin:0 auto;padding:0 clamp(20px,4vw,48px);}
   .section-head{max-width:640px;margin:0 auto 44px;text-align:center;}
   .tag-eyebrow{
-    display:block;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;
+    display:block;font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:var(--track-eyebrow);
     color:var(--accent);margin-bottom:16px;
   }
   .section-title{
-    font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;
-    font-size:clamp(2.2rem,6vw,3.8rem);line-height:.94;letter-spacing:-.01em;margin:0 0 16px;color:var(--ink);
+    font-family:var(--font-display);font-weight:400;text-transform:uppercase;
+    font-size:clamp(2.2rem,6vw,3.8rem);line-height:.94;letter-spacing:-.01em;margin:0 0 16px;color:var(--ink);text-wrap:balance;
   }
   .section-title .accent{color:var(--accent);}
-  .section-sub{color:var(--muted);font-size:clamp(15px,1.6vw,17px);line-height:1.6;margin:0 auto;max-width:480px;}
+  .section-sub{color:var(--muted);font-size:var(--fs-lead);line-height:var(--lh-body);text-wrap:pretty;margin:0 auto;max-width:480px;}
   section{position:relative;padding:clamp(56px,6vw,100px) 0;}
 
   .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.22,1,.36,1), transform .7s cubic-bezier(.22,1,.36,1);}
@@ -97,7 +121,7 @@
   .nav-link svg{width:16px;height:16px;flex:0 0 auto;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
   .nav-label{
     display:inline-block;max-width:0;margin-left:0;opacity:0;overflow:hidden;white-space:nowrap;
-    font-family:'Space Mono',monospace;font-weight:700;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    font-family:var(--font-mono);font-weight:700;font-size:var(--fs-meta);letter-spacing:var(--track-label);text-transform:uppercase;
     transition:max-width .35s cubic-bezier(.22,1,.36,1), margin-left .35s cubic-bezier(.22,1,.36,1), opacity .2s;
   }
   .nav-link:hover, .nav-link:focus-visible{color:var(--ink);background:rgba(22,22,15,0.05);}
@@ -140,13 +164,13 @@
     .nav-link svg{width:18px;height:18px;}
     .nav-link:hover, .nav-link:focus-visible{
       color:var(--accent);background:rgba(255,255,255,0.9);
-      border-color:rgba(255,90,31,0.5);box-shadow:0 6px 18px -8px rgba(255,90,31,0.35);
+      border-color:var(--accent-line);box-shadow:0 6px 18px -8px rgba(255,90,31,0.35);
     }
     .nav-link.active{
-      color:var(--accent);background:var(--accent-soft);border-color:rgba(255,90,31,0.5);
+      color:var(--accent);background:var(--accent-soft);border-color:var(--accent-line);
     }
     .nav-link .nav-label{
-      font-size:10.5px;
+      font-size:var(--fs-meta);
     }
     .nav-link.active .nav-label{
       max-width:110px;margin-left:7px;opacity:1;
@@ -216,10 +240,10 @@
   .hero-update:hover{background:rgba(255,90,31,0.06);transform:translateX(3px);}
   .hero-update:hover::before{background:var(--accent);}
   .hero-update-date{
-    display:block;font-family:'Space Mono',monospace;font-weight:700;font-size:10.5px;letter-spacing:.1em;
+    display:block;font-family:var(--font-mono);font-weight:700;font-size:var(--fs-meta);letter-spacing:var(--track-label);
     color:var(--accent);margin-bottom:5px;
   }
-  .hero-update p{margin:0;color:#3c3b36;font-size:clamp(15px,1.7vw,18px);line-height:1.5;transition:color .2s;}
+  .hero-update p{margin:0;color:#3c3b36;font-size:var(--fs-lead);line-height:1.5;text-wrap:pretty;transition:color .2s;}
   a.hero-update:hover p{color:var(--ink);}
   @media (min-width:960px){
     .hero-inner{flex-direction:row;align-items:flex-start;gap:56px;}
@@ -230,34 +254,34 @@
   .hero-stack{margin-top:26px;padding-top:22px;border-top:1px solid var(--line);}
   .hero-stack-eyebrow{margin-bottom:14px;}
   .stack-cats{display:flex;flex-direction:column;gap:15px;}
-  .stack-cat h4{
-    display:flex;align-items:center;gap:7px;font-family:'Space Mono',monospace;font-weight:700;
-    font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);margin:0 0 8px;
+  .stack-cat h2{
+    display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-weight:700;
+    font-size:var(--fs-label);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--ink);margin:0 0 8px;
   }
-  .stack-cat h4::before{content:'';width:10px;height:1px;flex:0 0 auto;background:var(--accent);}
+  .stack-cat h2::before{content:'';width:10px;height:1px;flex:0 0 auto;background:var(--accent);}
   .stack-tags{display:flex;flex-wrap:wrap;gap:6px;}
   .stack-tag{
-    font-family:'Space Grotesk',sans-serif;font-size:12px;line-height:1.3;color:var(--muted);
+    font-family:var(--font-sans);font-size:var(--fs-tag);line-height:1.3;color:var(--muted);
     border:1px solid var(--line-strong);border-radius:8px;padding:4px 9px;background:var(--paper);
     transition:color .2s,border-color .2s;
   }
-  .stack-tag:hover{color:var(--accent);border-color:rgba(255,90,31,0.4);}
+  .stack-tag:hover{color:var(--accent);border-color:var(--accent-line);}
   .kicker{
-    font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.14em;color:var(--accent);
+    font-family:var(--font-mono);font-size:var(--fs-label-lg);letter-spacing:var(--track-eyebrow);color:var(--accent);
     margin:0 0 18px;white-space:nowrap;
   }
   .kicker-nike-logo{display:inline-block;height:2.2em;width:auto;vertical-align:-.55em;margin-left:.35em;}
-  .hero-title{font-family:'Anton',sans-serif;font-weight:400;margin:0;text-transform:uppercase;line-height:.86;color:var(--ink);}
+  .hero-title{font-family:var(--font-display);font-weight:400;margin:0;text-transform:uppercase;line-height:.86;color:var(--ink);}
   .hero-title .line{display:block;font-size:clamp(3.6rem,13vw,10.5rem);letter-spacing:-.01em;}
   .hero-title .line.accent{color:var(--accent);}
   .role-line{margin:22px 0 28px;overflow:hidden;}
   .role-line span{
-    display:inline-block;font-family:'Space Mono',monospace;font-weight:700;font-size:clamp(15px,2vw,19px);
+    display:inline-block;font-family:var(--font-mono);font-weight:700;font-size:clamp(15px,2vw,19px);
     letter-spacing:.06em;color:var(--accent);text-transform:uppercase;
   }
   .role-line span.flap-anim{animation:flap .4s ease;}
   @keyframes flap{0%{transform:translateY(0);opacity:1;}45%{transform:translateY(-100%);opacity:0;}55%{transform:translateY(100%);opacity:0;}100%{transform:translateY(0);opacity:1;}}
-  .hero-sub{max-width:480px;color:#4b4a44;font-size:clamp(15px,1.7vw,18px);line-height:1.6;margin:0 0 40px;}
+  .hero-sub{max-width:480px;color:var(--text);font-size:var(--fs-lead);line-height:var(--lh-body);text-wrap:pretty;margin:0 0 40px;}
   /* ---------- hero links (same destinations as the footer, squared tag style
      so they don't echo the round nav dock pills) ---------- */
   .hero-links{display:flex;flex-wrap:wrap;gap:8px;max-width:480px;margin:-14px 0 26px;}
@@ -271,7 +295,7 @@
   .hero-link:hover svg, .hero-link:focus-visible svg{color:var(--paper);}
   .hero-cta{display:flex;flex-wrap:wrap;gap:14px;}
   .btn-primary{
-    font-family:'Space Mono',monospace;font-weight:700;font-size:13px;letter-spacing:.08em;
+    font-family:var(--font-mono);font-weight:700;font-size:var(--fs-label-lg);letter-spacing:var(--track-label);
     background:var(--accent);color:var(--paper);border:none;border-radius:99px;padding:16px 28px;
     transition:transform .25s cubic-bezier(.22,1,.36,1);
   }
@@ -296,7 +320,7 @@
   @keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   .ticker-group{display:flex;align-items:center;white-space:nowrap;}
   .ticker-track .chip{
-    font-family:'Space Mono',monospace;font-weight:700;font-size:14px;letter-spacing:.04em;
+    font-family:var(--font-mono);font-weight:700;font-size:14px;letter-spacing:.04em;
     margin:0 22px;text-transform:uppercase;
   }
   .ticker-track .dot{opacity:.7;margin:0 22px;color:var(--accent);}
@@ -308,25 +332,25 @@
     transition:background .3s;
   }
   .player-card:hover{background:#fbfaf6;}
-  .pc-pos{display:block;font-family:'Space Mono',monospace;color:var(--accent);font-size:11px;letter-spacing:.14em;margin-bottom:12px;}
-  .player-card h3{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;font-size:24px;margin:0 0 10px;letter-spacing:.01em;color:var(--ink);}
-  .player-card p{color:#514f48;font-size:14.5px;line-height:1.6;margin:0;max-width:38ch;}
+  .pc-pos{display:block;font-family:var(--font-mono);color:var(--accent);font-size:var(--fs-meta);letter-spacing:var(--track-eyebrow);margin-bottom:12px;}
+  .player-card h3{font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:var(--fs-title-lg);margin:0 0 10px;letter-spacing:.01em;color:var(--ink);}
+  .player-card p{color:var(--text);font-size:var(--fs-body);line-height:var(--lh-body);text-wrap:pretty;margin:0;max-width:38ch;}
 
   /* ---------- current focus ---------- */
   .focus-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:44px;}
   .focus-panel{background:var(--paper);padding:40px clamp(20px,3vw,48px);}
-  .focus-label{display:block;font-family:'Space Mono',monospace;color:var(--accent);font-size:11px;letter-spacing:.14em;margin-bottom:16px;}
-  .focus-panel h3{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(22px,2.6vw,30px);line-height:1.08;margin:0 0 14px;color:var(--ink);}
-  .focus-panel p{color:#514f48;font-size:14.5px;line-height:1.6;margin:0;max-width:44ch;}
-  .focus-flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;}
+  .focus-label{display:block;font-family:var(--font-mono);color:var(--accent);font-size:var(--fs-meta);letter-spacing:var(--track-eyebrow);margin-bottom:16px;}
+  .focus-panel h3{font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:clamp(var(--fs-title-lg),2.6vw,30px);line-height:1.08;text-wrap:balance;margin:0 0 14px;color:var(--ink);}
+  .focus-panel p{color:var(--text);font-size:var(--fs-body);line-height:var(--lh-body);text-wrap:pretty;margin:0;max-width:44ch;}
+  .focus-flow{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;font-family:var(--font-mono);font-size:var(--fs-meta);letter-spacing:var(--track-label);color:var(--muted);text-transform:uppercase;}
   .focus-flow .arrow{color:var(--accent);}
 
   @media (max-width:640px){
     .player-grid, .focus-grid{grid-template-columns:1fr;}
-    .kicker{white-space:normal;font-size:clamp(9.5px,3.1vw,12px);letter-spacing:.1em;}
+    .kicker{white-space:normal;font-size:clamp(var(--fs-meta),3.1vw,var(--fs-label));letter-spacing:var(--track-label);}
     .kicker-nike-logo{height:1.7em;vertical-align:-.4em;}
     .finale-bottom{flex-wrap:nowrap;justify-content:flex-start;gap:10px;}
-    .finale-bottom .badge{order:-1;font-size:10px;padding:3px 8px;}
+    .finale-bottom .badge{order:-1;font-size:var(--fs-meta);padding:3px 8px;}
     .social-btn[aria-label="SoundCloud"]{display:none;}
   }
 
@@ -369,9 +393,9 @@
       height:auto;padding:20px 8px;border-radius:16px;
       background:var(--paper);border:1px solid var(--line);color:var(--ink);
     }
-    .nav-link.active{border-color:rgba(255,90,31,0.5);}
+    .nav-link.active{border-color:var(--accent-line);}
     .nav-link svg{width:20px;height:20px;}
-    .nav-link .nav-label{max-width:none;margin-left:0;opacity:1;font-size:10px;}
+    .nav-link .nav-label{max-width:none;margin-left:0;opacity:1;font-size:var(--fs-meta);}
     body.nav-scroll-lock{overflow:hidden;}
     .hero-inner{padding-top:calc(clamp(24px,10vw,40px) + env(safe-area-inset-top,0px));}
   }
@@ -383,14 +407,14 @@
     transition:opacity .3s;
   }
   .deal-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px;}
-  .deal-card h3{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;font-size:24px;margin:0;color:var(--ink);}
-  .deal-status{font-family:'Space Mono',monospace;font-weight:700;font-size:10.5px;letter-spacing:.1em;white-space:nowrap;}
+  .deal-card h3{font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:var(--fs-title-lg);margin:0;color:var(--ink);}
+  .deal-status{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-meta);letter-spacing:var(--track-label);white-space:nowrap;}
   .deal-status.acquired{color:var(--muted);}
   .deal-status.active{color:var(--accent);}
-  .deal-role{font-family:'Space Mono',monospace;font-size:12px;color:var(--accent);margin:0 0 12px;letter-spacing:.04em;}
-  .deal-desc{color:#514f48;font-size:14.5px;line-height:1.6;margin:0 0 14px;max-width:52ch;}
+  .deal-role{font-family:var(--font-mono);font-size:var(--fs-label);color:var(--accent);margin:0 0 12px;letter-spacing:.04em;}
+  .deal-desc{color:var(--text);font-size:var(--fs-body);line-height:var(--lh-body);text-wrap:pretty;margin:0 0 14px;max-width:52ch;}
   .deal-link{
-    display:inline-block;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;
+    display:inline-block;font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:var(--track-label);
     border-bottom:1px solid var(--line-strong);padding-bottom:2px;transition:border-color .2s,color .2s;
   }
   .deal-link:hover{color:var(--accent);border-color:var(--accent);}
@@ -409,15 +433,15 @@
   }
   .trophy-card:hover{transform:translateY(-4px);}
   .trophy-thumb{width:100%;height:140px;-o-object-fit:cover;object-fit:cover;background:#eeede7;border-radius:12px;pointer-events:none;margin-bottom:14px;}
-  .trophy-venue{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--accent);letter-spacing:.1em;margin:0 0 6px;}
-  .trophy-body h4{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13.5px;line-height:1.4;margin:0;color:var(--ink);}
+  .trophy-venue{font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--accent);letter-spacing:var(--track-label);margin:0 0 6px;}
+  .trophy-body h3{font-family:var(--font-sans);font-weight:600;font-size:var(--fs-body);line-height:1.4;margin:0;color:var(--ink);text-wrap:balance;}
 
   /* ---------- finale ---------- */
   .finale{background:#efeee7;border-top:1px solid var(--line);padding:clamp(56px,8vw,100px) 0 40px;}
   .finale-inner{max-width:1240px;margin:0 auto;padding:0 clamp(20px,4vw,48px);text-align:center;}
-  .finale-title{font-family:'Anton',sans-serif;font-weight:400;text-transform:uppercase;font-size:clamp(2rem,7vw,5rem);line-height:.9;margin:0 0 22px;color:var(--ink);white-space:nowrap;}
+  .finale-title{font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:clamp(2rem,7vw,5rem);line-height:.9;margin:0 0 22px;color:var(--ink);white-space:nowrap;}
   .finale-title .accent{color:var(--accent);}
-  .finale-sub{color:var(--muted);max-width:480px;margin:0 auto 40px;font-size:16px;line-height:1.6;}
+  .finale-sub{color:var(--muted);max-width:480px;margin:0 auto 40px;font-size:var(--fs-lead);line-height:var(--lh-body);text-wrap:pretty;}
   .finale-links{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:12px;margin-bottom:64px;}
   .social-btn{
     display:grid;place-items:center;width:44px;height:44px;border-radius:999px;
@@ -427,7 +451,7 @@
     transition:color .2s, border-color .2s, box-shadow .2s, transform .2s;
   }
   .social-btn svg{width:18px;height:18px;}
-  .social-btn:hover{color:var(--accent);border-color:rgba(255,90,31,0.5);box-shadow:0 6px 18px -8px rgba(255,90,31,0.35);transform:translateY(-2px);}
+  .social-btn:hover{color:var(--accent);border-color:var(--accent-line);box-shadow:0 6px 18px -8px rgba(255,90,31,0.35);transform:translateY(-2px);}
   @media (min-width:960px){
     /* re-assert the left-dock clearance here: it's set again earlier (near
        the .nav rules) but this .hero-inner/.finale-inner base rule comes
@@ -439,7 +463,7 @@
     .social-btn{display:flex;align-items:center;width:auto;min-width:44px;padding:0 14px;justify-content:flex-start;}
     .social-label{
       display:inline-block;max-width:0;margin-left:0;opacity:0;overflow:hidden;white-space:nowrap;
-      font-family:'Space Mono',monospace;font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+      font-family:var(--font-mono);font-weight:700;font-size:var(--fs-meta);letter-spacing:var(--track-label);text-transform:uppercase;
       transition:max-width .35s cubic-bezier(.22,1,.36,1), margin-left .35s cubic-bezier(.22,1,.36,1), opacity .2s;
     }
     .social-btn:hover .social-label, .social-btn:focus-visible .social-label{max-width:100px;margin-left:8px;opacity:1;}
@@ -447,7 +471,7 @@
   .finale-bottom{
     display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;
     border-top:1px solid var(--line);padding-top:24px;
-    font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted);letter-spacing:.04em;
+    font-family:var(--font-mono);font-size:var(--fs-label);color:var(--muted);letter-spacing:.04em;
   }
   .finale-bottom a:hover{color:var(--accent);}
   .badge{border:1px solid var(--line-strong);border-radius:99px;padding:4px 12px;color:var(--accent);background:var(--paper);}
@@ -458,8 +482,8 @@
     .reveal{transition:none;opacity:1;transform:none;}
   }
 </style>
-  <script type="module" crossorigin src="/assets/main-DjRPxoRV.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/courtside-DUH0H9-9.js">
+  <script type="module" crossorigin src="/assets/main-jmSQjTZc.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/courtside-Bes9Lwh2.js">
 </head>
 <body>
 
@@ -569,7 +593,7 @@
         <span class="tag-eyebrow hero-stack-eyebrow">◈ THE STACK I REACH FOR</span>
         <div class="stack-cats">
           <div class="stack-cat">
-            <h4>Generative AI &amp; Deep Learning</h4>
+            <h2>Generative AI &amp; Deep Learning</h2>
             <div class="stack-tags">
               <span class="stack-tag">FLUX / SDXL / SD3</span>
               <span class="stack-tag">3D AI</span>
@@ -578,7 +602,7 @@
             </div>
           </div>
           <div class="stack-cat">
-            <h4>Advisory</h4>
+            <h2>Advisory</h2>
             <div class="stack-tags">
               <span class="stack-tag">Computer Vision</span>
               <span class="stack-tag">Generative Video</span>
@@ -587,7 +611,7 @@
             </div>
           </div>
           <div class="stack-cat">
-            <h4>Search (Match &amp; Rank)</h4>
+            <h2>Search (Match &amp; Rank)</h2>
             <div class="stack-tags">
               <span class="stack-tag">Multimodal Retrieval</span>
               <span class="stack-tag">Neural Ranking</span>
@@ -702,13 +726,13 @@
       <p class="section-sub">Peer-reviewed plays. Scroll or drag the shelf, click a paper to read it.</p>
     </div>
     <div class="trophy-track reveal" id="trophyTrack">
-      <a class="trophy-card" href="https://arxiv.org/abs/1910.12521" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/fiem.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2019</p><h4>On the Global Convergence of (Fast) Incremental EM Methods</h4></div></a>
-      <a class="trophy-card" href="https://proceedings.neurips.cc/paper/2020/file/08fb104b0f2f838f3ce2d2b3741a12c2-Paper.pdf" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/sagd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2020</p><h4>Towards Better Generalization of Adaptive Gradient Methods</h4></div></a>
-      <a class="trophy-card" href="https://arxiv.org/abs/1902.00629" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/nonas.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">COLT · 2019</p><h4>Non-asymptotic Analysis of Biased Stochastic Approximation</h4></div></a>
-      <a class="trophy-card" href="https://openreview.net/pdf?id=CI-xXX9dg9l" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/compams.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ICLR · 2022</p><h4>Distributed Adaptive Optimization with Gradient Compression</h4></div></a>
-      <a class="trophy-card" href="https://tel.archives-ouvertes.fr/tel-02319140/document" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/phd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">PH.D. THESIS · 2019</p><h4>Nonconvex Optimization for Latent Data Models</h4></div></a>
-      <a class="trophy-card" href="/assets/downloads/misso.pdf" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/misso.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ALT · 2022</p><h4>Minimization by Incremental Stochastic Surrogate</h4></div></a>
-      <a class="trophy-card" href="https://openreview.net/pdf?id=Q06wKxnHRv" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/layerwise.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">UAI · 2023</p><h4>Layer-wise &amp; Dimension-wise Locally Adaptive FL</h4></div></a>
+      <a class="trophy-card" href="https://arxiv.org/abs/1910.12521" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/fiem.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2019</p><h3>On the Global Convergence of (Fast) Incremental EM Methods</h3></div></a>
+      <a class="trophy-card" href="https://proceedings.neurips.cc/paper/2020/file/08fb104b0f2f838f3ce2d2b3741a12c2-Paper.pdf" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/sagd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">NEURIPS · 2020</p><h3>Towards Better Generalization of Adaptive Gradient Methods</h3></div></a>
+      <a class="trophy-card" href="https://arxiv.org/abs/1902.00629" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/nonas.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">COLT · 2019</p><h3>Non-asymptotic Analysis of Biased Stochastic Approximation</h3></div></a>
+      <a class="trophy-card" href="https://openreview.net/pdf?id=CI-xXX9dg9l" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/compams.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ICLR · 2022</p><h3>Distributed Adaptive Optimization with Gradient Compression</h3></div></a>
+      <a class="trophy-card" href="https://tel.archives-ouvertes.fr/tel-02319140/document" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/phd.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">PH.D. THESIS · 2019</p><h3>Nonconvex Optimization for Latent Data Models</h3></div></a>
+      <a class="trophy-card" href="/assets/downloads/misso.pdf" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/misso.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">ALT · 2022</p><h3>Minimization by Incremental Stochastic Surrogate</h3></div></a>
+      <a class="trophy-card" href="https://openreview.net/pdf?id=Q06wKxnHRv" target="_blank" rel="noopener noreferrer" draggable="false"><img class="trophy-thumb" src="/assets/paperthumb/layerwise.png" alt="" loading="lazy"><div class="trophy-body"><p class="trophy-venue">UAI · 2023</p><h3>Layer-wise &amp; Dimension-wise Locally Adaptive FL</h3></div></a>
     </div>
   </div>
 </section>
