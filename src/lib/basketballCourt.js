@@ -7,6 +7,14 @@ const HOOP_SCALE = 1.35;
 const RIM_RADIUS = 0.3 * HOOP_SCALE;
 const RELEASE = 0.22;
 const FLIGHT = 0.55;
+const BALL_RADIUS = 0.145;
+// One dribble per beat: the hand drives the ball down, it meets the floor at FLOOR_AT,
+// and the hand takes it back once it rises past HAND_CATCH of its height.
+const DRIBBLE_BEAT = 0.62;
+const FLOOR_AT = 0.42;
+const HAND_CATCH = 0.55;
+const FREE_START = FLOOR_AT * (1 - HAND_CATCH) ** (2 / 3);
+const FREE_END = FLOOR_AT + (1 - FLOOR_AT) * (1 - Math.sqrt(1 - HAND_CATCH));
 // Hoop speed in world units per second; each make in a row adds 14%.
 const MODES = {
     classic: { speed: 2.1, max: 6 },
@@ -88,6 +96,14 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
         shadow.add(disc);
     }
     scene.add(shadow);
+    // A smaller contact shadow tracks the dribbled ball, darkest as it meets the floor.
+    const ballShadow = new THREE.Group();
+    for (let i = 0; i < 3; i++) {
+        const disc = new THREE.Mesh(new THREE.CircleGeometry(0.07 + i * 0.035, 24), new THREE.MeshBasicMaterial({ color: 0x49365a, transparent: true, opacity: 0, depthWrite: false }));
+        disc.scale.y = 0.22;
+        ballShadow.add(disc);
+    }
+    scene.add(ballShadow);
     const sparkMaterial = new THREE.MeshBasicMaterial({ color: 0xf0bc43, transparent: true });
     const sparks = new THREE.Group();
     const sparkGeometry = new THREE.SphereGeometry(0.045, 6, 4);
@@ -128,6 +144,19 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
     const visited = new WeakMap();
     const hand = new THREE.Vector3();
     const ballRest = new THREE.Vector3();
+    // Index 0 is the player's right hand, 1 the left.
+    const hands = [new THREE.Vector3(), new THREE.Vector3()];
+    const armLift = [0.6, 0.6];
+    const armGuard = [0, 0];
+    let carryHand = 0;
+    let wasCarrying = false;
+    let carryStart = -10;
+    let dribbleStart = -10;
+    const lastCarry = new THREE.Vector3();
+    let idleLean = 0;
+    const lastDribble = new THREE.Vector3();
+    const lastBallPosition = new THREE.Vector3();
+    const ballVelocity = new THREE.Vector3();
     const surfaceSelector = 'button, .nav-link, .stack-tag, .social-btn, .list-action, .list-row, .player-card, .focus-panel, .deal-card, .trophy-card, .card, h1, h2';
     const abort = new AbortController();
     const smooth = (value) => { const t = THREE.MathUtils.clamp(value, 0, 1); return t * t * (3 - 2 * t); };
@@ -360,18 +389,33 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
         if (!ready) return;
         time += delta;
         const base = point(anchor);
+        // Dribble clock: every fourth bounce is a low crossover into the other hand.
+        const beat = time / DRIBBLE_BEAT;
+        const cycle = Math.floor(beat);
+        const phase = beat - cycle;
+        const fromHand = Math.floor(cycle / 4) % 2;
+        const toHand = Math.floor((cycle + 1) / 4) % 2;
+        const crossing = fromHand !== toHand;
+        const downLeg = phase < FLOOR_AT;
+        // Pushed out of the hand, fastest at the floor, easing into the catch.
+        const ballLift = downLeg ? 1 - (phase / FLOOR_AT) ** 1.5 : 1 - (1 - (phase - FLOOR_AT) / (1 - FLOOR_AT)) ** 2;
+        const activeHand = downLeg ? fromHand : toHand;
+        const push = Math.exp(-(((phase - 0.1) / 0.1) ** 2));
         let jump = 0;
-        let crouch = 0.08 + Math.sin(time * 2) * 0.025;
+        let crouch = 0.13 + Math.sin(time * 1.6) * 0.015 + push * 0.06 + (crossing ? Math.sin(phase * Math.PI) * 0.08 : 0);
         let tuck = 0;
         let shotPose = 0;
         let lean = 0;
+        let squash = 0;
         let carrying = false;
-        const bouncePhase = (time % 0.72) / 0.72;
-        const bounce = 4 * bouncePhase * (1 - bouncePhase);
         const landingAge = time - landTime;
         const impact = landingAge < 0.45 ? Math.sin(landingAge / 0.45 * Math.PI) * 0.6 * Math.exp(-landingAge * 3) : 0;
         crouch += impact;
+        squash += impact * 0.08;
         hoop.visible = action?.kind === 'shot' || Boolean(game);
+        hoop.rotation.z = 0;
+        net.scale.y = 1;
+        net.position.y = 0;
         sparks.visible = false;
         landing.visible = false;
         shadow.visible = true;
@@ -405,8 +449,11 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
             carrying = true;
             if (t < 0.24) {
                 crouch = Math.sin(t / 0.24 * Math.PI) * 0.72;
+                squash = crouch * 0.06;
                 player.position.copy(from);
             } else {
+                // Stretch out of the takeoff, settling back to rest within the first tenth of a second.
+                squash = -0.05 * Math.exp(-flightTime * 14);
                 container.dataset.action = 'airborne';
                 // Ballistic vertical motion, with a smooth horizontal launch and landing.
                 player.position.lerpVectors(from, target, smooth(progress));
@@ -446,7 +493,8 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
             jump = t > 0.3 && t < 1.15 ? Math.sin((t - 0.3) / 0.85 * Math.PI) * 0.48 : 0;
             player.position.copy(base);
             player.position.y += jump;
-            shotPose = smooth((t - 0.2) / 0.45) * (1 - smooth((t - 1.2) / 0.45));
+            // Hold the follow-through until the ball is well on its way.
+            shotPose = smooth((t - 0.2) / 0.45) * (1 - smooth((t - 1.45) / 0.4));
             carrying = true;
         } else if (action?.kind === 'gameShot') {
             const t = time - action.start;
@@ -455,10 +503,13 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
             jump = t > 0.12 && t < 0.62 ? Math.sin((t - 0.12) / 0.5 * Math.PI) * 0.4 : 0;
             player.position.copy(base);
             player.position.y += jump;
-            shotPose = smooth((t - 0.04) / 0.18) * (1 - smooth((t - 0.6) / 0.3));
+            shotPose = smooth((t - 0.04) / 0.18) * (1 - smooth((t - 0.68) / 0.25));
             carrying = true;
         } else {
             facing *= Math.exp(-delta * 2);
+            // Shoulders lean over the dribbling hand (positive Z tips toward the player's right).
+            idleLean = THREE.MathUtils.damp(idleLean, activeHand === 0 ? 0.035 : -0.035, 5, delta);
+            lean = idleLean;
             if (landingAge > 0.5) container.dataset.action = 'dribbling';
             shadow.position.copy(base);
             shadow.scale.setScalar(1);
@@ -473,15 +524,30 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
         if (game) updateGame(delta);
         player.rotation.y = THREE.MathUtils.damp(player.rotation.y, facing, 9, delta);
         player.rotation.z = lean;
+        // Squash keeps volume and pivots on the feet, since the model's origin is at floor level.
+        const scaleY = 1 - squash;
+        player.scale.set(1 / Math.sqrt(scaleY), scaleY, 1 / Math.sqrt(scaleY));
+        if (!carrying) carryHand = activeHand;
+        // The working hand rides the ball above the catch point; the free hand comes up to guard.
+        for (let i = 0; i < 2; i++) {
+            const working = !carrying && i === activeHand;
+            armLift[i] = THREE.MathUtils.damp(armLift[i], working ? Math.max(ballLift, HAND_CATCH) : 0.4, 16, delta);
+            armGuard[i] = THREE.MathUtils.damp(armGuard[i], !carrying && !working ? 1 : 0, 10, delta);
+        }
         rigs.forEach(({ root, arms, elbows, legs, knees }) => {
             const bend = crouch * 0.85;
             root.position.y = -0.88 * (1 - Math.cos(bend));
-            arms[0].rotation.x = -0.22 - shotPose * 2.05 - (carrying ? 0.25 : bounce * 0.1);
-            arms[1].rotation.x = -0.12 - shotPose * 2.15 + tuck * 0.35;
-            arms[0].rotation.z = -shotPose * 0.15;
-            arms[1].rotation.z = shotPose * 0.15;
-            elbows[0].rotation.x = carrying ? -1.15 + shotPose * 0.8 : -0.28 - bounce * 0.75;
-            elbows[1].rotation.x = -0.2 - tuck * 0.7 - shotPose * 0.3;
+            for (let i = 0; i < 2; i++) {
+                if (carrying) {
+                    const holding = i === carryHand;
+                    arms[i].rotation.x = holding ? -0.47 - shotPose * 2.05 : -0.12 - shotPose * 2.15 + tuck * 0.35;
+                    elbows[i].rotation.x = holding ? -1.15 + shotPose * 0.8 : -0.2 - tuck * 0.7 - shotPose * 0.3;
+                } else {
+                    arms[i].rotation.x = THREE.MathUtils.lerp(-0.2 - armLift[i] * 0.14, -0.5, armGuard[i]);
+                    elbows[i].rotation.x = THREE.MathUtils.lerp(-0.3 - armLift[i] * 0.75, -1.05, armGuard[i]);
+                }
+                arms[i].rotation.z = (i === 0 ? -1 : 1) * shotPose * 0.15;
+            }
             legs[0].rotation.x = -bend - tuck * 0.9;
             legs[1].rotation.x = -bend - tuck * 0.55;
             knees[0].rotation.x = bend * 2 + tuck * 1.45;
@@ -489,13 +555,32 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
         });
         player.updateMatrixWorld(true);
         // Negative X is the player's anatomical right side in the supplied rest pose.
-        hand.set(-0.025, -0.3, 0.025).applyMatrix4(rigs[0].elbows[0].matrixWorld);
-        hand.y -= 0.08;
-        ballRest.copy(hand);
-        if (!carrying) {
-            ballRest.y = base.y + 0.145 + bounce * Math.max(0.1, hand.y - base.y - 0.145);
+        hands.forEach((position, i) => {
+            position.set(i === 0 ? -0.025 : 0.025, -0.3, 0.025).applyMatrix4(rigs[0].elbows[i].matrixWorld);
+            position.y -= 0.08;
+        });
+        hand.copy(hands[carryHand]);
+        let ballSquash = 0;
+        if (carrying) {
+            // Gather the ball from wherever the dribble left it instead of snapping into the hand.
+            if (!wasCarrying) carryStart = time;
+            ballRest.lerpVectors(lastDribble, hand, smooth((time - carryStart) / 0.18));
+            lastCarry.copy(ballRest);
+        } else {
+            if (wasCarrying) dribbleStart = time;
+            const floor = base.y + BALL_RADIUS;
+            ballRest.lerpVectors(hands[fromHand], hands[toHand], smooth((phase - FREE_START) / (FREE_END - FREE_START)));
+            ballRest.y = floor + Math.min(1, ballLift / HAND_CATCH) * Math.max(0, ballRest.y - floor);
+            ballSquash = Math.max(0, 1 - ballLift / 0.07) * 0.16;
+            ballRest.y -= BALL_RADIUS * ballSquash;
+            // Ease back into the dribble from wherever the ball was held.
+            const resume = smooth((time - dribbleStart) / 0.16);
+            if (resume < 1) ballRest.lerpVectors(lastCarry, ballRest, resume);
+            lastDribble.copy(ballRest);
         }
+        wasCarrying = carrying;
         ball.position.copy(ballRest);
+        ball.scale.set(1 + ballSquash * 0.6, 1 - ballSquash, 1 + ballSquash * 0.6);
 
         if (action?.kind === 'shot') {
             const t = time - action.start;
@@ -516,6 +601,7 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
                     ball.position.y += Math.sin(p * Math.PI) * 0.8;
                 }
                 net.rotation.z = Math.sin(fall * 22) * Math.exp(-fall * 7) * 0.04;
+                snapNet(fall);
                 sparks.visible = fall < 0.6;
                 sparkMaterial.opacity = Math.max(0, 1 - fall / 0.6);
                 sparks.children.forEach((spark, index) => {
@@ -557,8 +643,13 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
                     ball.position.lerpVectors(action.drop, hand, p);
                     ball.position.y += Math.sin(p * Math.PI) * 0.8;
                 }
+                if (!action.hit) {
+                    // The rim takes the clank: a short, decaying shake.
+                    hoop.rotation.z = action.side * Math.sin(fall * 38) * Math.exp(-fall * 9) * 0.025;
+                }
                 if (action.hit) {
                     net.rotation.z = Math.sin(fall * 22) * Math.exp(-fall * 7) * 0.05;
+                    snapNet(fall);
                     sparks.visible = fall < 0.6;
                     sparkMaterial.opacity = Math.max(0, 1 - fall / 0.6);
                     sparks.children.forEach((spark, index) => {
@@ -573,9 +664,29 @@ export function createBasketballCourt(container, { paused, mode = 'classic', onR
             shadow.position.copy(base);
             shadow.scale.setScalar(1 - jump * 0.3);
         }
-        ball.rotation.x = time * 2;
-        ball.rotation.z = time * 3;
+        // Spin follows the ball's real travel; once released toward the hoop it carries backspin.
+        if (delta > 0) {
+            ballVelocity.subVectors(ball.position, lastBallPosition).divideScalar(delta);
+            const released = (action?.kind === 'shot' || action?.kind === 'gameShot') && action.release;
+            ball.rotation.z += (released ? 1.6 : -1) * ballVelocity.x * delta / BALL_RADIUS;
+            ball.rotation.x += ballVelocity.y * delta / BALL_RADIUS * 0.35;
+        }
+        lastBallPosition.copy(ball.position);
+        ballShadow.visible = !carrying;
+        if (!carrying) {
+            const above = Math.max(0, ball.position.y - BALL_RADIUS - base.y);
+            ballShadow.position.set(ball.position.x, base.y, -0.2);
+            ballShadow.scale.setScalar(0.7 + above * 0.35);
+            ballShadow.children.forEach((disc) => { disc.material.opacity = 0.09 * Math.max(0, 1 - above / 1.4); });
+        }
         renderer.render(scene, camera);
+    }
+
+    // The net snaps down as the ball drops through, its top ring staying fixed on the rim.
+    function snapNet(fall) {
+        const stretch = 0.45 * Math.sin(Math.min(fall, 0.35) / 0.35 * Math.PI);
+        net.scale.y = 1 + stretch;
+        net.position.y = -2.3 * stretch;
     }
 
     function frame(timestamp) {
