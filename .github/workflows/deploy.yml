@@ -20,9 +20,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/my-bento/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci && npm ci --prefix apps/my-bento
 
       - name: Build
         run: npm run build
