@@ -4,6 +4,7 @@ import type { Edge, Node } from '@xyflow/react';
 import { CC, DEVICE_TRACKS, type Machine, MACHINES, PATTERN_COUNT, type SoundParam } from '@/lib/cycles';
 import { type Groove, groovePattern } from '@/lib/grooves';
 import { emptyLane, emptyPattern, newStep, type Pattern, shiftLane, type Step } from '@/lib/pattern';
+import { DEFAULT_KIT } from '@/lib/kits';
 import type { Sound } from '@/lib/sounds';
 import { midi } from '@/engine/midi';
 import { useLive } from '@/store/live';
@@ -17,6 +18,7 @@ type Project = {
   monitorGain: number;
   chopLevel: number;
   fmLevel: number;
+  kitId: string;
   patterns: (Pattern | null)[];
   current: number;
   page: number;
@@ -87,6 +89,7 @@ export const useProject = create<Project>()(
         monitorGain: 1,
         chopLevel: 1,
         fmLevel: 1,
+        kitId: DEFAULT_KIT,
         patterns: emptyPatterns(),
         current: 0,
         page: 0,
@@ -209,15 +212,24 @@ export const useProject = create<Project>()(
         removePart: (id) => {
           const { nodes, edges } = get();
           set({ nodes: nodes.filter((n) => n.id !== id), edges: edges.filter((e) => e.source !== id && e.target !== id) });
-        },
-      };
+        },      };
     },
     {
       name: 'modelcycle-studio',
-      version: 6,
+      version: 7,
       migrate: (saved, version) => {
         const state = saved as Project;
-        if (version >= 6) return state as never;
+        if (version >= 7) return state as never;
+        // Version 7 puts the LLM on the canvas, wired to the Sequencer, and keeps the rest of the layout.
+        if (version === 6) {
+          if (state.nodes.some((n) => baseType(n.id) === 'llm')) return state as never;
+          const wired = state.nodes.some((n) => n.id === 'sequencer');
+          return {
+            ...state,
+            nodes: [...state.nodes, ALL_NODES.find((n) => n.id === 'llm')!],
+            edges: wired ? [...state.edges, ALL_EDGES.find((e) => e.source === 'llm')!] : state.edges,
+          } as never;
+        }
         // Version 2 added the FM-1: one more lane on every pattern.
         const patterns = version >= 2 ? state.patterns : state.patterns.map((p) =>
           p && { ...p, lanes: [...p.lanes, emptyLane()], muted: [...p.muted, false] },
@@ -225,8 +237,8 @@ export const useProject = create<Project>()(
         // Version 6 starts everyone on the smaller default canvas.
         return { ...state, patterns, nodes: DEFAULT_NODES, edges: DEFAULT_EDGES } as never;
       },
-      partialize: ({ bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, nodes, edges }) => ({
-        bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput,
+      partialize: ({ bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, nodes, edges }) => ({
+        bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput,
         nodes: nodes.map(({ id, type, position }) => ({ id, type, position, data: {} })),
         edges,
       }),

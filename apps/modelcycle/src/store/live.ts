@@ -16,6 +16,9 @@ type Live = {
   fmAudio: AudioStatus;
   fmLastNote: string | null;
   audio: AudioStatus;
+  /** The audio graph exists, device or not, so anything can sound and be measured. */
+  audioReady: boolean;
+  kit: 'loading' | 'ready' | 'error';
   devices: Devices;
   playing: boolean;
   clockSource: 'app' | 'device';
@@ -59,6 +62,8 @@ export const useLive = create<Live>((set) => ({
   fmAudio: 'idle',
   fmLastNote: null,
   audio: 'idle',
+  audioReady: false,
+  kit: 'loading',
   devices: { inputs: [], outputs: [] },
   playing: false,
   clockSource: 'app',

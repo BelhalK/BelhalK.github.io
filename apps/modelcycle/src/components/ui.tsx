@@ -32,7 +32,7 @@ export function Button({ variant = 'outline', size = 'md', pressed, className, .
 }
 
 export function Slider({
-  label, value, min = 0, max = 127, step = 1, format, onChange, disabled,
+  label, value, min = 0, max = 127, step = 1, format, onChange, onCommit, disabled,
 }: {
   label: string;
   value: number | undefined;
@@ -41,6 +41,7 @@ export function Slider({
   step?: number;
   format?: (v: number) => string;
   onChange: (v: number) => void;
+  onCommit?: () => void;
   disabled?: boolean;
 }) {
   const shown = value === undefined ? '--' : format ? format(value) : String(value);
@@ -48,7 +49,7 @@ export function Slider({
     <label className="grid grid-cols-[84px_1fr_48px] items-center gap-2 text-xs">
       <span className="truncate">{label}</span>
       <RSlider.Root
-        className="relative flex h-5 touch-none items-center select-none data-[disabled]:opacity-40"
+        className="nopan relative flex h-5 touch-none items-center select-none data-[disabled]:opacity-40"
         value={[value ?? Math.round((min + max) / 2)]}
         min={min}
         max={max}
@@ -56,6 +57,7 @@ export function Slider({
         disabled={disabled}
         aria-label={label}
         onValueChange={([v]) => onChange(v)}
+        onValueCommit={() => onCommit?.()}
       >
         <RSlider.Track className="relative h-px w-full grow bg-ink">
           {value !== undefined && <RSlider.Range className="absolute h-[3px] -translate-y-px bg-ink" />}
@@ -73,7 +75,7 @@ export function Slider({
 export function Fader({ label, value, max, onChange }: { label: string; value: number | undefined; max: number; onChange: (v: number) => void }) {
   return (
     <RSlider.Root
-      className="relative flex h-5 w-14 shrink-0 touch-none items-center select-none"
+      className="nopan relative flex h-5 w-14 shrink-0 touch-none items-center select-none"
       value={[value ?? max / 2]}
       min={0}
       max={max}

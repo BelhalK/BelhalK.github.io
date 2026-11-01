@@ -2,11 +2,12 @@ import type { Edge, Node } from '@xyflow/react';
 
 export type PartType =
   | 'cycles' | 'sequencer' | 'groove' | 'sounds' | 'banks'
-  | 'spectrogram' | 'spectrum' | 'recorder' | 'chopper' | 'reference' | 'monitor' | 'fm1';
+  | 'spectrogram' | 'spectrum' | 'recorder' | 'chopper' | 'reference' | 'monitor' | 'fm1' | 'llm';
 
 export const PARTS: { type: PartType; name: string; group: Workspace }[] = [
   { type: 'cycles', name: 'Model:Cycles', group: 'sources' },
   { type: 'sequencer', name: 'Sequencer', group: 'produce' },
+  { type: 'llm', name: 'LLM', group: 'produce' },
   { type: 'groove', name: 'Groove', group: 'produce' },
   { type: 'sounds', name: 'Sounds', group: 'produce' },
   { type: 'banks', name: 'Banks', group: 'produce' },
@@ -28,6 +29,7 @@ const node = (type: PartType, x: number, y: number): Node => ({ id: type, type, 
 export const ALL_NODES: Node[] = [
   node('sounds', 0, 0),
   node('sequencer', 440, 0),
+  node('llm', 0, -230),
   node('groove', 440, 470),
   node('banks', 440, 770),
   node('cycles', 1400, 0),
@@ -55,6 +57,7 @@ export const ALL_EDGES: Edge[] = [
   midiEdge('sounds', 'sequencer'),
   midiEdge('groove', 'sequencer'),
   midiEdge('banks', 'sequencer'),
+  midiEdge('llm', 'sequencer'),
   midiEdge('sequencer', 'fm1'),
   midiEdge('sequencer', 'chopper'),
   ...SOURCES.flatMap((source) => SINKS.map((sink) => audioEdge(source, sink))),
@@ -64,7 +67,7 @@ export const ALL_EDGES: Edge[] = [
 ];
 
 // What the app opens with, and what Reset layout returns to.
-const STARTER = new Set<string>(['sounds', 'sequencer', 'groove', 'cycles', 'monitor'] satisfies PartType[]);
+const STARTER = new Set<string>(['sounds', 'sequencer', 'llm', 'groove', 'cycles', 'monitor'] satisfies PartType[]);
 export const DEFAULT_NODES = ALL_NODES.filter((n) => STARTER.has(n.id));
 export const DEFAULT_EDGES = ALL_EDGES.filter((e) => STARTER.has(e.source) && STARTER.has(e.target));
 

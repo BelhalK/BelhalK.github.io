@@ -27,7 +27,7 @@ function useAnimation(fn: () => void, active: boolean) {
 }
 
 function useInput(id: string) {
-  const connected = useLive((s) => s.audio) !== 'idle';
+  const connected = useLive((s) => s.audioReady);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   useEffect(() => {
     if (connected) setAnalyser(audio.registerAnalyser(id));
@@ -86,7 +86,7 @@ export function SpectrogramPart({ id }: NodeProps) {
             {f >= 1000 ? `${f / 1000}k` : f}
           </span>
         ))}
-        {!analyser && <p className="absolute inset-0 grid place-items-center text-xs text-muted">Connect the Model:Cycles to see its sound here.</p>}
+        {!analyser && <p className="absolute inset-0 grid place-items-center text-xs text-muted">Press Play to see the sound here.</p>}
       </div>
     </Part>
   );
@@ -251,7 +251,6 @@ function BalanceChart({ diff }: { diff: number[] }) {
 export function ReferencePart() {
   const reference = useLive((s) => s.reference);
   const ab = useLive((s) => s.ab);
-  const connected = useLive((s) => s.audio) !== 'idle';
   const [playing, setPlaying] = useState(false);
   const [diff, setDiff] = useState<number[] | null>(null);
   const [seconds, setSeconds] = useState(0);
@@ -324,7 +323,7 @@ export function ReferencePart() {
         )}
       </div>
       {error && <p className="mt-2 text-xs text-live-dark">{error}</p>}
-      {!connected && !reference && <p className="mt-2 text-xs text-muted">Pick a track you wish you had made. Playback is level matched, so loudness will not bias you.</p>}
+      {!reference && <p className="mt-2 text-xs text-muted">Pick a track you wish you had made. Playback is level matched, so loudness will not bias you.</p>}
 
       <Heading>Tonal balance, mine against reference</Heading>
       {reference && diff ? (
@@ -349,7 +348,7 @@ function Meter({ label, node }: { label: string; node: () => AnalyserNode | unde
   const clip = useRef<HTMLSpanElement>(null);
   const data = useRef<Float32Array<ArrayBuffer> | null>(null);
   const held = useRef(0);
-  const connected = useLive((s) => s.audio) !== 'idle';
+  const connected = useLive((s) => s.audioReady);
 
   useAnimation(() => {
     const a = node();
@@ -381,7 +380,7 @@ export function MonitorPart() {
   const [output, setOutput] = useState('default');
   const pct = (v: number) => `${Math.round(v * 100)}%`;
   return (
-    <Part type="monitor" width={340} status="Mac sound output" ports={[{ id: 'audio-in', side: 'left', label: 'Audio', top: 58 }]}>
+    <Part type="monitor" width={340} status="Sound output" ports={[{ id: 'audio-in', side: 'left', label: 'Audio', top: 58 }]}>
       <div className="space-y-2">
         <Meter label="L" node={() => audio.meterL} />
         <Meter label="R" node={() => audio.meterR} />

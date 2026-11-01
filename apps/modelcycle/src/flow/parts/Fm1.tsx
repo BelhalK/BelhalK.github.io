@@ -58,7 +58,7 @@ export function Fm1Part() {
   };
 
   const connected = midiStatus !== 'idle';
-  const status = fmMidi || fmAudio === 'connected' ? 'Connected' : 'Waiting for the synth';
+  const status = fmMidi || fmAudio === 'connected' ? 'Connected' : 'Playing from this device';
 
   return (
     <Part
@@ -121,7 +121,7 @@ export function Fm1Part() {
         />
       </div>
       <p className="mt-1 text-xs text-muted">Preset is sent as Program Change, which is not yet confirmed on this synth. Shape the sound on the FM-1 itself.</p>
-      <p className="mt-1 text-xs text-muted">Write its part on the FM-1 lane in the Sequencer.</p>
+      <p className="mt-1 text-xs text-muted">Write its part on the FM-1 lane in the Sequencer. Until an FM-1 is connected, a simple FM voice plays it from this device.</p>
 
       <Heading>Capture a sound</Heading>
       <div className="flex items-center gap-2">
@@ -129,7 +129,7 @@ export function Fm1Part() {
           {capturing ? <Square className="size-3.5" fill="currentColor" /> : <Circle className="size-3.5 text-live" fill="currentColor" />}
           {capturing ? 'Stop' : 'Record the FM-1'}
         </Button>
-        <Button size="sm" className="ml-auto" disabled={!fmMidi} onClick={() => transport.triggerFm()}>Test note</Button>
+        <Button size="sm" className="ml-auto" onClick={() => transport.triggerFm()}>Test note</Button>
       </div>
       {error && <p className="mt-2 text-xs text-live-dark">{error}</p>}
       {take && (

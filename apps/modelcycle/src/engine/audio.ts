@@ -1,6 +1,7 @@
-import { del, get as idbGet, set as idbSet } from 'idb-keyval';
+import { get as idbGet, set as idbSet } from 'idb-keyval';
 import type { Edge, Node } from '@xyflow/react';
-import { averageBands, BANDS, bandsFromPower, detectTransients, estimateBpm, gridSlices, rms, toMono } from '@/lib/analysis';
+import { averageBands, BANDS, bandsFromPower, detectTransients, encodeWav, estimateBpm, gridSlices, rms, toMono } from '@/lib/analysis';
+import { driveCurve, kitSampleUrls, kitSound, type KitSound, kitVoice } from '@/lib/kits';
 import { useLive } from '@/store/live';
 import { useProject } from '@/store/project';
 import { baseType } from '@/flow/defaults';
@@ -21,14 +22,16 @@ export const ANALYSER_FFT = 4096;
 
 // macOS can leave this pending forever while Chrome lacks system microphone access.
 const OPEN_TIMEOUT_MS = 8000;
+// A person on a phone may still be reading the permission prompt.
+const MIC_TIMEOUT_MS = 60000;
 
-function openInput(constraints: MediaTrackConstraints) {
+function openInput(constraints: MediaTrackConstraints, timeout = OPEN_TIMEOUT_MS) {
   return new Promise<MediaStream>((resolve, reject) => {
     let timedOut = false;
     const timer = setTimeout(() => {
       timedOut = true;
       reject(new DOMException('Timed out opening the input', 'TimeoutError'));
-    }, OPEN_TIMEOUT_MS);
+    }, timeout);
     navigator.mediaDevices.getUserMedia({ audio: constraints }).then(
       (stream) => {
         clearTimeout(timer);
@@ -62,11 +65,13 @@ class Audio {
   private refGain!: GainNode;
   private refInput!: AnalyserNode;
   private micStream: MediaStream | null = null;
+  private micOpening = false;
   private micSource: MediaStreamAudioSourceNode | null = null;
   micAnalyser!: AnalyserNode;
   private recorder: MediaRecorder | null = null;
 
   chopBuffer: AudioBuffer | null = null;
+  private chopLoads = 0;
   private activeChops = new Set<AudioBufferSourceNode>();
   refBuffer: AudioBuffer | null = null;
   private refSource: AudioBufferSourceNode | null = null;
@@ -74,9 +79,22 @@ class Audio {
   refRms = 0;
   private mixPower: Float64Array | null = null;
   private mixFrames = 0;
+  private kitBuffers: AudioBuffer[] = [];
+  private kitRequest = '';
+  private kitDelay: DelayNode | null = null;
+  private kitReverb: ConvolverNode | null = null;
 
-  /** Creates the context. Must be called from a user gesture. */
+  /** Connects the devices. Must be called from a user gesture. */
   async start() {
+    this.boot();
+    await this.connectCycles();
+    await this.connectFm();
+    this.sync(useProject.getState().nodes, useProject.getState().edges);
+  }
+
+  /** Creates the context without asking for any device. Must be called from a user gesture. */
+  boot() {
+    this.setAudioSession();
     if (!this.ctx) {
       this.ctx = new AudioContext({ latencyHint: 'interactive', sampleRate: 48000 });
       const c = this.ctx;
@@ -105,18 +123,173 @@ class Audio {
       this.ports.set('fm1', { output: this.fmGain });
       this.ports.set('reference', { output: this.refGain, input: this.refInput });
       this.ports.set('recorder', { output: this.micAnalyser });
-      navigator.mediaDevices.addEventListener('devicechange', () => {
+      navigator.mediaDevices?.addEventListener('devicechange', () => {
         void this.refreshDevices().then(() => this.connectFm());
       });
+      useLive.getState().set({ audioReady: true });
+      void this.restoreChop();
     }
     // Not awaited: resume can stay pending until an output is ready.
     void this.ctx.resume();
+    // Mobile browsers open the output for good once a sound starts inside a tap.
+    if (this.ctx.state !== 'running') {
+      const unlock = this.ctx.createBufferSource();
+      unlock.buffer = this.ctx.createBuffer(1, 1, this.ctx.sampleRate);
+      unlock.connect(this.ctx.destination);
+      unlock.start();
+    }
     this.sync(useProject.getState().nodes, useProject.getState().edges);
     this.startMixAverage();
-    await this.restoreChop();
-    await this.connectCycles();
-    await this.connectFm();
-    this.sync(useProject.getState().nodes, useProject.getState().edges);
+  }
+
+  /** iPhones mute web audio under the silent switch unless the page counts as playback, but playback cannot use the mic. */
+  private setAudioSession() {
+    const session = (navigator as Navigator & { audioSession?: { type: string } }).audioSession;
+    if (session) session.type = this.micOpening || this.micStream ? 'play-and-record' : 'playback';
+  }
+
+  // Kit: what T1 to T6 play while no Model:Cycles is connected. It leaves through
+  // the Cycles port, so the cables on the canvas route it like the real device.
+
+  /** Decodes offline, so the samples are ready before the first click allows an AudioContext. */
+  async loadKit(kit: string) {
+    this.kitRequest = kit;
+    useLive.getState().set({ kit: 'loading' });
+    try {
+      const decoder = new OfflineAudioContext(2, 1, 48000);
+      const buffers = await Promise.all(kitSampleUrls(kit).map(async (url) => {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Could not load ${url}`);
+        return decoder.decodeAudioData(await response.arrayBuffer());
+      }));
+      if (this.kitRequest !== kit) return;
+      this.kitBuffers = buffers;
+      useLive.getState().set({ kit: 'ready' });
+    } catch {
+      if (this.kitRequest === kit) useLive.getState().set({ kit: 'error' });
+    }
+  }
+
+  /** time is in performance.now() milliseconds. T1 to T4 are samples, T5 a bass and T6 a chord. */
+  playKit(track: number, note: number, velocity: number, time: number) {
+    if (!this.ctx) return;
+    const c = this.ctx;
+    const at = c.currentTime + Math.max(0, (time - performance.now()) / 1000);
+    const params = useLive.getState().deviceParams[track];
+    const sound = kitSound(params);
+    const voice = kitVoice(track, params);
+    const gain = (velocity / 127) * sound.gain;
+    const pitch = (n: number) => 440 * 2 ** ((n + sound.semitones - 69) / 12);
+    if (voice === 4) this.playKitSynth('sawtooth', [pitch(note)], at, sound.decay ?? 0.28, sound, sound.cutoff ?? 500, gain * 0.7);
+    else if (voice === 5) this.playKitSynth('triangle', [0, 3, 7].map((i) => pitch(note + i)), at, sound.decay ?? 0.35, sound, sound.cutoff ?? 1800, gain * 0.3);
+    else if (this.kitBuffers[voice]) {
+      const src = c.createBufferSource();
+      src.buffer = this.kitBuffers[voice];
+      // Note 60 is the sample's own pitch, as the Note control's default.
+      const rate = 2 ** ((note - 60 + sound.semitones) / 12);
+      src.playbackRate.setValueAtTime(rate * 2 ** (sound.sweep / 12), at);
+      if (sound.sweep) src.playbackRate.exponentialRampToValueAtTime(rate, at + sound.sweepTime);
+      src.connect(this.kitChain(sound, sound.cutoff, gain, at));
+      src.start(at);
+      if (sound.decay !== null) src.stop(at + sound.decay);
+    }
+  }
+
+  /** The FM-1 lane's voice while no FM-1 is connected: two operators, leaving through the FM-1 port. */
+  playFm(note: number, velocity: number, time: number, length: number) {
+    if (!this.ctx) return;
+    const c = this.ctx;
+    const at = c.currentTime + Math.max(0, (time - performance.now()) / 1000);
+    const pitch = 440 * 2 ** ((note - 69) / 12);
+    const carrier = c.createOscillator();
+    const modulator = c.createOscillator();
+    const depth = c.createGain();
+    const level = c.createGain();
+    carrier.frequency.value = pitch;
+    modulator.frequency.value = pitch * 2;
+    depth.gain.setValueAtTime(pitch * 3, at);
+    depth.gain.exponentialRampToValueAtTime(pitch * 0.2, at + length);
+    level.gain.setValueAtTime((velocity / 127) * 0.4, at);
+    level.gain.exponentialRampToValueAtTime(0.001, at + length);
+    modulator.connect(depth).connect(carrier.frequency);
+    carrier.connect(level).connect(this.fmGain);
+    for (const osc of [carrier, modulator]) {
+      osc.start(at);
+      osc.stop(at + length);
+    }
+  }
+
+  private playKitSynth(type: OscillatorType, frequencies: number[], at: number, length: number, sound: KitSound, cutoff: number, gain: number) {
+    const c = this.ctx!;
+    const input = this.kitChain({ ...sound, decay: length }, cutoff, gain, at);
+    for (const frequency of frequencies) {
+      const osc = c.createOscillator();
+      osc.type = type;
+      osc.frequency.value = frequency;
+      if (sound.sweep) {
+        osc.detune.setValueAtTime(sound.sweep * 100, at);
+        osc.detune.linearRampToValueAtTime(0, at + sound.sweepTime);
+      }
+      osc.connect(input);
+      osc.start(at);
+      osc.stop(at + length);
+    }
+  }
+
+  /** One hit's path to the Cycles port, built from what the Sounds part has set. Returns its input. */
+  private kitChain(sound: KitSound, cutoff: number | null, gain: number, at: number) {
+    const c = this.ctx!;
+    const input = c.createGain();
+    let last: AudioNode = input;
+    if (sound.drive !== null) {
+      const shaper = c.createWaveShaper();
+      shaper.curve = driveCurve(sound.drive);
+      last = last.connect(shaper);
+    }
+    if (cutoff !== null) {
+      const filter = c.createBiquadFilter();
+      filter.frequency.value = cutoff;
+      last = last.connect(filter);
+    }
+    const level = c.createGain();
+    level.gain.setValueAtTime(gain, at);
+    if (sound.decay !== null) level.gain.exponentialRampToValueAtTime(0.001, at + sound.decay);
+    last.connect(level);
+    const panner = c.createStereoPanner();
+    panner.pan.value = sound.pan;
+    level.connect(panner).connect(this.cyclesGain);
+    if (sound.delay > 0 || sound.reverb > 0) {
+      const { delay, reverb } = this.kitSends();
+      delay.delayTime.setValueAtTime(Math.min(0.99, (60 / useProject.getState().bpm) * 0.75), at);
+      const toDelay = c.createGain();
+      const toReverb = c.createGain();
+      toDelay.gain.value = sound.delay;
+      toReverb.gain.value = sound.reverb;
+      level.connect(toDelay).connect(delay);
+      level.connect(toReverb).connect(reverb);
+    }
+    return input;
+  }
+
+  private kitSends() {
+    if (!this.kitDelay || !this.kitReverb) {
+      const c = this.ctx!;
+      this.kitDelay = c.createDelay(1);
+      const feedback = c.createGain();
+      feedback.gain.value = 0.35;
+      this.kitDelay.connect(feedback).connect(this.kitDelay);
+      this.kitDelay.connect(this.cyclesGain);
+      // A short burst of fading noise is enough of a room.
+      const impulse = c.createBuffer(2, Math.floor(c.sampleRate * 1.4), c.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const data = impulse.getChannelData(ch);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) ** 3;
+      }
+      this.kitReverb = c.createConvolver();
+      this.kitReverb.buffer = impulse;
+      this.kitReverb.connect(this.cyclesGain);
+    }
+    return { delay: this.kitDelay, reverb: this.kitReverb };
   }
 
   resume() {
@@ -291,9 +464,13 @@ class Audio {
   // Chopper
 
   async loadChop(data: ArrayBuffer, name: string, save = true) {
-    if (!this.ctx) await this.start();
+    this.boot();
     const copy = data.slice(0);
-    this.chopBuffer = await this.ctx!.decodeAudioData(data);
+    const load = save ? ++this.chopLoads : this.chopLoads;
+    const decoded = await this.ctx!.decodeAudioData(data);
+    // Restoring the saved sample must not land on top of something newer.
+    if (load !== this.chopLoads) return;
+    this.chopBuffer = decoded;
     if (save) {
       await idbSet('chop', { data: copy, name });
       useProject.getState().setTop({ slices: gridSlices(this.chopBuffer.length, useProject.getState().chopSteps) });
@@ -302,8 +479,10 @@ class Audio {
   }
 
   loadChopBuffer(buffer: AudioBuffer, name: string) {
+    this.chopLoads++;
     this.chopBuffer = buffer;
-    void del('chop');
+    // Kept as a WAV so the take survives the phone reloading the page.
+    void encodeWav(buffer).arrayBuffer().then((data) => idbSet('chop', { data, name }));
     useProject.getState().setTop({ slices: gridSlices(buffer.length, useProject.getState().chopSteps) });
     this.publishChop(name);
   }
@@ -321,7 +500,7 @@ class Audio {
   private async restoreChop() {
     if (this.chopBuffer) return;
     const saved = await idbGet<{ data: ArrayBuffer; name: string }>('chop');
-    if (saved) await this.loadChop(saved.data, saved.name, false);
+    if (saved && !this.chopBuffer) await this.loadChop(saved.data, saved.name, false);
   }
 
   sliceSpan(index: number) {
@@ -337,6 +516,7 @@ class Audio {
     const span = this.sliceSpan(index);
     if (!span || !this.ctx) return;
     const c = this.ctx;
+    this.resume();
     const src = c.createBufferSource();
     const g = c.createGain();
     src.buffer = this.chopBuffer;
@@ -374,12 +554,38 @@ class Audio {
 
   // Recorder
 
+  /** Needs no Connect first: a phone has no device to connect, only its own mic. */
   async armRecorder(deviceId: string) {
-    if (!this.ctx) await this.start();
     this.disarmRecorder();
-    this.micStream = await openInput({ ...RAW_AUDIO, deviceId: deviceId ? { exact: deviceId } : undefined });
-    this.micSource = this.ctx!.createMediaStreamSource(this.micStream);
-    this.micSource.connect(this.micAnalyser);
+    this.micOpening = true;
+    try {
+      this.boot();
+      this.micStream = await this.openMic(deviceId);
+    } finally {
+      this.micOpening = false;
+      this.setAudioSession();
+    }
+    // Opening the mic can interrupt the context on an iPhone.
+    this.resume();
+    try {
+      this.micSource = this.ctx!.createMediaStreamSource(this.micStream);
+      this.micSource.connect(this.micAnalyser);
+    } catch {
+      // Some browsers refuse a mic at another sample rate. The take records from the stream regardless; only the meter stays still.
+    }
+    // Input names stay hidden until the permission is granted.
+    await this.refreshDevices().catch(() => {});
+  }
+
+  private async openMic(deviceId: string) {
+    const constraints = { ...RAW_AUDIO, deviceId: deviceId ? { exact: deviceId } : undefined };
+    try {
+      return await openInput(constraints, MIC_TIMEOUT_MS);
+    } catch (err) {
+      // Device ids can change between visits, so fall back to the default input.
+      if (deviceId && err instanceof DOMException && err.name === 'OverconstrainedError') return openInput(RAW_AUDIO, MIC_TIMEOUT_MS);
+      throw err;
+    }
   }
 
   disarmRecorder() {
@@ -387,6 +593,7 @@ class Audio {
     this.micSource?.disconnect();
     this.micStream = null;
     this.micSource = null;
+    this.setAudioSession();
   }
 
   startRecording(stream = this.micStream) {
@@ -395,7 +602,9 @@ class Audio {
     this.recorder = new MediaRecorder(stream);
     const done = new Promise<AudioBuffer>((resolve, reject) => {
       this.recorder!.ondataavailable = (e) => chunks.push(e.data);
+      // Also fires when the system ends the input, such as a call on a phone.
       this.recorder!.onstop = async () => {
+        useLive.getState().set({ recording: false });
         try {
           const data = await new Blob(chunks).arrayBuffer();
           resolve(await this.ctx!.decodeAudioData(data));
@@ -410,12 +619,13 @@ class Audio {
   }
 
   stopRecording() {
-    this.recorder?.stop();
+    if (this.recorder?.state === 'recording') this.recorder.stop();
     useLive.getState().set({ recording: false });
   }
 
   previewBuffer(buffer: AudioBuffer) {
     if (!this.ctx) return;
+    this.resume();
     const src = this.ctx.createBufferSource();
     src.buffer = buffer;
     src.connect(this.master);
@@ -426,7 +636,7 @@ class Audio {
   // Reference
 
   async loadReference(data: ArrayBuffer, name: string) {
-    if (!this.ctx) await this.start();
+    this.boot();
     this.stopReference();
     this.refBuffer = await this.ctx!.decodeAudioData(data);
     const mono = toMono(this.refBuffer);

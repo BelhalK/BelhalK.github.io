@@ -15,15 +15,16 @@ import { TipProvider } from '@/components/ui';
 import { baseType, KIND_OF_HANDLE } from '@/flow/defaults';
 import { PartsNav, useShowHome } from '@/flow/PartsNav';
 import { LeaderEdge } from '@/flow/LeaderEdge';
+import { useTouchCamera } from '@/flow/useTouchCamera';
 import { connectAll, CyclesPart } from '@/flow/parts/Cycles';
 import { MonitorPart, ReferencePart, SpectrogramPart, SpectrumPart } from '@/flow/parts/Mix';
 import { BanksPart, GroovePart, SoundsPart } from '@/flow/parts/Produce';
 import { Fm1Part } from '@/flow/parts/Fm1';
 import { ChopperPart, RecorderPart } from '@/flow/parts/Sample';
 import { SequencerPart } from '@/flow/parts/Sequencer';
-
+import { LlmPart } from '@/flow/parts/Llm';
 const nodeTypes = {
-  cycles: CyclesPart, sequencer: SequencerPart, groove: GroovePart, sounds: SoundsPart, banks: BanksPart,
+  cycles: CyclesPart, sequencer: SequencerPart, llm: LlmPart, groove: GroovePart, sounds: SoundsPart, banks: BanksPart,
   spectrogram: SpectrogramPart, spectrum: SpectrumPart, recorder: RecorderPart, chopper: ChopperPart,
   reference: ReferencePart, monitor: MonitorPart, fm1: Fm1Part,
 };
@@ -86,23 +87,25 @@ function TransportBar() {
   const following = playing && clockSource === 'device';
 
   return (
-    <header className="on-ink flex h-[52px] shrink-0 items-center gap-5 overflow-x-auto bg-ink px-4 text-paper">
+    <header className="on-ink flex h-[52px] shrink-0 items-center gap-5 overflow-x-auto bg-ink px-4 text-paper max-[820px]:gap-2 max-[820px]:overflow-hidden max-[820px]:px-2">
       <strong className="text-[15px] font-semibold whitespace-nowrap max-[1100px]:hidden">Model:Cycles Studio</strong>
+      <strong className="hidden min-w-0 truncate text-[13px] font-semibold max-[820px]:block">Model:Cycles</strong>
+      <div className="hidden flex-1 max-[820px]:block" />
 
       <button
         type="button"
         onClick={() => transport.toggle()}
         aria-label={playing ? 'Stop' : 'Play'}
         className={clsx(
-          'flex h-8 w-[84px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[2px] font-semibold',
+          'flex h-8 w-[84px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[2px] font-semibold max-[820px]:order-last max-[820px]:h-10 max-[820px]:w-11',
           playing ? 'bg-live-dark text-paper' : 'bg-paper text-ink hover:bg-grid',
         )}
       >
         {playing ? <Square className="size-3.5" fill="currentColor" /> : <Play className="size-3.5" fill="currentColor" />}
-        {playing ? 'Stop' : 'Play'}
+        <span className="max-[820px]:hidden">{playing ? 'Stop' : 'Play'}</span>
       </button>
 
-      <label className="flex items-center gap-1.5">
+      <label className="flex shrink-0 items-center gap-1.5">
         {following ? (
           <span className="mono">{followBpm?.toFixed(1) ?? '--'}</span>
         ) : (
@@ -111,19 +114,20 @@ function TransportBar() {
         <span className="text-xs">BPM</span>
       </label>
       <span className="text-xs whitespace-nowrap max-[1100px]:hidden">Swing <span className="mono">{swing}%</span></span>
-      <Position />
+      <span className="max-[820px]:hidden"><Position /></span>
       <span className="text-xs whitespace-nowrap max-[1100px]:hidden">Pattern <span className="mono">{patternName(current)}</span></span>
 
-      <div className="flex-1" />
+      <div className="flex-1 max-[820px]:hidden" />
 
       {connected ? (
-        <div className="flex gap-4">
+        <div className="flex gap-4 max-[820px]:hidden">
           <Status ok label="MIDI" />
           <Status ok label="Audio" />
         </div>
       ) : (
-        <button type="button" onClick={connectAll} className="h-8 shrink-0 cursor-pointer rounded-[2px] bg-paper px-3 font-semibold text-ink hover:bg-grid">
-          Connect Model:Cycles
+        <button type="button" onClick={connectAll} className="h-8 shrink-0 cursor-pointer rounded-[2px] bg-paper px-3 font-semibold text-ink hover:bg-grid max-[820px]:h-10 max-[820px]:px-2 max-[820px]:text-xs">
+          <span className="max-[820px]:hidden">Connect Model:Cycles</span>
+          <span className="hidden max-[820px]:inline">Connect</span>
         </button>
       )}
     </header>
@@ -136,6 +140,7 @@ function Canvas() {
   const setLayout = useProject((s) => s.setLayout);
 
   const showHome = useShowHome();
+  useTouchCamera();
 
   useEffect(() => {
     const id = setTimeout(() => showHome(), 60);
@@ -244,6 +249,8 @@ function useKeyboard() {
 export default function App() {
   useKeyboard();
   useEffect(() => { void midi.reconnect(); }, []);
+  const kitId = useProject((s) => s.kitId);
+  useEffect(() => { void audio.loadKit(kitId); }, [kitId]);
   return (
     <TipProvider>
       <ReactFlowProvider>

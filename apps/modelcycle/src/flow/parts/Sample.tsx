@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNodeId, useReactFlow } from '@xyflow/react';
 import { Circle, Download, Square } from 'lucide-react';
 import { encodeWav, matchToCycles, peaks, sliceFeatures, toMono, type CyclesMatch } from '@/lib/analysis';
 import { CHOPS_LANE } from '@/lib/cycles';
@@ -6,9 +7,11 @@ import { emptyLane, newStep } from '@/lib/pattern';
 import { audio } from '@/engine/audio';
 import { transport } from '@/engine/transport';
 import { useLive } from '@/store/live';
-import { isWired, useProject } from '@/store/project';
+import { useProject } from '@/store/project';
 import { Button, Heading, Row, Segmented, Select } from '@/components/ui';
+import { baseType, KIND_OF_HANDLE } from '../defaults';
 import { Part } from '../Part';
+import { FIT_PADDING } from '../PartsNav';
 
 const download = (blob: Blob, name: string) => {
   const a = document.createElement('a');
@@ -29,10 +32,18 @@ function drawWave(canvas: HTMLCanvasElement, buffer: AudioBuffer) {
   });
 }
 
+const INPUT_ERRORS: Record<string, string> = {
+  NotAllowedError: 'The microphone is blocked. Allow it for this site in the browser settings, then try again.',
+  NotFoundError: 'No microphone was found.',
+  NotReadableError: 'Another app is using the microphone. Close it and try again.',
+  TimeoutError: 'The microphone did not open in time. Check its permission for this browser, then try again.',
+};
+
 export function RecorderPart() {
+  const id = useNodeId();
+  const { fitView } = useReactFlow();
   const inputs = useLive((s) => s.devices.inputs);
   const recording = useLive((s) => s.recording);
-  const toChopper = useProject((s) => isWired(s.edges, 'recorder', 'chopper'));
   const [deviceId, setDeviceId] = useState('');
   const [armed, setArmed] = useState(false);
   const [take, setTake] = useState<AudioBuffer | null>(null);
@@ -41,6 +52,10 @@ export function RecorderPart() {
   const canvas = useRef<HTMLCanvasElement>(null);
   const level = useRef<HTMLDivElement>(null);
   const startedAt = useRef(0);
+  // Whether Record opened the input itself, and so should close it after the take.
+  const closeAfterTake = useRef(false);
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     if (deviceId || !inputs.length) return;
@@ -69,12 +84,24 @@ export function RecorderPart() {
 
   const arm = async () => {
     setError(null);
+    setBusy(true);
     try {
       await audio.armRecorder(deviceId);
       setArmed(true);
-    } catch {
-      setError('Could not open that input. Check the microphone permission in Chrome.');
+      return true;
+    } catch (err) {
+      const name = err instanceof DOMException ? err.name : '';
+      setError(INPUT_ERRORS[name] ?? 'Could not open that input. This browser may not allow microphone access here.');
+      return false;
+    } finally {
+      setBusy(false);
     }
+  };
+
+  const disarm = () => {
+    audio.disarmRecorder();
+    setArmed(false);
+    if (level.current) level.current.style.width = '0';
   };
 
   const record = async () => {
@@ -82,13 +109,34 @@ export function RecorderPart() {
       audio.stopRecording();
       return;
     }
+    closeAfterTake.current = !armed;
+    if (!armed && !(await arm())) return;
+    setError(null);
     startedAt.current = performance.now();
     setTime(0);
     try {
-      setTake(await audio.startRecording());
+      const next = await audio.startRecording();
+      setTake(next);
+      setSent(false);
     } catch {
-      setError('The recording could not be decoded. Try again.');
+      setError('The recording could not be read. Try again.');
+    } finally {
+      // Leaves the mic so playback returns to the phone's speaker at full level.
+      if (closeAfterTake.current) disarm();
     }
+  };
+
+  const sendToChopper = (buffer: AudioBuffer) => {
+    const s = useProject.getState();
+    const chopper = s.nodes.find((n) => baseType(n.id) === 'chopper')?.id ?? s.addPart('chopper', { x: 0, y: 0 });
+    const { nodes, edges } = useProject.getState();
+    if (id && !edges.some((e) => baseType(e.source) === 'recorder' && baseType(e.target) === 'chopper')) {
+      s.setLayout(nodes, [...edges, { id: `${id}-${chopper}-audio`, source: id, target: chopper, sourceHandle: 'chop-out', targetHandle: 'chop-in', type: 'leader', data: { kind: KIND_OF_HANDLE('chop-out') } }]);
+    }
+    audio.loadChopBuffer(buffer, `Recording ${buffer.duration.toFixed(1)} s`);
+    setSent(true);
+    // A new part needs a moment to be measured before the camera can frame it.
+    setTimeout(() => void fitView({ nodes: [{ id: chopper }], padding: FIT_PADDING, maxZoom: 1, duration: 250 }), 80);
   };
 
   return (
@@ -102,10 +150,10 @@ export function RecorderPart() {
           ariaLabel="Recording input"
           className="min-w-0 flex-1"
           value={deviceId || undefined}
-          placeholder="Connect to list inputs"
+          placeholder="Default microphone"
           onChange={(v) => {
             setDeviceId(v);
-            if (armed) { audio.disarmRecorder(); setArmed(false); }
+            if (armed) disarm();
           }}
           options={inputs.map((d) => ({ value: d.deviceId, label: d.label || 'Input' }))}
         />
@@ -113,14 +161,11 @@ export function RecorderPart() {
       <div className="mt-2.5 h-2 border border-ink"><div ref={level} className="h-full bg-ink" style={{ width: 0 }} /></div>
 
       <div className="mt-2.5 flex items-center gap-2">
-        {!armed ? (
-          <Button onClick={arm} disabled={!inputs.length}>Open input</Button>
-        ) : (
-          <Button variant={recording ? 'live' : 'outline'} onClick={record}>
-            {recording ? <Square className="size-3.5" fill="currentColor" /> : <Circle className="size-3.5 text-live" fill="currentColor" />}
-            {recording ? 'Stop' : 'Record'}
-          </Button>
-        )}
+        <Button variant={recording ? 'live' : 'outline'} disabled={busy} onClick={record}>
+          {recording ? <Square className="size-3.5" fill="currentColor" /> : <Circle className="size-3.5 text-live" fill="currentColor" />}
+          {recording ? 'Stop' : busy ? 'Opening' : 'Record'}
+        </Button>
+        {!recording && <Button disabled={busy} onClick={armed ? disarm : () => void arm()}>{armed ? 'Close input' : 'Open input'}</Button>}
         <span className="mono ml-auto text-xs">{time.toFixed(1)} s</span>
       </div>
       {error && <p className="mt-2 text-xs text-live-dark">{error}</p>}
@@ -130,12 +175,12 @@ export function RecorderPart() {
           <canvas ref={canvas} width={632} height={140} className="mt-2.5 block h-[70px] w-full border border-line" />
           <div className="mt-2 flex gap-2">
             <Button size="sm" onClick={() => audio.previewBuffer(take)}>Play</Button>
-            <Button size="sm" variant="solid" disabled={!toChopper} title={toChopper ? undefined : 'Connect the Recorder to the Chopper first'} onClick={() => audio.loadChopBuffer(take, `Recording ${take.duration.toFixed(1)} s`)}>Send to Chopper</Button>
+            <Button size="sm" variant="solid" onClick={() => sendToChopper(take)}>{sent ? 'Sent to Chopper' : 'Send to Chopper'}</Button>
             <Button size="sm" className="ml-auto" onClick={() => download(encodeWav(take), 'recording.wav')}><Download className="size-3" /> WAV</Button>
           </div>
         </>
       ) : (
-        <p className="mt-2.5 text-xs text-muted">Record from the Mac's microphone, your iPhone, or the Cycles itself, then chop the take.</p>
+        <p className="mt-2.5 text-xs text-muted">Record from this device's microphone or the Cycles, then send the take to the Chopper.</p>
       )}
     </Part>
   );

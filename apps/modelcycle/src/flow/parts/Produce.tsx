@@ -187,7 +187,7 @@ function XYPad({ x, y, previous, onChange, onGrab, onRelease, onBack }: {
       ref={ref}
       role="group"
       aria-label="Color and Shape pad"
-      className="relative h-24 cursor-crosshair touch-none rounded-[2px] border border-ink bg-[linear-gradient(var(--color-grid)_1px,transparent_1px),linear-gradient(90deg,var(--color-grid)_1px,transparent_1px)] bg-[size:12px_12px]"
+      className="nopan relative h-24 cursor-crosshair touch-none rounded-[2px] border border-ink bg-[linear-gradient(var(--color-grid)_1px,transparent_1px),linear-gradient(90deg,var(--color-grid)_1px,transparent_1px)] bg-[size:12px_12px]"
       onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); onGrab(); update(e); }}
       onPointerMove={(e) => { if (e.buttons) update(e); }}
       onLostPointerCapture={onRelease}
@@ -252,6 +252,7 @@ export function SoundsPart() {
   const releasePad = () => {
     const from = grabbed.current;
     grabbed.current = null;
+    if (wired) transport.previewKit(track);
     if (!from || (color === undefined && shape === undefined) || (from.x === color && from.y === shape)) return;
     setPadHistory((h) => ({ ...h, [track]: [...(h[track] ?? []), from] }));
   };
@@ -295,7 +296,11 @@ export function SoundsPart() {
           className="flex-1"
           value={machine}
           placeholder="Not known yet"
-          onChange={(v) => wired && sendMachine(track, v as Machine)}
+          onChange={(v) => {
+            if (!wired) return;
+            sendMachine(track, v as Machine);
+            transport.previewKit(track);
+          }}
           options={MACHINES.map((m) => ({ value: m, label: m }))}
         />
       </div>
@@ -316,7 +321,7 @@ export function SoundsPart() {
       </div>
       <div className="mt-2.5 space-y-0.5">
         {SOUND_CONTROLS.map(({ key, label }) => (
-          <Slider key={key} label={label} value={value(key)} disabled={!wired} onChange={(v) => sendParam(track, key, v)} />
+          <Slider key={key} label={label} value={value(key)} disabled={!wired} onChange={(v) => sendParam(track, key, v)} onCommit={() => transport.previewKit(track)} />
         ))}
       </div>
       <Heading>Sound bank</Heading>

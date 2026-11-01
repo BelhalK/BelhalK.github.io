@@ -1,0 +1,18 @@
+[Unit]
+Description=Model:Cycles Studio pattern generator (localhost, behind Caddy)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/srv/projects/BelhalK.github.io/.env
+ExecStart=/root/.nvm/versions/node/v22.23.2/bin/node --disable-warning=ExperimentalWarning /srv/projects/BelhalK.github.io/apps/modelcycle/server/service.ts
+StateDirectory=modelcycle-generate
+Restart=on-failure
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+ProtectSystem=strict
+PrivateTmp=yes
+PrivateDevices=yes
+
+[Install]
+WantedBy=multi-user.target

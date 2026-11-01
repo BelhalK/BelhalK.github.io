@@ -3,6 +3,7 @@ import { clsx } from 'clsx';
 import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { transport } from '@/engine/transport';
 import { CC, CHOPS_LANE, FM_LANE, LANE_COLORS, LANE_NAMES, LANES, MACHINES, patternName } from '@/lib/cycles';
+import { KIT_LANE_NAMES } from '@/lib/kits';
 import { audio } from '@/engine/audio';
 import type { Pattern, Step } from '@/lib/pattern';
 import { mirrorProblem, useLive } from '@/store/live';
@@ -58,7 +59,8 @@ const StepCell = memo(function StepCell({
       aria-label={`${LANE_NAMES[lane]} step ${index + 1}${step ? ', on' : ', off'}${onDevice ? ', playing on the Cycles' : ''}`}
       aria-pressed={!!step}
       onPointerDown={(e) => {
-        if (e.button === 0) {
+        // A finger may be starting to pan the canvas, so touch waits for the tap's click.
+        if (e.button === 0 && e.pointerType !== 'touch') {
           e.currentTarget.releasePointerCapture?.(e.pointerId);
           onDown(lane, index);
         }
@@ -99,6 +101,7 @@ function LaneHead({ lane }: { lane: number }) {
   const shift = useProject((s) => s.shift);
   const clearLane = useProject((s) => s.clearLane);
   const machineValue = useLive((s) => s.deviceParams[lane]?.[CC.machine]);
+  const onKit = useLive((s) => s.midi !== 'connected');
   const flash = useLive((s) => s.laneFlash[lane]);
   const ref = useRef<HTMLSpanElement>(null);
   const selectedSlice = useLive((s) => s.selectedSlice);
@@ -109,6 +112,7 @@ function LaneHead({ lane }: { lane: number }) {
 
   const name = LANE_NAMES[lane];
   const machine = lane < 6 && machineValue !== undefined ? MACHINES[machineValue] : null;
+  const kitName = lane < 6 && !machine && onKit ? KIT_LANE_NAMES[lane] : null;
 
   return (
     <div className="flex items-center gap-1" style={{ width: LABEL - 6 }}>
@@ -119,7 +123,7 @@ function LaneHead({ lane }: { lane: number }) {
           onClick={() => (lane === CHOPS_LANE ? audio.playSlice(selectedSlice, performance.now()) : lane === FM_LANE ? transport.triggerFm() : transport.trigger(lane))}
         >
           <span ref={ref} className="size-2.5 shrink-0" style={{ background: LANE_COLORS[lane] }} />
-          <span className="truncate">{machine ? `${name} ${machine}` : name}</span>
+          <span className="truncate">{kitName ?? (machine ? `${name} ${machine}` : name)}</span>
         </button>
       </Tip>
       <Button size="icon" variant="ghost" aria-label={`Shift ${name} left`} onClick={() => shift(lane, -1)}><ChevronLeft className="size-3.5" /></Button>
@@ -224,7 +228,12 @@ export function SequencerPart() {
       keepOnClick.current = false;
       return;
     }
-    if (!useProject.getState().pattern().lanes[lane][step]) return;
+    if (!useProject.getState().pattern().lanes[lane][step]) {
+      // Only a tap reaches here on an empty step; a mouse added it on pointer down.
+      if (useLive.getState().incoming.some((h) => h.lane === lane && h.step === step)) return;
+      toggleStep(lane, step, lane === CHOPS_LANE ? { slice: useLive.getState().selectedSlice } : undefined);
+      return;
+    }
     toggleStep(lane, step);
     const sel = useLive.getState().selectedStep;
     if (sel?.lane === lane && sel.step === step) setLive({ selectedStep: null });

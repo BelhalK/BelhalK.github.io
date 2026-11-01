@@ -3,8 +3,10 @@ import { ChevronRight } from 'lucide-react';
 import { audio } from '@/engine/audio';
 import { midi } from '@/engine/midi';
 import { transport } from '@/engine/transport';
+import { KITS } from '@/lib/kits';
 import { mirrorProblem, useLive } from '@/store/live';
-import { Button, Row } from '@/components/ui';
+import { useProject } from '@/store/project';
+import { Button, Row, Select } from '@/components/ui';
 import { Part } from '../Part';
 
 export const connectAll = async () => {
@@ -34,6 +36,9 @@ export function CyclesPart() {
   const audioStatus = useLive((s) => s.audio);
   const followBpm = useLive((s) => s.followBpm);
   const heard = useLive((s) => s.heard);
+  const kit = useLive((s) => s.kit);
+  const kitId = useProject((s) => s.kitId);
+  const setTop = useProject((s) => s.setTop);
   const [setupOpen, setSetupOpen] = useState(true);
   const problem = mirrorProblem(heard);
   const ready = midiStatus === 'connected' && audioStatus === 'connected';
@@ -63,6 +68,23 @@ export function CyclesPart() {
           <Button variant="solid" onClick={connectAll}>Connect Model:Cycles</Button>
         )}
       </div>
+      {midiStatus !== 'connected' && (
+        <div className="mt-3 border-t border-line pt-2.5">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="shrink-0">Laptop kit</span>
+            <Select
+              ariaLabel="Laptop kit"
+              className="min-w-0 flex-1"
+              value={kitId}
+              onChange={(v) => setTop({ kitId: v })}
+              options={KITS.map((k) => ({ value: k.id, label: k.name }))}
+            />
+          </div>
+          <p className={`mt-1.5 text-xs ${kit === 'error' ? 'text-live-dark' : 'text-muted'}`}>
+            {kit === 'error' ? 'The kit samples could not be downloaded. Check the connection, or choose another kit.' : kit === 'loading' ? 'Loading samples.' : 'The Sequencer plays this kit from the laptop until a Cycles is connected.'}
+          </p>
+        </div>
+      )}
       {problem && <p className="mt-2 text-xs text-live-dark">{problem.fix}</p>}
       {audioStatus === 'blocked' && (
         <p className="mt-2 text-xs text-live-dark">macOS did not let Chrome open audio. In System Settings, go to Privacy and Security, then Microphone, turn on Google Chrome, restart Chrome and connect again.</p>

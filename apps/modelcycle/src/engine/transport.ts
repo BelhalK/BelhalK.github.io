@@ -1,7 +1,9 @@
 import { CHOPS_LANE, DEVICE_TRACKS, FM_LANE, PATTERN_COUNT } from '@/lib/cycles';
+import { kitVoice } from '@/lib/kits';
 import { stepDuration, stepOffset } from '@/lib/pattern';
 import { pulse, useLive } from '@/store/live';
 import { isWired, useProject } from '@/store/project';
+import { baseType, type PartType } from '@/flow/defaults';
 import { audio } from './audio';
 import { midi } from './midi';
 
@@ -53,7 +55,10 @@ class Transport {
   }
 
   play() {
-    audio.resume();
+    audio.boot();
+    const { lanes } = useProject.getState().pattern();
+    if (lanes[CHOPS_LANE].some(Boolean)) ensurePart('chopper');
+    if (lanes[FM_LANE].some(Boolean)) ensurePart('fm1');
     this.appStartedAt = performance.now();
     midi.start();
     const now = performance.now() + 60;
@@ -118,13 +123,15 @@ class Transport {
       if (step.chance < 100 && Math.random() * 100 >= step.chance) return;
       const at = Math.max(performance.now(), gridTime + stepOffset(pos, stepMs / 1000, swing, step.micro) * 1000);
       if (laneIndex < DEVICE_TRACKS && toDevice) {
-        midi.note(laneIndex, step.note, step.vel, at, stepMs * 0.9);
+        if (live.midi === 'connected') midi.note(laneIndex, step.note, step.vel, at, stepMs * 0.9);
+        else audio.playKit(laneIndex, step.note, step.vel, at);
         this.pulseAt(at, 'cycles', laneIndex);
       } else if (laneIndex === CHOPS_LANE && toChops) {
         audio.playSlice(step.slice ?? 0, at, step.vel / 127);
         this.pulseAt(at, 'chopper', laneIndex);
       } else if (laneIndex === FM_LANE && toFm) {
-        midi.fmNote(project.fmChannel, step.note, step.vel, at, stepMs * 0.9);
+        if (live.fmMidi) midi.fmNote(project.fmChannel, step.note, step.vel, at, stepMs * 0.9);
+        else audio.playFm(step.note, step.vel, at, 0.4);
         this.pulseAt(at, 'fm1', laneIndex);
       }
     });
@@ -231,18 +238,42 @@ class Transport {
     live.set({ incoming: [...others, { step, lane: channel, at: performance.now(), note, vel: velocity }] });
   }
 
+  /** Lets the kit be heard after a Sounds control moves. The Cycles and a running pattern already sound by themselves. */
+  previewKit(track: number) {
+    const { midi: status, playing } = useLive.getState();
+    if (status !== 'connected' && !playing) this.trigger(track);
+  }
+
   triggerFm(note = 60, velocity = 110) {
-    midi.fmNote(useProject.getState().fmChannel, note, velocity, performance.now(), 400);
+    if (useLive.getState().fmMidi) midi.fmNote(useProject.getState().fmChannel, note, velocity, performance.now(), 400);
+    else {
+      audio.boot();
+      ensurePart('fm1');
+      audio.playFm(note, velocity, performance.now(), 0.4);
+    }
     pulse('sequencer>fm1');
     flashLane(FM_LANE);
   }
 
   /** Audition one track on the device, regardless of the sequencer. */
   trigger(track: number, note = 60, velocity = 110) {
-    midi.note(track, note, velocity, performance.now(), 160);
+    if (useLive.getState().midi === 'connected') {
+      midi.note(track, note, velocity, performance.now(), 160);
+    } else {
+      audio.boot();
+      // The bass voice sounds at note 36 when auditioned, not at its default middle C.
+      const bass = kitVoice(track, useLive.getState().deviceParams[track]) === 4;
+      audio.playKit(track, bass ? 36 : note, velocity, performance.now());
+    }
     pulse('sequencer>cycles');
     flashLane(track);
   }
+}
+
+/** A lane with notes needs its part on the canvas, or its cables to the speakers do not exist. */
+function ensurePart(type: PartType) {
+  const { nodes, addPart } = useProject.getState();
+  if (!nodes.some((n) => baseType(n.id) === type)) addPart(type, { x: 0, y: 0 });
 }
 
 function flashLane(lane: number) {

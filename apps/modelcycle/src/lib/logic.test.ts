@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { averageBands, balanceDifference, BANDS, detectTransients, estimateBpm, gridSlices, matchToCycles, sliceFeatures } from './analysis';
+import { readGenerated } from './generated';
 import { GROOVES, groovePattern } from './grooves';
 import { emptyLane, newStep, shiftLane, stepDuration, stepOffset, swingDelay } from './pattern';
-import { LANES, patternName } from './cycles';
+import { CC, LANES, patternName } from './cycles';
+import { kitSound, kitVoice } from './kits';
 
 const SR = 48000;
 const sine = (hz: number, sec: number, decay = 0) =>
@@ -44,6 +46,44 @@ describe('patterns', () => {
       expect(p.lanes[0].filter(Boolean).length).toBeGreaterThan(0);
       p.lanes.forEach((l) => l.slice(16).forEach((s) => expect(s).toBeNull()));
     }
+  });
+});
+
+describe('laptop kit sounds', () => {
+  it('leaves the sample alone until a control is touched', () => {
+    expect(kitSound(undefined)).toMatchObject({ semitones: 0, decay: null, cutoff: null, drive: null, sweep: 0, gain: 1, pan: 0, delay: 0, reverb: 0 });
+  });
+  it('Color opens the filter and Shape adds drive', () => {
+    const dark = kitSound({ [CC.color]: 0, [CC.shape]: 0 });
+    const bright = kitSound({ [CC.color]: 127, [CC.shape]: 127 });
+    expect(dark.cutoff).toBeCloseTo(150);
+    expect(bright.cutoff).toBeCloseTo(18000);
+    expect(bright.drive!).toBeGreaterThan(dark.drive!);
+  });
+  it('plays the chosen machine, else the track position', () => {
+    expect(kitVoice(0, undefined)).toBe(0);
+    expect(kitVoice(0, { [CC.machine]: 5 })).toBe(5);
+  });
+});
+
+describe('generated patterns', () => {
+  it('fills tracks in order and keeps steps inside the pattern', () => {
+    const result = readGenerated({ name: 'x', bpm: 90, swing: 60, kick: [{ step: 0, velocity: 120 }, { step: 16, velocity: 120 }], bass: [{ step: 3, velocity: 90, note: 36 }] }, 16)!;
+    expect(result.lanes).toHaveLength(6);
+    expect(result.lanes[0][0]?.vel).toBe(120);
+    expect(result.lanes[0][16]).toBeNull();
+    expect(result.lanes[4][3]?.note).toBe(36);
+  });
+  it('clamps what the model gets wrong and keeps drums at their own pitch', () => {
+    const result = readGenerated({ bpm: 900, swing: 10, snare: [{ step: 4, velocity: 500, note: 12 }, { step: 1.5, velocity: 90 }, null] }, 16)!;
+    expect(result.bpm).toBe(300);
+    expect(result.swing).toBe(50);
+    expect(result.lanes[1][4]).toMatchObject({ vel: 127, note: 60 });
+    expect(result.lanes[1].filter(Boolean)).toHaveLength(1);
+  });
+  it('treats an answer with no steps as a failure', () => {
+    expect(readGenerated({ kick: [] }, 16)).toBeNull();
+    expect(readGenerated('nonsense', 16)).toBeNull();
   });
 });
 

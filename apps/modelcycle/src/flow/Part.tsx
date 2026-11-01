@@ -52,7 +52,7 @@ export function Part({
           )}
         </span>
       ))}
-      <div className={clsx('nodrag nopan cursor-default', !tight && 'p-3')}>{children}</div>
+      <div className={clsx('part-body nodrag nopan cursor-default', !tight && 'p-3')}>{children}</div>
     </section>
   );
 }

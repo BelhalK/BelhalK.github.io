@@ -2,7 +2,7 @@ import { type ComponentType, useCallback, useEffect, useRef, useState } from 're
 import { useReactFlow } from '@xyflow/react';
 import {
   AudioLines, ChartSpline, Drum, GitCompareArrows, Grid3x3, KeyboardMusic, Library, Mic, RotateCcw, Scissors,
-  Search, SlidersHorizontal, Volume2, Waves, X,
+  Search, SlidersHorizontal, Sparkles, Volume2, Waves, X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useProject } from '@/store/project';
@@ -11,6 +11,7 @@ import { baseType, PARTS, type PartType } from './defaults';
 
 const ICONS: Record<PartType, ComponentType<{ className?: string }>> = {
   sequencer: Grid3x3,
+  llm: Sparkles,
   groove: Waves,
   sounds: SlidersHorizontal,
   banks: Library,
@@ -28,6 +29,7 @@ const ICONS: Record<PartType, ComponentType<{ className?: string }>> = {
 const KEYWORDS: Record<PartType, string> = {
   cycles: 'device hardware usb elektron clock connect',
   sequencer: 'steps pattern tracks lanes shift grid',
+  llm: 'ai gemini prompt generate midi pattern',
   groove: 'swing shuffle timing templates learn',
   sounds: 'machine presets color shape parameters cc',
   banks: 'patterns slots copy program change',
@@ -40,9 +42,11 @@ const KEYWORDS: Record<PartType, string> = {
   fm1: 'mvave m-vave synth fm-1 synthesizer',
 };
 
-const FIT_PADDING = { top: '40px', left: '80px', right: '32px', bottom: '16px' } as const;
+export const FIT_PADDING = window.matchMedia('(max-width: 820px)').matches
+  ? ({ top: '16px', left: '52px', right: '8px', bottom: '16px' } as const)
+  : ({ top: '40px', left: '80px', right: '32px', bottom: '16px' } as const);
 
-const ROUND = 'grid size-10 cursor-pointer place-items-center rounded-full border border-ink shadow-[0_2px_8px_rgb(14_17_22/0.18)] transition-colors duration-150';
+const ROUND = 'dock-button grid size-10 cursor-pointer place-items-center rounded-full border border-ink shadow-[0_2px_8px_rgb(14_17_22/0.18)] transition-colors duration-150';
 
 /** Frames the parts the app opens on; from there the trackpad moves around. */
 export function useShowHome() {
@@ -104,7 +108,7 @@ export function PartsNav() {
   const matches = PARTS.filter((p) => !q || `${p.name} ${KEYWORDS[p.type]}`.toLowerCase().includes(q));
 
   return (
-    <nav aria-label="Parts" className="absolute top-1/2 left-3 z-10 flex -translate-y-1/2 flex-col gap-1.5">
+    <nav aria-label="Parts" className="dock absolute top-1/2 left-3 z-10 flex -translate-y-1/2 flex-col gap-1.5">
       <div className="relative">
         <Tip text="Search" side="right">
           <button
@@ -150,7 +154,7 @@ export function PartsNav() {
         )}
       </div>
 
-      <span className="h-1" />
+      <span className="dock-gap h-1" />
 
       {PARTS.map((p) => {
         const Icon = ICONS[p.type];
@@ -169,7 +173,7 @@ export function PartsNav() {
         );
       })}
 
-      <span className="h-1" />
+      <span className="dock-gap h-1" />
 
       <Tip text="Reset layout" side="right">
         <button
