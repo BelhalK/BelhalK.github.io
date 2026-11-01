@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+@import '@xyflow/react/dist/base.css';
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource/geist-mono/500.css';
+
+@theme {
+  --color-ink: #0e1116;
+  --color-paper: #ffffff;
+  --color-grid: #eef0f2;
+  --color-line: #d4d7dc;
+  --color-wash: #f4f5f6;
+  --color-muted: #565c65;
+  --color-live: #e5391b;
+  --color-live-dark: #c22c11;
+  --color-warn: #8a5a00;
+  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --radius-part: 3px;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+  color-scheme: light;
+}
+::selection { background: var(--color-ink); color: #fff; }
+:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 1px; }
+.on-ink :focus-visible { outline-color: #fff; }
+.no-ring:focus-visible { outline: none; }
+
+* { scrollbar-width: thin; scrollbar-color: var(--color-line) transparent; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-weight: 500; }
+
+.react-flow__pane { cursor: default; }
+.react-flow__attribution { display: none; }
+.react-flow__handle {
+  width: 11px; height: 11px; border-radius: 0; border: 1.5px solid var(--color-ink); background: var(--color-ink);
+}
+.react-flow__handle.kind-midi { background: #fff; border-radius: 50%; }
+.react-flow__handle:hover, .react-flow__handle.connectingto { background: var(--color-live); border-color: var(--color-live); }
+.react-flow__node.selected > .part { box-shadow: 0 0 0 1px var(--color-ink); }
+.react-flow__edge.selected .leader-line { stroke-width: 2.5; }
+
+.part-drag { cursor: grab; }
+.part-drag:active { cursor: grabbing; }
+
+.step-muted {
+  background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgb(255 255 255 / 0.75) 3px 5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

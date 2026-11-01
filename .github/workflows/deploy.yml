@@ -23,6 +23,7 @@ jobs:
           cache-dependency-path: |
             package-lock.json
             apps/my-bento/package-lock.json
+            apps/modelcycle/package-lock.json
 
       - name: Install dependencies
         run: npm ci && npm ci --prefix apps/my-bento

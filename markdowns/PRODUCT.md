@@ -29,7 +29,9 @@ The site connects three things: a research career (Ph.D. at Ecole Polytechnique 
 - Pages: home (`index.html`, with a Three.js courtside/basketball piece in `src/basketball.js` and a Kobe Bryant GLB model) plus section pages under `public/`: research, talks, industry, advisory, software, awards, teaching, education, music. Shared assets: `public/site.css` and `public/site.js`, hashed at build time by `scripts/hash-shared-assets.mjs`.
 - `/resume/` is a data-driven resume rendered from `public/resume/data/*.json`.
 - `src/` (the React app and data modules) is kept on purpose. Do not treat it as dead code.
-- `/bath/` and `/flowerbed/` are private home-project utilities hosted on the same domain. They are outside the portfolio's product and design scope.
+- `/bath/` is a private home-project utility hosted on the same domain. It is outside the portfolio's product and design scope.
+- `apps/flowerbed/` is a private home-project utility kept in the repo but deliberately not built or served. Move it back to `public/flowerbed/` to re-enable it.
+- `/modelcycle/` is a private, unlinked React app for producing with an Elektron Model:Cycles, in `apps/modelcycle` with its own dependencies, design docs and tests. It is outside the portfolio's product and design scope.
 - `legacy_site/` is the old site, kept for history.
 
 ## Capabilities and Constraints
