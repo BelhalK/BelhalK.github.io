@@ -21,11 +21,12 @@ import { MonitorPart, ReferencePart, SpectrogramPart, SpectrumPart } from '@/flo
 import { BanksPart, GroovePart, SoundsPart } from '@/flow/parts/Produce';
 import { Fm1Part } from '@/flow/parts/Fm1';
 import { ChopperPart, RecorderPart } from '@/flow/parts/Sample';
+import { SampleToPresetPart } from '@/flow/parts/SampleToPreset';
 import { SequencerPart } from '@/flow/parts/Sequencer';
 import { LlmPart } from '@/flow/parts/Llm';
 const nodeTypes = {
   cycles: CyclesPart, sequencer: SequencerPart, llm: LlmPart, groove: GroovePart, sounds: SoundsPart, banks: BanksPart,
-  spectrogram: SpectrogramPart, spectrum: SpectrumPart, recorder: RecorderPart, chopper: ChopperPart,
+  spectrogram: SpectrogramPart, spectrum: SpectrumPart, recorder: RecorderPart, chopper: ChopperPart, preset: SampleToPresetPart,
   reference: ReferencePart, monitor: MonitorPart, fm1: Fm1Part,
 };
 const edgeTypes = { leader: LeaderEdge };

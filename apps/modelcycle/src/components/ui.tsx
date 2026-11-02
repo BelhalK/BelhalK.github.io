@@ -32,7 +32,7 @@ export function Button({ variant = 'outline', size = 'md', pressed, className, .
 }
 
 export function Slider({
-  label, value, min = 0, max = 127, step = 1, format, onChange, onCommit, disabled,
+  label, value, min = 0, max = 127, step = 1, format, onChange, onCommit, disabled, lit,
 }: {
   label: string;
   value: number | undefined;
@@ -43,10 +43,12 @@ export function Slider({
   onChange: (v: number) => void;
   onCommit?: () => void;
   disabled?: boolean;
+  /** Marks the control just moved on the device. */
+  lit?: boolean;
 }) {
   const shown = value === undefined ? '--' : format ? format(value) : String(value);
   return (
-    <label className="grid grid-cols-[84px_1fr_48px] items-center gap-2 text-xs">
+    <label className={clsx('grid grid-cols-[84px_1fr_48px] items-center gap-2 text-xs transition-colors duration-150', lit && 'bg-live/15')} data-lit={lit || undefined}>
       <span className="truncate">{label}</span>
       <RSlider.Root
         className="nopan relative flex h-5 touch-none items-center select-none data-[disabled]:opacity-40"

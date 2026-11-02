@@ -20,6 +20,7 @@ function Setup() {
   const left = [
     summary.chops > 0 && `${summary.chops} Chops steps`,
     summary.fm > 0 && `${summary.fm} FM-1 steps`,
+    summary.matches > 0 && `${summary.matches} Match steps`,
     summary.muted > 0 && `${summary.muted} steps on muted tracks`,
   ].filter(Boolean);
 
@@ -35,7 +36,7 @@ function Setup() {
       {devicePattern !== null && devicePattern !== useProject.getState().current && (
         <p className="mt-1.5 text-xs text-live-dark">The Cycles last reported {patternName(devicePattern)}. Check it has moved to {name}.</p>
       )}
-      {left.length > 0 && <p className="mt-1.5 text-xs text-muted">Not sent: {left.join(', ')}. The Cycles cannot play the Chops or FM-1 lanes.</p>}
+      {left.length > 0 && <p className="mt-1.5 text-xs text-muted">Not sent: {left.join(', ')}. The Cycles cannot play the Chops, FM-1 or Match lanes.</p>}
       {summary.chance > 0 && <p className="mt-1.5 text-xs text-muted">{summary.chance} steps with a chance setting are sent as always playing.</p>}
       <div className="mt-2 flex gap-2">
         <Button size="sm" variant="solid" disabled={playing} onClick={() => transport.startSend()}>Start</Button>
@@ -68,9 +69,9 @@ function Check() {
       )}
       {playing && problem && <p className="mt-1.5 text-xs text-live-dark">{problem.fix}</p>}
       <p className="mt-1.5 text-xs">When it sounds right, save the project from the Cycles' own menu. The app cannot save it for you, and the recording is lost if the project reloads first.</p>
-      {link.status === 'ready' && <p className="mt-1.5 text-xs text-muted">Last read: {link.projects.length} {link.projects.length === 1 ? 'project' : 'projects'} on the Cycles.</p>}
+      {link.status === 'ready' && link.projects && <p className="mt-1.5 text-xs text-muted">Last read: {link.projects.length} {link.projects.length === 1 ? 'project' : 'projects'} on the Cycles.</p>}
       <div className="mt-2 flex gap-2">
-        <Button size="sm" disabled={playing} onClick={() => void midi.readDevice()}>Read projects</Button>
+        {!(link.status === 'ready' && !link.projects) && <Button size="sm" disabled={playing} onClick={() => void midi.readDevice()}>Read projects</Button>}
         <Button size="sm" onClick={() => transport.endSend()}>Done</Button>
       </div>
     </>

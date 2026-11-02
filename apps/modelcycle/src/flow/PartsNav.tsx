@@ -1,7 +1,7 @@
 import { type ComponentType, useCallback, useEffect, useRef, useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import {
-  AudioLines, ChartSpline, Drum, GitCompareArrows, Grid3x3, KeyboardMusic, Library, Mic, RotateCcw, Scissors,
+  AudioLines, ChartSpline, Drum, GitCompareArrows, Grid3x3, KeyboardMusic, Library, Mic, RotateCcw, Scissors, ScanSearch,
   Search, SlidersHorizontal, Sparkles, Volume2, Waves, X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -19,6 +19,7 @@ const ICONS: Record<PartType, ComponentType<{ className?: string }>> = {
   fm1: KeyboardMusic,
   recorder: Mic,
   chopper: Scissors,
+  preset: ScanSearch,
   spectrogram: AudioLines,
   spectrum: ChartSpline,
   reference: GitCompareArrows,
@@ -35,6 +36,7 @@ const KEYWORDS: Record<PartType, string> = {
   banks: 'patterns slots copy program change',
   recorder: 'microphone mic input take iphone',
   chopper: 'sample slice upload song file waveform',
+  preset: 'sound match recreate clap fm search sweep',
   spectrogram: 'visualize frequency time audio',
   spectrum: 'frequency analyzer mix notes peak level',
   reference: 'track compare a/b tonal balance',
@@ -154,26 +156,24 @@ export function PartsNav() {
         )}
       </div>
 
-      <span className="dock-gap h-1" />
-
-      {PARTS.map((p) => {
-        const Icon = ICONS[p.type];
-        const present = nodes.some((n) => baseType(n.id) === p.type);
-        return (
-          <Tip key={p.type} text={p.name} side="right">
-            <button
-              type="button"
-              aria-label={`Add ${p.name}`}
-              onClick={() => add(p.type)}
-              className={clsx(ROUND, present ? 'bg-ink text-paper hover:bg-[#2a2f37]' : 'bg-paper text-ink hover:bg-wash')}
-            >
-              <Icon className="size-4" />
-            </button>
-          </Tip>
-        );
-      })}
-
-      <span className="dock-gap h-1" />
+      <div className="dock-scroll flex flex-col gap-1.5">
+        {PARTS.map((p) => {
+          const Icon = ICONS[p.type];
+          const present = nodes.some((n) => baseType(n.id) === p.type);
+          return (
+            <Tip key={p.type} text={p.name} side="right">
+              <button
+                type="button"
+                aria-label={`Add ${p.name}`}
+                onClick={() => add(p.type)}
+                className={clsx(ROUND, present ? 'bg-ink text-paper hover:bg-[#2a2f37]' : 'bg-paper text-ink hover:bg-wash')}
+              >
+                <Icon className="size-4" />
+              </button>
+            </Tip>
+          );
+        })}
+      </div>
 
       <Tip text="Reset layout" side="right">
         <button

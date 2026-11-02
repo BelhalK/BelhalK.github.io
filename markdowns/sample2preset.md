@@ -1,6 +1,6 @@
 # Plan: sample to preset for the Model:Cycles
 
-Status: plan only, nothing built. Written 2026-11-02.
+Status: phases 1 and 3 built, with scoring tested only against a stand-in device so far. Phase 2 and the real-device test remain. Written 2026-11-02.
 
 ## Verdict: doable as a close match, not a clone
 

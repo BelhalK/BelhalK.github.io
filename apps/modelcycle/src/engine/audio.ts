@@ -1,4 +1,4 @@
-import { get as idbGet, set as idbSet } from 'idb-keyval';
+import { del as idbDel, get as idbGet, set as idbSet } from 'idb-keyval';
 import type { Edge, Node } from '@xyflow/react';
 import { averageBands, BANDS, bandsFromPower, detectTransients, encodeWav, estimateBpm, gridSlices, rms, toMono } from '@/lib/analysis';
 import { driveCurve, kitSampleUrls, kitSound, type KitSound, kitVoice } from '@/lib/kits';
@@ -24,6 +24,18 @@ export const ANALYSER_FFT = 4096;
 const OPEN_TIMEOUT_MS = 8000;
 // A person on a phone may still be reading the permission prompt.
 const MIC_TIMEOUT_MS = 60000;
+
+// Posts each block of input as mono. MediaRecorder would add compression and delay to every trial.
+const TAP_WORKLET = `
+registerProcessor('cycles-tap', class extends AudioWorkletProcessor {
+  process([input]) {
+    if (input[0]) {
+      const mono = Float32Array.from(input[0], (v, i) => (input[1] ? (v + input[1][i]) / 2 : v));
+      this.port.postMessage(mono, [mono.buffer]);
+    }
+    return true;
+  }
+});`;
 
 function openInput(constraints: MediaTrackConstraints, timeout = OPEN_TIMEOUT_MS) {
   return new Promise<MediaStream>((resolve, reject) => {
@@ -57,11 +69,14 @@ class Audio {
   meterR!: AnalyserNode;
   private cyclesStream: MediaStream | null = null;
   private cyclesSource: MediaStreamAudioSourceNode | null = null;
+  private cyclesTap: AudioWorkletNode | null = null;
   private cyclesGain!: GainNode;
   private fmStream: MediaStream | null = null;
   private fmSource: MediaStreamAudioSourceNode | null = null;
   private fmGain!: GainNode;
   private chopGain!: GainNode;
+  private matchGain!: GainNode;
+  private matchBuffers = new Map<string, AudioBuffer>();
   private refGain!: GainNode;
   private refInput!: AnalyserNode;
   private micStream: MediaStream | null = null;
@@ -111,6 +126,8 @@ class Audio {
       this.cyclesGain.gain.value = useProject.getState().monitorGain;
       this.chopGain = c.createGain();
       this.chopGain.gain.value = useProject.getState().chopLevel;
+      this.matchGain = c.createGain();
+      this.matchGain.gain.value = useProject.getState().matchLevel;
       this.fmGain = c.createGain();
       this.fmGain.gain.value = useProject.getState().fmLevel;
       this.refGain = c.createGain();
@@ -121,6 +138,7 @@ class Audio {
       this.ports.set('cycles', { output: this.cyclesGain });
       this.ports.set('chopper', { output: this.chopGain });
       this.ports.set('fm1', { output: this.fmGain });
+      this.ports.set('preset', { output: this.matchGain });
       this.ports.set('reference', { output: this.refGain, input: this.refInput });
       this.ports.set('recorder', { output: this.micAnalyser });
       navigator.mediaDevices?.addEventListener('devicechange', () => {
@@ -128,6 +146,7 @@ class Audio {
       });
       useLive.getState().set({ audioReady: true });
       void this.restoreChop();
+      void this.restoreMatches();
     }
     // Not awaited: resume can stay pending until an output is ready.
     void this.ctx.resume();
@@ -370,6 +389,50 @@ class Audio {
     }
   }
 
+  /** Records the Cycles' USB audio sample by sample, before the monitor level. onStarted fires as capture begins. */
+  async captureCycles(ms: number, onStarted: () => void) {
+    if (!this.ctx || !this.cyclesSource) throw new Error('The Cycles audio is not connected');
+    const tap = await this.cyclesTapNode();
+    // Connecting again is harmless, and reconnecting the device makes a new source.
+    this.cyclesSource.connect(tap);
+    const wanted = Math.floor((ms / 1000) * this.ctx.sampleRate);
+    const chunks: Float32Array[] = [];
+    let have = 0;
+    return new Promise<Float32Array>((resolve) => {
+      tap.port.onmessage = (e: MessageEvent<Float32Array>) => {
+        chunks.push(e.data);
+        have += e.data.length;
+        if (have < wanted) return;
+        tap.port.onmessage = null;
+        const out = new Float32Array(have);
+        let at = 0;
+        for (const chunk of chunks) {
+          out.set(chunk, at);
+          at += chunk.length;
+        }
+        resolve(out);
+      };
+      onStarted();
+    });
+  }
+
+  private async cyclesTapNode() {
+    if (this.cyclesTap) return this.cyclesTap;
+    const c = this.ctx!;
+    const url = URL.createObjectURL(new Blob([TAP_WORKLET], { type: 'text/javascript' }));
+    try {
+      await c.audioWorklet.addModule(url);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+    this.cyclesTap = new AudioWorkletNode(c, 'cycles-tap');
+    // A worklet only runs while it leads to the output, and this path is silent.
+    const silent = c.createGain();
+    silent.gain.value = 0;
+    this.cyclesTap.connect(silent).connect(c.destination);
+    return this.cyclesTap;
+  }
+
   startFmCapture() {
     if (!this.fmStream) throw new Error('FM-1 audio is not connected');
     return this.startRecording(this.fmStream);
@@ -550,6 +613,53 @@ class Audio {
 
   chopBpm() {
     return this.chopBuffer ? estimateBpm(toMono(this.chopBuffer), this.chopBuffer.sampleRate) : null;
+  }
+
+  // Match rows: what the Cycles played for a found sound, kept so it plays without using a track.
+
+  async addMatch(id: string, data: Float32Array, sampleRate: number) {
+    const faded = data.slice();
+    const fade = Math.min(faded.length, Math.floor(sampleRate * 0.02));
+    for (let i = 0; i < fade; i++) faded[faded.length - 1 - i] *= i / fade;
+    this.matchBuffers.set(id, this.matchBuffer(faded, sampleRate));
+    await idbSet(`match-${id}`, { data: faded, sampleRate });
+  }
+
+  removeMatch(id: string) {
+    this.matchBuffers.delete(id);
+    void idbDel(`match-${id}`);
+  }
+
+  private matchBuffer(data: Float32Array, sampleRate: number) {
+    const buffer = this.ctx!.createBuffer(1, data.length, sampleRate);
+    buffer.getChannelData(0).set(data);
+    return buffer;
+  }
+
+  private async restoreMatches() {
+    for (const row of useProject.getState().matchRows) {
+      if (!row || this.matchBuffers.has(row.id)) continue;
+      const saved = await idbGet<{ data: Float32Array; sampleRate: number }>(`match-${row.id}`);
+      if (saved) this.matchBuffers.set(row.id, this.matchBuffer(saved.data, saved.sampleRate));
+    }
+  }
+
+  /** time is in performance.now() milliseconds. */
+  playMatch(id: string, time: number, gain = 1) {
+    const buffer = this.matchBuffers.get(id);
+    if (!buffer || !this.ctx) return;
+    this.resume();
+    const c = this.ctx;
+    const src = c.createBufferSource();
+    const g = c.createGain();
+    src.buffer = buffer;
+    g.gain.value = gain;
+    src.connect(g).connect(this.matchGain);
+    src.start(c.currentTime + Math.max(0, (time - performance.now()) / 1000));
+  }
+
+  setMatchLevel(v: number) {
+    if (this.ctx) this.matchGain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01);
   }
 
   // Recorder

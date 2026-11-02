@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Edge, Node } from '@xyflow/react';
-import { CC, DEVICE_TRACKS, type Machine, MACHINES, PATTERN_COUNT, type SoundParam } from '@/lib/cycles';
+import { CC, DEVICE_TRACKS, LANES, type Machine, MACHINES, MATCH_LANE, MATCH_ROWS, PATTERN_COUNT, type SoundParam } from '@/lib/cycles';
 import { type Groove, groovePattern } from '@/lib/grooves';
 import { emptyLane, emptyPattern, newStep, type Pattern, shiftLane, type Step } from '@/lib/pattern';
 import { DEFAULT_KIT } from '@/lib/kits';
@@ -9,6 +9,8 @@ import type { Sound } from '@/lib/sounds';
 import { midi } from '@/engine/midi';
 import { useLive } from '@/store/live';
 import { baseType, DEFAULT_EDGES, ALL_EDGES, ALL_NODES, DEFAULT_NODES, type PartType } from '@/flow/defaults';
+
+export type MatchRow = { id: string; name: string };
 
 type Project = {
   bpm: number;
@@ -18,6 +20,8 @@ type Project = {
   monitorGain: number;
   chopLevel: number;
   fmLevel: number;
+  matchLevel: number;
+  matchRows: (MatchRow | null)[];
   kitId: string;
   patterns: (Pattern | null)[];
   current: number;
@@ -51,8 +55,11 @@ type Project = {
   sendParam: (track: number, key: SoundParam, value: number) => void;
   sendMachine: (track: number, machine: Machine) => void;
   applySound: (track: number, sound: Sound) => void;
-  saveSound: (track: number, name: string, machine: Machine, params: Sound['params']) => void;
+  saveSound: (track: number, name: string, machine: Machine, params: Sound['params']) => Sound;
   deleteSound: (id: string) => void;
+  /** Gives a found sound its own Sequencer row. Returns the row's lane, or null when all are taken. */
+  addMatchRow: (row: MatchRow) => number | null;
+  removeMatchRow: (lane: number) => void;
   setLayout: (nodes: Node[], edges: Edge[]) => void;
   resetLayout: () => void;
   addPart: (type: PartType, position: { x: number; y: number }) => string;
@@ -64,10 +71,52 @@ const rememberParam = (track: number, cc: number, value: number) => {
   set({ deviceParams: { ...deviceParams, [track]: { ...deviceParams[track], [cc]: value } } });
 };
 
+/** Parts below the Sequencer move with it, since a new row makes it taller. */
+const ROW_HEIGHT = 32;
+const SEQUENCER_WIDTH = 932;
+const makeRoom = (nodes: Node[], by: number) => {
+  const sequencer = nodes.find((n) => n.id === 'sequencer');
+  if (!sequencer) return nodes;
+  return nodes.map((n) => (
+    n.position.y > sequencer.position.y && n.position.x >= sequencer.position.x && n.position.x < sequencer.position.x + SEQUENCER_WIDTH
+      ? { ...n, position: { ...n.position, y: n.position.y + by } }
+      : n
+  ));
+};
+
+/** A Sample to Preset part added before it could play needs its cables. */
+const withPresetEdges = (nodes: Node[], edges: Edge[]) => {
+  const ids = new Set(nodes.map((n) => n.id));
+  const known = new Set(edges.map((e) => e.id));
+  const missing = ALL_EDGES.filter((e) => (e.source === 'preset' || e.target === 'preset') && ids.has(e.source) && ids.has(e.target) && !known.has(e.id));
+  return missing.length ? [...edges, ...missing] : edges;
+};
+
 // Shared so selectors get a stable reference for an unwritten slot.
 const EMPTY_PATTERN = emptyPattern();
 
 const emptyPatterns = () => Array.from({ length: PATTERN_COUNT }, () => null as Pattern | null);
+
+/** Layout and lane changes from before version 8. */
+function migrateLayout(state: Project, version: number): Project {
+  if (version >= 7) return state;
+  // Version 7 puts the LLM on the canvas, wired to the Sequencer, and keeps the rest of the layout.
+  if (version === 6) {
+    if (state.nodes.some((n) => baseType(n.id) === 'llm')) return state as Project;
+    const wired = state.nodes.some((n) => n.id === 'sequencer');
+    return {
+      ...state,
+      nodes: [...state.nodes, ALL_NODES.find((n) => n.id === 'llm')!],
+      edges: wired ? [...state.edges, ALL_EDGES.find((e) => e.source === 'llm')!] : state.edges,
+    } as Project;
+  }
+  // Version 2 added the FM-1: one more lane on every pattern.
+  const patterns = version >= 2 ? state.patterns : state.patterns.map((p) =>
+    p && { ...p, lanes: [...p.lanes, emptyLane()], muted: [...p.muted, false] },
+  );
+  // Version 6 starts everyone on the smaller default canvas.
+  return { ...state, patterns, nodes: DEFAULT_NODES, edges: DEFAULT_EDGES } as Project;
+}
 
 export const useProject = create<Project>()(
   persist(
@@ -89,6 +138,8 @@ export const useProject = create<Project>()(
         monitorGain: 1,
         chopLevel: 1,
         fmLevel: 1,
+        matchLevel: 0.8,
+        matchRows: Array.from({ length: MATCH_ROWS }, () => null),
         kitId: DEFAULT_KIT,
         patterns: emptyPatterns(),
         current: 0,
@@ -187,8 +238,33 @@ export const useProject = create<Project>()(
             mySounds: [...s.mySounds, sound],
             trackSound: s.trackSound.map((v, i) => (i === track ? sound.id : v)),
           }));
+          return sound;
         },
         deleteSound: (id) => set((s) => ({ mySounds: s.mySounds.filter((x) => x.id !== id) })),
+        addMatchRow: (row) => {
+          const { matchRows, nodes, edges, addPart } = get();
+          const free = matchRows.indexOf(null);
+          if (free < 0) return null;
+          const first = !nodes.some((n) => baseType(n.id) === 'preset');
+          if (first) addPart('preset', { x: 0, y: 0 });
+          const current = first ? get() : { nodes, edges };
+          set({
+            matchRows: matchRows.map((r, i) => (i === free ? row : r)),
+            nodes: makeRoom(current.nodes, ROW_HEIGHT),
+            edges: withPresetEdges(current.nodes, current.edges),
+          });
+          return MATCH_LANE + free;
+        },
+        removeMatchRow: (lane) => set((s) => ({
+          matchRows: s.matchRows.map((r, i) => (MATCH_LANE + i === lane ? null : r)),
+          // The next sound to take this row must not inherit these steps, on any pattern.
+          patterns: s.patterns.map((p) => p && {
+            ...p,
+            lanes: p.lanes.map((l, i) => (i === lane ? emptyLane() : l)),
+            muted: p.muted.map((m, i) => (i === lane ? false : m)),
+          }),
+          nodes: makeRoom(s.nodes, -ROW_HEIGHT),
+        })),
         setLayout: (nodes, edges) => set({ nodes, edges }),
         resetLayout: () => set({ nodes: DEFAULT_NODES, edges: DEFAULT_EDGES }),
         addPart: (type, position) => {
@@ -216,29 +292,22 @@ export const useProject = create<Project>()(
     },
     {
       name: 'modelcycle-studio',
-      version: 7,
+      version: 8,
       migrate: (saved, version) => {
-        const state = saved as Project;
-        if (version >= 7) return state as never;
-        // Version 7 puts the LLM on the canvas, wired to the Sequencer, and keeps the rest of the layout.
-        if (version === 6) {
-          if (state.nodes.some((n) => baseType(n.id) === 'llm')) return state as never;
-          const wired = state.nodes.some((n) => n.id === 'sequencer');
-          return {
-            ...state,
-            nodes: [...state.nodes, ALL_NODES.find((n) => n.id === 'llm')!],
-            edges: wired ? [...state.edges, ALL_EDGES.find((e) => e.source === 'llm')!] : state.edges,
-          } as never;
-        }
-        // Version 2 added the FM-1: one more lane on every pattern.
-        const patterns = version >= 2 ? state.patterns : state.patterns.map((p) =>
-          p && { ...p, lanes: [...p.lanes, emptyLane()], muted: [...p.muted, false] },
-        );
-        // Version 6 starts everyone on the smaller default canvas.
-        return { ...state, patterns, nodes: DEFAULT_NODES, edges: DEFAULT_EDGES } as never;
+        const state = migrateLayout(saved as Project, version);
+        // Version 8 adds the Match rows to every pattern.
+        return {
+          ...state,
+          patterns: state.patterns.map((p) => p && {
+            ...p,
+            lanes: [...p.lanes, ...Array.from({ length: Math.max(0, LANES - p.lanes.length) }, emptyLane)],
+            muted: [...p.muted, ...Array.from({ length: Math.max(0, LANES - p.muted.length) }, () => false)],
+          }),
+          edges: withPresetEdges(state.nodes, state.edges),
+        } as never;
       },
-      partialize: ({ bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, nodes, edges }) => ({
-        bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput,
+      partialize: ({ bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, matchLevel, matchRows, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, nodes, edges }) => ({
+        bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, matchLevel, matchRows, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput,
         nodes: nodes.map(({ id, type, position }) => ({ id, type, position, data: {} })),
         edges,
       }),

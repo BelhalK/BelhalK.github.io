@@ -112,9 +112,12 @@ function DeviceProjects() {
           <Button size="sm" className="mt-2" onClick={() => void midi.connect()}>Allow and read projects</Button>
         </>
       )}
-      {link.status === 'no-reply' && <p className="text-xs text-live-dark">The Cycles did not answer. Close Elektron Transfer if it is open, check that its MIDI ports include USB, then read again.</p>}
+      {link.status === 'no-reply' && <p className="text-xs text-live-dark">The Cycles did not answer. Quit and reopen Chrome, which can stop hearing MIDI after a long run, then check that the Cycles' MIDI ports include USB.</p>}
       {link.status === 'error' && <p className="text-xs text-live-dark">The Cycles answered, but its reply could not be read: {link.message}.</p>}
-      {link.status === 'ready' && (
+      {link.status === 'ready' && !link.projects && (
+        <p className="text-xs text-muted">{link.name}, OS {link.version}. It does not list its projects over USB, so manage them on the Cycles.</p>
+      )}
+      {link.status === 'ready' && link.projects && (
         <>
           <p className="text-xs">{link.name}, OS {link.version}: {link.projects.length} {link.projects.length === 1 ? 'project' : 'projects'}.</p>
           {link.projects.length > 0 && (
@@ -130,7 +133,7 @@ function DeviceProjects() {
           )}
         </>
       )}
-      {(link.status === 'ready' || link.status === 'no-reply' || link.status === 'error') && (
+      {((link.status === 'ready' && link.projects) || link.status === 'no-reply' || link.status === 'error') && (
         <Button size="sm" className="mt-2" disabled={playing} onClick={() => void midi.readDevice()}>Read again</Button>
       )}
     </>
@@ -257,12 +260,24 @@ function XYPad({ x, y, previous, onChange, onGrab, onRelease, onBack }: {
   );
 }
 
+const LIT_MS = 900;
+
 export function SoundsPart() {
   // Each Sounds node can sit on its own track; the Chopper can still point them at one.
   const requested = useLive((s) => s.soloTrack);
   const [track, setTrack] = useState(requested);
   const wired = useProject((s) => isWired(s.edges, 'sounds', 'sequencer') && isWired(s.edges, 'sequencer', 'cycles'));
   useEffect(() => setTrack(requested), [requested]);
+  // Moving a control on the Cycles brings its track here and marks the control until the moves stop.
+  const touched = useLive((s) => s.touched);
+  const [lit, setLit] = useState<number | null>(null);
+  useEffect(() => {
+    if (!touched) return;
+    setTrack(touched.track);
+    setLit(touched.cc);
+    const timer = setTimeout(() => setLit(null), LIT_MS);
+    return () => clearTimeout(timer);
+  }, [touched]);
   const [hovered, setHovered] = useState(false);
   useEffect(() => {
     if (!hovered) return;
@@ -332,7 +347,7 @@ export function SoundsPart() {
         />
         <Button size="sm" variant="solid" onClick={() => transport.trigger(track)}>Play</Button>
       </div>
-      <div className="mt-2.5 flex items-center gap-2 text-xs">
+      <div className={clsx('mt-2.5 flex items-center gap-2 text-xs transition-colors duration-150', lit === CC.machine && 'bg-live/15')}>
         <span className="w-[84px]">Machine</span>
         <Select
           ariaLabel="Machine"
@@ -364,7 +379,7 @@ export function SoundsPart() {
       </div>
       <div className="mt-2.5 space-y-0.5">
         {SOUND_CONTROLS.map(({ key, label }) => (
-          <Slider key={key} label={label} value={value(key)} disabled={!wired} onChange={(v) => sendParam(track, key, v)} onCommit={() => transport.previewKit(track)} />
+          <Slider key={key} label={label} value={value(key)} lit={lit === CC[key]} disabled={!wired} onChange={(v) => sendParam(track, key, v)} onCommit={() => transport.previewKit(track)} />
         ))}
       </div>
       <Heading>Sound bank</Heading>

@@ -73,6 +73,8 @@ const readString = (data: Uint8Array, start: number) => {
 };
 
 export const parsePing = (data: Uint8Array) => readString(data, 7 + data[6]).text;
+/** The commands the device says it accepts. It ignores any other command without replying. */
+export const parseCommands = (data: Uint8Array) => [...data.subarray(7, 7 + data[6])];
 export const parseVersion = (data: Uint8Array) => readString(data, 10).text;
 /** A list reply reports failure in its status byte. */
 export const replyOk = (data: Uint8Array) => data[5] !== 0;

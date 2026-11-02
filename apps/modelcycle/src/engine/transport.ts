@@ -1,4 +1,4 @@
-import { CHOPS_LANE, DEVICE_TRACKS, FM_LANE, PATTERN_COUNT } from '@/lib/cycles';
+import { CHOPS_LANE, DEVICE_TRACKS, FM_LANE, isShownControl, MATCH_LANE, PATTERN_COUNT } from '@/lib/cycles';
 import { countInLoops, trackSetup } from '@/lib/send';
 import { STARTER_SOUNDS } from '@/lib/sounds';
 import { kitVoice } from '@/lib/kits';
@@ -46,7 +46,10 @@ class Transport {
       },
       onCC: (channel, cc, value) => {
         const { deviceParams, set } = useLive.getState();
-        set({ deviceParams: { ...deviceParams, [channel]: { ...deviceParams[channel], [cc]: value } } });
+        set({
+          deviceParams: { ...deviceParams, [channel]: { ...deviceParams[channel], [cc]: value } },
+          ...(isShownControl(channel, cc) ? { touched: { track: channel, cc } } : {}),
+        });
       },
     };
   }
@@ -63,6 +66,7 @@ class Transport {
     const { lanes } = useProject.getState().pattern();
     if (lanes[CHOPS_LANE].some(Boolean)) ensurePart('chopper');
     if (lanes[FM_LANE].some(Boolean)) ensurePart('fm1');
+    if (lanes.slice(MATCH_LANE).some((l) => l.some(Boolean))) ensurePart('preset');
     this.begin();
   }
 
@@ -211,6 +215,7 @@ class Transport {
     const toDevice = isWired(project.edges, 'sequencer', 'cycles');
     const toChops = isWired(project.edges, 'sequencer', 'chopper');
     const toFm = isWired(project.edges, 'sequencer', 'fm1');
+    const toMatch = isWired(project.edges, 'sequencer', 'preset');
     this.visuals.push(gridTime, index);
 
     pattern.lanes.forEach((lane, laneIndex) => {
@@ -229,6 +234,11 @@ class Transport {
         if (live.fmMidi) midi.fmNote(project.fmChannel, step.note, step.vel, at, stepMs * 0.9);
         else audio.playFm(step.note, step.vel, at, 0.4);
         this.pulseAt(at, 'fm1', laneIndex);
+      } else if (laneIndex >= MATCH_LANE && toMatch) {
+        const row = project.matchRows[laneIndex - MATCH_LANE];
+        if (!row) return;
+        audio.playMatch(row.id, at, step.vel / 127);
+        this.pulseAt(at, 'preset', laneIndex);
       }
     });
   }
@@ -352,6 +362,16 @@ class Transport {
   }
 
   /** Audition one track on the device, regardless of the sequencer. */
+  triggerMatch(lane: number) {
+    const row = useProject.getState().matchRows[lane - MATCH_LANE];
+    if (!row) return;
+    audio.boot();
+    ensurePart('preset');
+    audio.playMatch(row.id, performance.now(), 110 / 127);
+    pulse('sequencer>preset');
+    flashLane(lane);
+  }
+
   trigger(track: number, note = 60, velocity = 110) {
     if (useLive.getState().midi === 'connected') {
       midi.note(track, note, velocity, performance.now(), 160);

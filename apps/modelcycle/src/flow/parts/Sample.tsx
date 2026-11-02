@@ -126,7 +126,7 @@ export function RecorderPart() {
     }
   };
 
-  const sendToChopper = (buffer: AudioBuffer) => {
+  const sendToChopper = (buffer: AudioBuffer, frame: 'chopper' | 'preset' = 'chopper') => {
     const s = useProject.getState();
     const chopper = s.nodes.find((n) => baseType(n.id) === 'chopper')?.id ?? s.addPart('chopper', { x: 0, y: 0 });
     const { nodes, edges } = useProject.getState();
@@ -135,8 +135,9 @@ export function RecorderPart() {
     }
     audio.loadChopBuffer(buffer, `Recording ${buffer.duration.toFixed(1)} s`);
     setSent(true);
+    const shown = frame === 'chopper' ? chopper : useProject.getState().nodes.find((n) => baseType(n.id) === 'preset')?.id ?? s.addPart('preset', { x: 0, y: 0 });
     // A new part needs a moment to be measured before the camera can frame it.
-    setTimeout(() => void fitView({ nodes: [{ id: chopper }], padding: FIT_PADDING, maxZoom: 1, duration: 250 }), 80);
+    setTimeout(() => void fitView({ nodes: [{ id: shown }], padding: FIT_PADDING, maxZoom: 1, duration: 250 }), 80);
   };
 
   return (
@@ -173,9 +174,10 @@ export function RecorderPart() {
       {take ? (
         <>
           <canvas ref={canvas} width={632} height={140} className="mt-2.5 block h-[70px] w-full border border-line" />
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             <Button size="sm" onClick={() => audio.previewBuffer(take)}>Play</Button>
             <Button size="sm" variant="solid" onClick={() => sendToChopper(take)}>{sent ? 'Sent to Chopper' : 'Send to Chopper'}</Button>
+            <Button size="sm" onClick={() => sendToChopper(take, 'preset')}>Match on Cycles</Button>
             <Button size="sm" className="ml-auto" onClick={() => download(encodeWav(take), 'recording.wav')}><Download className="size-3" /> WAV</Button>
           </div>
         </>
@@ -269,6 +271,7 @@ export function ChopperPart() {
       ports={[
         { id: 'midi-in', side: 'left', label: 'MIDI', top: 58 },
         { id: 'chop-in', side: 'top', label: 'From Recorder', top: 610 },
+        { id: 'preset-out', side: 'bottom', label: 'To Sample to Preset', top: 210 },
         { id: 'audio-out', side: 'right', label: 'Audio', top: 58 },
       ]}
     >

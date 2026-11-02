@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { averageBands, balanceDifference, BANDS, detectTransients, estimateBpm, gridSlices, matchToCycles, sliceFeatures } from './analysis';
-import { decodeReply, encode, encodeRequest, listArgs, parsePing, parseProjects, parseVersion, PING, replyOk } from './elektron';
+import { DATA_LIST, decodeReply, encode, encodeRequest, listArgs, parseCommands, parsePing, parseProjects, parseVersion, PING, replyOk } from './elektron';
 import { readGenerated } from './generated';
+import { type Candidate, findAttack, fingerprint, matchPercent, PresetSearch, scoreCapture, trimTarget } from './presetMatch';
 import { compareHeard, countInLoops, sendSummary, trackSetup } from './send';
 import { GROOVES, groovePattern } from './grooves';
 import { emptyLane, emptyPattern, newStep, shiftLane, stepDuration, stepOffset, swingDelay } from './pattern';
-import { CC, LANES, patternName } from './cycles';
+import { CC, isShownControl, LANES, MATCH_LANE, patternName } from './cycles';
 import { kitSound, kitVoice } from './kits';
 
 const SR = 48000;
@@ -47,6 +48,17 @@ describe('Elektron SysEx', () => {
     const version = decodeReply(frame(1, 0x82, [1, 0, 0, 0, 0, ...text('1.40'), 0]))!;
     expect(parseVersion(version.data)).toBe('1.40');
   });
+  it('reads a ping captured from a Model:Cycles on OS 1.12, which offers no list command', () => {
+    const raw = Uint8Array.from([
+      0xf0, 0x00, 0x20, 0x3c, 0x10, 0x00, 0x04, 0x00, 0x1f, 0x00, 0x01, 0x01, 0x1b, 0x13, 0x00, 0x01, 0x02, 0x03, 0x50, 0x52, 0x51, 0x14, 0x00, 0x15, 0x16,
+      0x24, 0x25, 0x26, 0x27, 0x33, 0x00, 0x34, 0x35, 0x43, 0x44, 0x45, 0x4d, 0x6f, 0x00, 0x64, 0x65, 0x6c, 0x20, 0x43, 0x79, 0x63, 0x00, 0x6c, 0x65, 0x73, 0x00, 0xf7,
+    ]);
+    const ping = decodeReply(raw)!;
+    expect(ping.type).toBe(0x81);
+    expect(parsePing(ping.data)).toBe('Model Cycles');
+    expect(parseCommands(ping.data)).toHaveLength(19);
+    expect(parseCommands(ping.data)).not.toContain(DATA_LIST);
+  });
   it('lists projects, skipping folders', () => {
     const project = (name: string, slot: number, size: number) => [...text(name), 0, 0, 2, ...u32(slot), ...u32(size), 0, 18, 1, 1];
     const body = [1, ...new Array(12).fill(0), ...project('HOUSE 1', 1, 160), ...text('dir'), 0, 1, 1, ...u32(0), ...project('D\xc9J\xc0', 7, 2048)];
@@ -62,6 +74,102 @@ describe('Elektron SysEx', () => {
     expect(parseProjects(empty.data)).toEqual([]);
     const cut = decodeReply(frame(0, 0xd3, [1, ...new Array(12).fill(0), ...text('X'), 0, 0, 2, 0, 0]))!;
     expect(() => parseProjects(cut.data)).toThrow();
+  });
+});
+
+describe('following the Cycles', () => {
+  it('reacts only to controls the Sounds tile shows, on the six tracks', () => {
+    expect(isShownControl(2, CC.sweep)).toBe(true);
+    expect(isShownControl(5, CC.machine)).toBe(true);
+    expect(isShownControl(0, CC.mute)).toBe(false);
+    expect(isShownControl(0, CC.swing)).toBe(false);
+    expect(isShownControl(6, CC.sweep)).toBe(false);
+  });
+});
+
+describe('match rows', () => {
+  it('gives every new pattern hidden rows that Send to Cycles leaves out', () => {
+    const pattern = emptyPattern();
+    expect(pattern.lanes).toHaveLength(LANES);
+    expect(pattern.muted).toHaveLength(LANES);
+    pattern.lanes[MATCH_LANE][0] = newStep();
+    pattern.lanes[MATCH_LANE + 3][4] = newStep();
+    pattern.lanes[0][0] = newStep();
+    expect(sendSummary(pattern)).toMatchObject({ steps: 1, matches: 2 });
+  });
+});
+
+describe('sample to preset', () => {
+  // A small stand-in for the device: settings map to pitch, length, noise and machine character.
+  const device = ({ machine, params }: Candidate) => {
+    const hz = 40 * 2 ** (params.pitch / 22);
+    const decay = 0.01 + (params.decay / 127) * 0.3;
+    const noise = params.color / 127;
+    const drop = params.sweep / 40;
+    const buzz = machine === 'Metal' ? 0.8 : machine === 'Snare' ? 0.4 : 0;
+    let seed = 7;
+    const rand = () => ((seed = (seed * 16807) % 2147483647) / 1073741823.5) - 1;
+    return Float32Array.from({ length: Math.floor(SR * 0.4) }, (_, i) => {
+      const t = i / SR;
+      const tone = Math.sin(2 * Math.PI * hz * t * (1 + drop * Math.exp(-t * 40)));
+      return Math.exp(-t / decay) * (tone * (1 - noise) + (rand() + buzz * Math.sign(Math.sin(2 * Math.PI * hz * 3.3 * t))) * noise);
+    });
+  };
+  const hidden: Candidate = { machine: 'Snare', params: { pitch: 62, decay: 40, color: 80, shape: 64, sweep: 30, contour: 30, volDist: 64 } };
+
+  it('trims a take to its first hit and normalizes it', () => {
+    const take = new Float32Array(SR);
+    sine(200, 0.1, 80).forEach((v, i) => { take[SR * 0.2 + i] = v * 0.5; });
+    sine(200, 0.1, 80).forEach((v, i) => { take[SR * 0.7 + i] = v * 0.5; });
+    const hit = trimTarget(take, SR)!;
+    expect(hit.length).toBeLessThan(SR * 0.2);
+    expect(Math.max(...hit)).toBeCloseTo(1, 1);
+    expect(trimTarget(new Float32Array(SR), SR)).toBeNull();
+  });
+  it('finds the new hit even while the last trial still rings', () => {
+    const capture = new Float32Array(SR / 2);
+    for (let i = 0; i < capture.length; i++) capture[i] = 0.2 * Math.sin((2 * Math.PI * 300 * i) / SR);
+    const at = Math.floor(SR * 0.03);
+    sine(1000, 0.1, 30).forEach((v, i) => { capture[at + i] = v; });
+    expect(Math.abs(findAttack(capture, SR)! - at)).toBeLessThan(SR * 0.003);
+    expect(findAttack(new Float32Array(SR), SR)).toBeNull();
+  });
+  it('scores the same sound as closer than a different one, and ignores level and delay', () => {
+    const target = device(hidden);
+    const print = fingerprint(target, SR);
+    const late = new Float32Array(target.length + 960);
+    target.forEach((v, i) => { late[960 + i] = v * 0.3; });
+    const same = scoreCapture(print, late)!;
+    const other = scoreCapture(print, device({ machine: 'Kick', params: { ...hidden.params, pitch: 10, decay: 110, color: 0 } }))!;
+    expect(same.distance).toBeLessThan(2);
+    expect(other.distance).toBeGreaterThan(same.distance + 5);
+    expect(matchPercent(same.distance)).toBeGreaterThan(matchPercent(other.distance));
+    expect(scoreCapture(print, new Float32Array(SR))).toBeNull();
+  });
+  it('gets back close to a sound the stand-in device made', () => {
+    const target = trimTarget(device(hidden), SR)!;
+    const print = fingerprint(target, SR);
+    let seed = 42;
+    const search = new PresetSearch(target, SR, 150, () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646);
+    let first = Infinity;
+    for (let c = search.next(); c; c = search.next()) {
+      const score = scoreCapture(print, device(c))!.distance;
+      if (search.trials === 0) first = score;
+      search.report(score);
+    }
+    expect(search.trials).toBe(150);
+    expect(search.best!.distance).toBeLessThan(first);
+    expect(search.best!.distance).toBeLessThan(5);
+    expect(Math.abs(search.best!.candidate.params.pitch - hidden.params.pitch)).toBeLessThan(25);
+  });
+  it('stays usable when a trial makes no sound', () => {
+    const target = trimTarget(sine(200, 0.2, 20), SR)!;
+    const search = new PresetSearch(target, SR, 40, () => 0.5);
+    for (let c = search.next(), n = 0; c && n < 3; c = search.next(), n++) search.report(Infinity);
+    expect(search.best).toBeNull();
+    search.next();
+    search.report(4);
+    expect(search.best!.distance).toBe(4);
   });
 });
 
@@ -82,7 +190,7 @@ describe('sending a pattern to the Cycles', () => {
     expect(countInLoops(60, 64)).toBe(1);
   });
   it('reports what cannot go with the pass', () => {
-    expect(sendSummary(pattern())).toEqual({ steps: 2, muted: 1, chops: 1, fm: 1, chance: 1 });
+    expect(sendSummary(pattern())).toEqual({ steps: 2, muted: 1, chops: 1, fm: 1, chance: 1, matches: 0 });
   });
   it('ignores steps past the pattern length', () => {
     const p = pattern();

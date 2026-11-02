@@ -1,5 +1,5 @@
 // Recording a pattern into the Cycles: the app plays it once over MIDI while the device is in live record.
-import { CC, CHOPS_LANE, DEVICE_TRACKS, FM_LANE, LANE_NAMES, MACHINES, SOUND_CONTROLS } from './cycles';
+import { CC, CHOPS_LANE, DEVICE_TRACKS, FM_LANE, LANE_NAMES, MACHINES, MATCH_LANE, MATCH_ROWS, SOUND_CONTROLS } from './cycles';
 import { stepDuration, type Pattern } from './pattern';
 import type { Sound } from './sounds';
 
@@ -21,6 +21,7 @@ export function sendSummary(pattern: Pattern) {
     muted: tracks.filter((lane) => pattern.muted[lane]).reduce((n, lane) => n + countSteps(pattern, lane), 0),
     chops: countSteps(pattern, CHOPS_LANE),
     fm: countSteps(pattern, FM_LANE),
+    matches: Array.from({ length: MATCH_ROWS }, (_, i) => countSteps(pattern, MATCH_LANE + i)).reduce((a, b) => a + b, 0),
     chance: sent.reduce((n, lane) => n + pattern.lanes[lane].slice(0, pattern.length).filter((s) => s && s.chance < 100).length, 0),
   };
 }

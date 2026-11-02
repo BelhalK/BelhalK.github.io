@@ -2,7 +2,7 @@ import type { Edge, Node } from '@xyflow/react';
 
 export type PartType =
   | 'cycles' | 'sequencer' | 'groove' | 'sounds' | 'banks'
-  | 'spectrogram' | 'spectrum' | 'recorder' | 'chopper' | 'reference' | 'monitor' | 'fm1' | 'llm';
+  | 'spectrogram' | 'spectrum' | 'recorder' | 'chopper' | 'preset' | 'reference' | 'monitor' | 'fm1' | 'llm';
 
 export const PARTS: { type: PartType; name: string; group: Workspace }[] = [
   { type: 'cycles', name: 'Model:Cycles', group: 'sources' },
@@ -13,6 +13,7 @@ export const PARTS: { type: PartType; name: string; group: Workspace }[] = [
   { type: 'banks', name: 'Banks', group: 'produce' },
   { type: 'recorder', name: 'Recorder', group: 'sources' },
   { type: 'chopper', name: 'Chopper', group: 'sources' },
+  { type: 'preset', name: 'Sample to Preset', group: 'sources' },
   { type: 'spectrogram', name: 'Spectrogram', group: 'mix' },
   { type: 'spectrum', name: 'Spectrum', group: 'mix' },
   { type: 'reference', name: 'Reference', group: 'mix' },
@@ -36,6 +37,7 @@ export const ALL_NODES: Node[] = [
   node('recorder', 1840, 480),
   node('fm1', 1400, 340),
   node('chopper', 1400, 830),
+  node('preset', 1400, 1300),
   node('monitor', 2360, 0),
   node('reference', 2360, 230),
   node('spectrogram', 3000, 0),
@@ -49,7 +51,7 @@ const audioEdge = (source: string, target: string, targetHandle = 'audio-in'): E
   id: `${source}-${target}-audio`, source, target, sourceHandle: 'audio-out', targetHandle, type: 'leader', data: { kind: 'audio' },
 });
 
-const SOURCES = ['cycles', 'fm1', 'chopper'];
+const SOURCES = ['cycles', 'fm1', 'chopper', 'preset'];
 const SINKS = ['monitor', 'reference', 'spectrogram', 'spectrum'];
 
 export const ALL_EDGES: Edge[] = [
@@ -60,10 +62,12 @@ export const ALL_EDGES: Edge[] = [
   midiEdge('llm', 'sequencer'),
   midiEdge('sequencer', 'fm1'),
   midiEdge('sequencer', 'chopper'),
+  midiEdge('sequencer', 'preset'),
   ...SOURCES.flatMap((source) => SINKS.map((sink) => audioEdge(source, sink))),
   audioEdge('reference', 'monitor'),
   audioEdge('recorder', 'spectrogram'),
   { id: 'recorder-chopper-audio', source: 'recorder', target: 'chopper', sourceHandle: 'chop-out', targetHandle: 'chop-in', type: 'leader', data: { kind: 'audio' } },
+  { id: 'chopper-preset-audio', source: 'chopper', target: 'preset', sourceHandle: 'preset-out', targetHandle: 'chop-in', type: 'leader', data: { kind: 'audio' } },
 ];
 
 // What the app opens with, and what Reset layout returns to.

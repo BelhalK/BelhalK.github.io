@@ -1,10 +1,11 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { clsx } from 'clsx';
-import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, X } from 'lucide-react';
 import { transport } from '@/engine/transport';
-import { CC, CHOPS_LANE, FM_LANE, LANE_COLORS, LANE_NAMES, LANES, MACHINES, patternName } from '@/lib/cycles';
+import { CC, CHOPS_LANE, DEVICE_TRACKS, FM_LANE, LANE_COLORS, LANE_NAMES, LANES, MACHINES, MATCH_LANE, patternName } from '@/lib/cycles';
 import { KIT_LANE_NAMES } from '@/lib/kits';
 import { sendSummary } from '@/lib/send';
+import { STARTER_SOUNDS } from '@/lib/sounds';
 import { audio } from '@/engine/audio';
 import type { Pattern, Step } from '@/lib/pattern';
 import { mirrorProblem, useLive } from '@/store/live';
@@ -15,7 +16,7 @@ import { SendToCycles } from './SendToCycles';
 
 const CELL = 34;
 const GAP = 2;
-const LABEL = 176;
+const LABEL = 228;
 
 const noteName = (n: number) => `${['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][n % 12]}${Math.floor(n / 12) - 2}`;
 
@@ -107,6 +108,14 @@ function LaneHead({ lane }: { lane: number }) {
   const flash = useLive((s) => s.laneFlash[lane]);
   const ref = useRef<HTMLSpanElement>(null);
   const selectedSlice = useLive((s) => s.selectedSlice);
+  const matchRow = useProject((s) => (lane >= MATCH_LANE ? s.matchRows[lane - MATCH_LANE] : null));
+  const laneEmpty = useProject((s) => !s.pattern().lanes[lane].some(Boolean));
+  const removeMatchRow = useProject((s) => s.removeMatchRow);
+  const soundName = useProject((s) => {
+    if (lane >= DEVICE_TRACKS) return undefined;
+    const id = s.trackSound[lane];
+    return id ? (s.mySounds.find((x) => x.id === id) ?? STARTER_SOUNDS.find((x) => x.id === id))?.name : undefined;
+  });
 
   useEffect(() => {
     if (flash) ref.current?.animate([{ background: 'var(--color-live)' }, { background: LANE_COLORS[lane] }], { duration: 160 });
@@ -118,19 +127,23 @@ function LaneHead({ lane }: { lane: number }) {
 
   return (
     <div className="flex items-center gap-1" style={{ width: LABEL - 6 }}>
-      <Tip text={lane === CHOPS_LANE ? 'Plays the selected slice, from the laptop' : lane === FM_LANE ? 'Plays a note on the FM-1' : 'Trigger this track on the Cycles'}>
+      <Tip text={matchRow ? `${matchRow.name}. Plays from the laptop` : soundName ? `${soundName} on ${name}. Trigger this track on the Cycles` : lane === CHOPS_LANE ? 'Plays the selected slice, from the laptop' : lane === FM_LANE ? 'Plays a note on the FM-1' : 'Trigger this track on the Cycles'}>
         <button
           type="button"
           className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 text-left text-xs font-medium hover:underline"
-          onClick={() => (lane === CHOPS_LANE ? audio.playSlice(selectedSlice, performance.now()) : lane === FM_LANE ? transport.triggerFm() : transport.trigger(lane))}
+          onClick={() => (matchRow ? transport.triggerMatch(lane) : lane === CHOPS_LANE ? audio.playSlice(selectedSlice, performance.now()) : lane === FM_LANE ? transport.triggerFm() : transport.trigger(lane))}
         >
           <span ref={ref} className="size-2.5 shrink-0" style={{ background: LANE_COLORS[lane] }} />
-          <span className="truncate">{kitName ?? (machine ? `${name} ${machine}` : name)}</span>
+          <span className="truncate">{matchRow?.name ?? soundName ?? kitName ?? (machine ? `${name} ${machine}` : name)}</span>
         </button>
       </Tip>
       <Button size="icon" variant="ghost" aria-label={`Shift ${name} left`} onClick={() => shift(lane, -1)}><ChevronLeft className="size-3.5" /></Button>
       <Button size="icon" variant="ghost" aria-label={`Shift ${name} right`} onClick={() => shift(lane, 1)}><ChevronRight className="size-3.5" /></Button>
-      <Tip text="Clear this lane"><Button size="icon" variant="ghost" aria-label={`Clear ${name}`} onClick={() => clearLane(lane)}><Trash2 className="size-3" /></Button></Tip>
+      {matchRow && laneEmpty ? (
+        <Tip text="Remove this row"><Button size="icon" variant="ghost" aria-label={`Remove ${name} row`} onClick={() => { audio.removeMatch(matchRow.id); removeMatchRow(lane); }}><X className="size-3.5" /></Button></Tip>
+      ) : (
+        <Tip text="Clear this lane"><Button size="icon" variant="ghost" aria-label={`Clear ${name}`} onClick={() => clearLane(lane)}><Trash2 className="size-3" /></Button></Tip>
+      )}
       <Button size="icon" pressed={muted} aria-label={`Mute ${name}`} className="text-[10px]" onClick={() => toggleMute(lane)}>M</Button>
     </div>
   );
@@ -141,10 +154,12 @@ function LaneVolume({ lane }: { lane: number }) {
   const known = useLive((s) => s.deviceParams[lane]?.[CC.level]);
   const chopLevel = useProject((s) => s.chopLevel);
   const fmLevel = useProject((s) => s.fmLevel);
+  const matchLevel = useProject((s) => s.matchLevel);
   const sendParam = useProject((s) => s.sendParam);
   const setTop = useProject((s) => s.setTop);
   const label = `${LANE_NAMES[lane]} volume`;
   if (lane === CHOPS_LANE) return <Fader label={label} value={chopLevel} max={1} onChange={(v) => { setTop({ chopLevel: v }); audio.setChopLevel(v); }} />;
+  if (lane >= MATCH_LANE) return <Fader label={label} value={matchLevel} max={1} onChange={(v) => { setTop({ matchLevel: v }); audio.setMatchLevel(v); }} />;
   if (lane === FM_LANE) return <Fader label={label} value={fmLevel} max={1} onChange={(v) => { setTop({ fmLevel: v }); audio.setFmLevel(v); }} />;
   return <Fader label={label} value={known} max={127} onChange={(v) => sendParam(lane, 'level', Math.round(v))} />;
 }
@@ -184,6 +199,7 @@ export function SequencerPart() {
   const shift = useProject((s) => s.shift);
   const toggleStep = useProject((s) => s.toggleStep);
   const moveStep = useProject((s) => s.moveStep);
+  const matchRows = useProject((s) => s.matchRows);
   const selected = useLive((s) => s.selectedStep);
   const compareStraight = useLive((s) => s.compareStraight);
   const incoming = useLive((s) => s.incoming);
@@ -256,7 +272,7 @@ export function SequencerPart() {
   return (
     <Part
       type="sequencer"
-      width={880}
+      width={932}
       status={following && problem ? <span className="text-live-dark">{problem.short}</span> : `Pattern ${patternName(current)}`}
       ports={[
         { id: 'midi-in', side: 'left', label: 'Control', top: 58 },
@@ -319,7 +335,7 @@ export function SequencerPart() {
           ))}
           <span className="ml-3 w-14 text-[10px] text-muted">Volume</span>
         </div>
-        {Array.from({ length: LANES }, (_, lane) => (
+        {Array.from({ length: LANES }, (_, lane) => lane).filter((lane) => lane < MATCH_LANE || matchRows[lane - MATCH_LANE]).map((lane) => (
           <div key={lane} className={clsx('flex items-center', lane === CHOPS_LANE ? 'mt-2 mb-[2px] border-t border-line pt-2' : 'mb-[2px]')}>
             <div style={{ width: LABEL }}><LaneHead lane={lane} /></div>
             <div className="flex gap-[2px]">

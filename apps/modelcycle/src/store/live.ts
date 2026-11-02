@@ -9,7 +9,8 @@ export type Soundfile = { name: string; duration: number; sampleRate: number };
 export type DeviceLink =
   | { status: 'idle' | 'no-sysex' | 'reading' | 'no-reply' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; name: string; version: string; projects: DeviceProject[] };
+  // Projects are null when the device has no command for listing them.
+  | { status: 'ready'; name: string; version: string; projects: DeviceProject[] | null };
 /** Recording a pattern into the Cycles over MIDI. */
 export type SendState =
   | { phase: 'idle' | 'setup' | 'recording' | 'check' | 'stopped' }
@@ -48,6 +49,8 @@ type Live = {
   send: SendState;
   /** The track the spacebar auditions while the pointer is over a Sounds node. */
   auditionTrack: number | null;
+  /** The control last moved on the Cycles itself. A new object each time, so moving the same one again still counts. */
+  touched: { track: number; cc: number } | null;
   selectedStep: { lane: number; step: number } | null;
   selectedSlice: number;
   deviceParams: Record<number, Record<number, number>>;
@@ -93,6 +96,7 @@ export const useLive = create<Live>((set) => ({
   deviceLink: { status: 'idle' },
   send: { phase: 'idle' },
   auditionTrack: null,
+  touched: null,
   selectedStep: null,
   selectedSlice: 0,
   deviceParams: {},

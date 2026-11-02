@@ -23,14 +23,23 @@ html, body, #root { height: 100%; }
 @media (max-width: 820px), (max-height: 500px) {
   input, textarea { font-size: 16px; }
 }
-/* On a phone every dock button stays on screen: they shrink to share the height,
-   and a landscape screen, too short for one column, wraps into a second. */
+/* The list of parts scrolls when it outgrows the screen; Search and Reset stay in reach.
+   The fade only touches a button once it has scrolled, because the padding clears it at rest. */
+.dock { max-height: calc(100% - 16px); }
+.dock-scroll {
+  min-height: 0;
+  margin: -6px -6px;
+  padding: 10px 6px;
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: none;
+  mask-image: linear-gradient(to bottom, transparent, #000 10px, #000 calc(100% - 10px), transparent);
+}
+.dock-scroll::-webkit-scrollbar { display: none; }
+.dock > *:not(.dock-scroll), .dock-scroll > * { flex-shrink: 0; }
 @media (max-width: 820px), (max-height: 760px) {
-  .dock { top: 4px; bottom: 4px; left: 4px; translate: none; gap: 2px; flex-wrap: wrap; align-content: flex-start; }
-  .dock-gap { display: none; }
-  .dock-button { width: var(--dock-size); height: var(--dock-size); }
-  .dock { --dock-size: max(30px, min(40px, calc((100dvh - 60px) / 15 - 2px))); }
-  .dock svg { width: 14px; height: 14px; }
+  .dock { left: 4px; max-height: calc(100% - 8px); }
 }
 body {
   margin: 0;

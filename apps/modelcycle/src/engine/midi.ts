@@ -1,4 +1,4 @@
-import { DATA_LIST, decodeReply, encodeRequest, listArgs, parsePing, parseProjects, parseVersion, PING, PROJECTS_PATH, replyOk, SOFTWARE_VERSION } from '@/lib/elektron';
+import { DATA_LIST, decodeReply, encodeRequest, listArgs, parseCommands, parsePing, parseProjects, parseVersion, PING, PROJECTS_PATH, replyOk, SOFTWARE_VERSION } from '@/lib/elektron';
 import { pulse, useLive } from '@/store/live';
 import { useProject } from '@/store/project';
 
@@ -95,8 +95,14 @@ class Midi {
     const run = ++this.readRun;
     set({ deviceLink: { status: 'reading' } });
     try {
-      const name = parsePing(await this.request(PING, [], 1000));
+      const ping = await this.request(PING, [], 1000);
+      const name = parsePing(ping);
       const version = parseVersion(await this.request(SOFTWARE_VERSION));
+      // Model:Cycles OS 1.12 does not offer the list command, so asking would only time out.
+      if (!parseCommands(ping).includes(DATA_LIST)) {
+        if (run === this.readRun) set({ deviceLink: { status: 'ready', name, version, projects: null } });
+        return;
+      }
       const list = await this.request(DATA_LIST, listArgs(PROJECTS_PATH));
       if (!replyOk(list)) throw new Error('The Cycles refused the project list');
       const projects = parseProjects(list);

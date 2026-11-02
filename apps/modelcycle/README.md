@@ -17,6 +17,8 @@ Phones get the same canvas, with a compact top bar and a dock that always fits t
 
 Tests: `npm test`. Type-check and production build: `npm run build`.
 
+**Sample to Preset** finds a Cycles sound close to a recorded hit. Record a sound, choose **Match on Cycles**, pick a track and choose **Find preset**. The app plays about 150 trials on that track, listening to each over USB, then leaves the closest one there to save from the Cycles' own preset menu. It replaces the track's sound, and needs the Cycles connected with MIDI and USB audio. **Add as new row** gives the result its own row under FM-1, up to four, which plays the recording from the laptop like Chops.
+
 **Send to Cycles** in the Sequencer records the current pattern's T1 to T6 into the device: it sends the track sounds, plays a silent count-in in whole loops, then plays the pattern once while you hold the Cycles in live record. The app then stays silent while you play the result back, and compares the steps it hears with what it sent. The device's pattern length and tempo, arming record and saving the project all stay manual.
 
 The Model:Cycles has no sample memory, so chopped and recorded audio plays from the laptop in time with it. CC numbers in `src/lib/cycles.ts` come from the community table at github.com/pencilresearch/midi.

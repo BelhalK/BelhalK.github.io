@@ -31,7 +31,7 @@ const AUDIO_TEXT = {
 } as const;
 
 const DEVICE_LINK_TEXT = (link: DeviceLink) => {
-  if (link.status === 'ready') return `${link.projects.length} found, listed in Banks`;
+  if (link.status === 'ready') return link.projects ? `${link.projects.length} found, listed in Banks` : 'Not available over USB';
   return { idle: 'Not read', 'no-sysex': 'Needs permission', reading: 'Asking', 'no-reply': 'No reply', error: 'Unreadable reply' }[link.status];
 };
 
