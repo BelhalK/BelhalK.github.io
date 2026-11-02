@@ -1,3 +1,4 @@
+import { DATA_LIST, decodeReply, encodeRequest, listArgs, parsePing, parseProjects, parseVersion, PING, PROJECTS_PATH, replyOk, SOFTWARE_VERSION } from '@/lib/elektron';
 import { pulse, useLive } from '@/store/live';
 import { useProject } from '@/store/project';
 
@@ -23,25 +24,88 @@ class Midi {
   private fmInput: MIDIInput | null = null;
   handlers: Partial<Handlers> = {};
 
-  async connect() {
+  private sysex = false;
+  private linked = false;
+  private seq = 0;
+  private readRun = 0;
+  private pending = new Map<number, { type: number; resolve: (data: Uint8Array) => void; reject: (err: Error) => void }>();
+
+  async connect(sysex = true): Promise<void> {
     if (!navigator.requestMIDIAccess) {
       useLive.getState().set({ midi: 'unsupported' });
       return;
     }
     try {
-      this.access = await navigator.requestMIDIAccess({ sysex: false });
+      this.access = await navigator.requestMIDIAccess({ sysex });
+      this.sysex = sysex;
     } catch {
+      // Refusing SysEx only costs the project list, so plain MIDI still gets its chance.
+      if (sysex) return this.connect(false);
       useLive.getState().set({ midi: 'denied' });
       return;
     }
+    this.linked = false;
     this.access.onstatechange = () => this.bind();
     this.bind();
   }
 
   /** Connects without a click once Chrome has already allowed MIDI for this site. */
   async reconnect() {
-    const permission = await navigator.permissions?.query({ name: 'midi' as PermissionName }).catch(() => null);
-    if (permission?.state === 'granted') await this.connect();
+    const query = (descriptor: object) => navigator.permissions?.query(descriptor as PermissionDescriptor).catch(() => null);
+    if ((await query({ name: 'midi', sysex: true }))?.state === 'granted') return this.connect(true);
+    if ((await query({ name: 'midi' }))?.state === 'granted') await this.connect(false);
+  }
+
+  /** Sends one read request and waits for the reply that carries its sequence number. */
+  private request(command: number, args: number[] = [], timeoutMs = 5000) {
+    const seq = this.seq;
+    this.seq = (seq + 1) & 0xffff;
+    return new Promise<Uint8Array>((resolve, reject) => {
+      const timer = window.setTimeout(() => {
+        this.pending.delete(seq);
+        reject(new Error('No reply'));
+      }, timeoutMs);
+      const settle = <T,>(fn: (value: T) => void) => (value: T) => {
+        window.clearTimeout(timer);
+        this.pending.delete(seq);
+        fn(value);
+      };
+      this.pending.set(seq, { type: command | 0x80, resolve: settle(resolve), reject: settle(reject) });
+      try {
+        this.output?.send(encodeRequest(seq, command, args));
+      } catch (err) {
+        this.pending.get(seq)?.reject(err as Error);
+      }
+    });
+  }
+
+  private receiveSysex(raw: Uint8Array) {
+    const reply = decodeReply(raw);
+    const waiting = reply && this.pending.get(reply.seq);
+    if (!waiting) return;
+    if (reply.type === waiting.type) waiting.resolve(reply.data);
+    else waiting.reject(new Error(`Unexpected reply type ${reply.type}`));
+  }
+
+  /** Asks the Cycles who it is and which projects it holds. Read-only. */
+  async readDevice() {
+    const { set } = useLive.getState();
+    if (!this.linked) return;
+    if (!this.sysex) return set({ deviceLink: { status: 'no-sysex' } });
+    const run = ++this.readRun;
+    set({ deviceLink: { status: 'reading' } });
+    try {
+      const name = parsePing(await this.request(PING, [], 1000));
+      const version = parseVersion(await this.request(SOFTWARE_VERSION));
+      const list = await this.request(DATA_LIST, listArgs(PROJECTS_PATH));
+      if (!replyOk(list)) throw new Error('The Cycles refused the project list');
+      const projects = parseProjects(list);
+      if (run === this.readRun) set({ deviceLink: { status: 'ready', name, version, projects } });
+    } catch (err) {
+      if (run !== this.readRun) return;
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      set({ deviceLink: message === 'No reply' ? { status: 'no-reply' } : { status: 'error', message } });
+    }
   }
 
   private bind() {
@@ -71,6 +135,15 @@ class Midi {
       fmMidi: !!this.fmOutput,
       midiOutputs: [...this.access.outputs.values()].filter((p) => p.state === 'connected').map((p) => p.name ?? 'Unnamed port'),
     });
+    // Sending opens the port, which fires another state change, so this reads once per connection.
+    const linked = !!(this.output && this.input);
+    if (linked === this.linked) return;
+    this.linked = linked;
+    if (linked) void this.readDevice();
+    else {
+      this.readRun++;
+      useLive.getState().set({ deviceLink: { status: 'idle' } });
+    }
   }
 
   rebind() {
@@ -105,6 +178,7 @@ class Midi {
     const data = e.data;
     if (!data) return;
     const status = data[0];
+    if (status === 0xf0) return this.receiveSysex(data);
     this.noteHeard(status, data[2]);
     if (status === 0xf8) return this.handlers.onClock?.(e.timeStamp);
     if (status === 0xfa) return this.handlers.onStart?.();

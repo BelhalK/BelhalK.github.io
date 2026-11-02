@@ -3,6 +3,7 @@ import { CC, BANKS, MACHINES, type Machine, PATTERNS_PER_BANK, patternName, SOUN
 import { GROOVES } from '@/lib/grooves';
 import type { Pattern } from '@/lib/pattern';
 import { STARTER_SOUNDS, type Sound } from '@/lib/sounds';
+import { midi } from '@/engine/midi';
 import { transport } from '@/engine/transport';
 import { useLive } from '@/store/live';
 import { isWired, useProject } from '@/store/project';
@@ -95,6 +96,47 @@ export function GroovePart() {
   );
 }
 
+const formatBytes = (bytes: number) => (bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`);
+
+function DeviceProjects() {
+  const link = useLive((s) => s.deviceLink);
+  const playing = useLive((s) => s.playing);
+  return (
+    <>
+      <Heading>Projects on the Cycles</Heading>
+      {link.status === 'idle' && <p className="text-xs text-muted">Connect the Cycles to list its projects.</p>}
+      {link.status === 'reading' && <p className="text-xs text-muted">Asking the Cycles.</p>}
+      {link.status === 'no-sysex' && (
+        <>
+          <p className="text-xs text-muted">Listing projects needs Chrome's permission for system exclusive messages.</p>
+          <Button size="sm" className="mt-2" onClick={() => void midi.connect()}>Allow and read projects</Button>
+        </>
+      )}
+      {link.status === 'no-reply' && <p className="text-xs text-live-dark">The Cycles did not answer. Close Elektron Transfer if it is open, check that its MIDI ports include USB, then read again.</p>}
+      {link.status === 'error' && <p className="text-xs text-live-dark">The Cycles answered, but its reply could not be read: {link.message}.</p>}
+      {link.status === 'ready' && (
+        <>
+          <p className="text-xs">{link.name}, OS {link.version}: {link.projects.length} {link.projects.length === 1 ? 'project' : 'projects'}.</p>
+          {link.projects.length > 0 && (
+            <div className="nowheel mt-1.5 max-h-[180px] overflow-y-auto border-y border-line">
+              {link.projects.map((p) => (
+                <div key={p.slot} className="flex items-center gap-2 border-b border-line px-1 py-1 text-xs last:border-b-0">
+                  <span className="mono text-muted">{String(p.slot).padStart(3, '0')}</span>
+                  <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                  <span className="mono text-muted">{formatBytes(p.bytes)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+      {(link.status === 'ready' || link.status === 'no-reply' || link.status === 'error') && (
+        <Button size="sm" className="mt-2" disabled={playing} onClick={() => void midi.readDevice()}>Read again</Button>
+      )}
+    </>
+  );
+}
+
 export function BanksPart() {
   const patterns = useProject((s) => s.patterns);
   const current = useProject((s) => s.current);
@@ -157,7 +199,8 @@ export function BanksPart() {
       <p className="mt-1.5 text-xs">
         {devicePattern !== null ? <>The Cycles is on <span className="mono font-semibold text-live-dark">{patternName(devicePattern)}</span>, outlined in red.</> : 'Change pattern on the Cycles to mark it here. This needs program change output turned on in its MIDI settings.'}
       </p>
-      <p className="mt-1.5 text-xs text-muted">The filled slots are patterns written in this app. The Cycles does not share its projects or stored patterns, only which pattern it is on.</p>
+      <p className="mt-1.5 text-xs text-muted">The filled slots are patterns written in this app. The app cannot read the patterns stored on the Cycles yet, only which one it is on.</p>
+      <DeviceProjects />
     </Part>
   );
 }

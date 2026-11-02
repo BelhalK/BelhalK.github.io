@@ -17,4 +17,6 @@ Phones get the same canvas, with a compact top bar and a dock that always fits t
 
 Tests: `npm test`. Type-check and production build: `npm run build`.
 
+**Send to Cycles** in the Sequencer records the current pattern's T1 to T6 into the device: it sends the track sounds, plays a silent count-in in whole loops, then plays the pattern once while you hold the Cycles in live record. The app then stays silent while you play the result back, and compares the steps it hears with what it sent. The device's pattern length and tempo, arming record and saving the project all stay manual.
+
 The Model:Cycles has no sample memory, so chopped and recorded audio plays from the laptop in time with it. CC numbers in `src/lib/cycles.ts` come from the community table at github.com/pencilresearch/midi.

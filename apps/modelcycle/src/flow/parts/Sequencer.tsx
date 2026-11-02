@@ -4,12 +4,14 @@ import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { transport } from '@/engine/transport';
 import { CC, CHOPS_LANE, FM_LANE, LANE_COLORS, LANE_NAMES, LANES, MACHINES, patternName } from '@/lib/cycles';
 import { KIT_LANE_NAMES } from '@/lib/kits';
+import { sendSummary } from '@/lib/send';
 import { audio } from '@/engine/audio';
 import type { Pattern, Step } from '@/lib/pattern';
 import { mirrorProblem, useLive } from '@/store/live';
 import { useProject } from '@/store/project';
 import { Button, Fader, Segmented, Select, Slider, Tip } from '@/components/ui';
 import { Part } from '../Part';
+import { SendToCycles } from './SendToCycles';
 
 const CELL = 34;
 const GAP = 2;
@@ -188,6 +190,9 @@ export function SequencerPart() {
   const following = useLive((s) => s.playing && s.clockSource === 'device');
   const problem = mirrorProblem(useLive((s) => s.heard));
   const setLive = useLive((s) => s.set);
+  const midiStatus = useLive((s) => s.midi);
+  const playing = useLive((s) => s.playing);
+  const sendPhase = useLive((s) => s.send.phase);
   const drag = useRef<{ lane: number; step: number } | null>(null);
   const keepOnClick = useRef(false);
   const clearAll = useProject((s) => s.clearAll);
@@ -243,6 +248,7 @@ export function SequencerPart() {
     if (useProject.getState().pattern().lanes[lane][step]) setLive({ selectedStep: { lane, step } });
   };
 
+  const canSend = midiStatus === 'connected' && !playing && (sendPhase !== 'idle' ? sendPhase === 'setup' : sendSummary(pattern).steps > 0);
   const pages = pattern.length / 16;
   const shownSwing = compareStraight ? 50 : swing;
   const hitSet = new Set(incoming.map((h) => `${h.lane}:${h.step}`));
@@ -289,6 +295,14 @@ export function SequencerPart() {
           }}
         >
           Capture from Cycles
+        </Button>
+        <Button
+          size="sm"
+          disabled={!canSend}
+          title={midiStatus === 'connected' ? undefined : 'Connect the Cycles first'}
+          onClick={() => (sendPhase === 'idle' ? transport.openSend() : transport.endSend())}
+        >
+          Send to Cycles
         </Button>
         <span className="ml-auto text-xs">Shift all</span>
         <Button size="icon" aria-label="Shift everything left" onClick={() => shift('all', -1)}><ChevronLeft className="size-3.5" /></Button>
@@ -339,6 +353,7 @@ export function SequencerPart() {
           Captured {captured} steps into the app. The Cycles still plays its own copy too, so they double. Clear those trigs on the Cycles, and this grid is what it plays.
         </p>
       )}
+      <SendToCycles />
       <div className="mt-3 border-t border-ink pt-2.5"><Inspector /></div>
     </Part>
   );

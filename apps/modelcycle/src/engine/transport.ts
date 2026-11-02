@@ -1,6 +1,8 @@
 import { CHOPS_LANE, DEVICE_TRACKS, FM_LANE, PATTERN_COUNT } from '@/lib/cycles';
+import { countInLoops, trackSetup } from '@/lib/send';
+import { STARTER_SOUNDS } from '@/lib/sounds';
 import { kitVoice } from '@/lib/kits';
-import { stepDuration, stepOffset } from '@/lib/pattern';
+import { type Pattern, stepDuration, stepOffset } from '@/lib/pattern';
 import { pulse, useLive } from '@/store/live';
 import { isWired, useProject } from '@/store/project';
 import { baseType, type PartType } from '@/flow/defaults';
@@ -28,6 +30,8 @@ class Transport {
   private headTime = 0;
   private appStartedAt = -Infinity;
   private headIndex = 0;
+  /** The one pass being recorded into the Cycles, fixed when it starts so edits cannot reach it. */
+  private sendRun: { pattern: Pattern; bpm: number; countIn: number; startsAt: number; endsAt: number } | null = null;
 
   constructor() {
     timer.onmessage = () => this.tick();
@@ -59,6 +63,10 @@ class Transport {
     const { lanes } = useProject.getState().pattern();
     if (lanes[CHOPS_LANE].some(Boolean)) ensurePart('chopper');
     if (lanes[FM_LANE].some(Boolean)) ensurePart('fm1');
+    this.begin();
+  }
+
+  private begin() {
     this.appStartedAt = performance.now();
     midi.start();
     const now = performance.now() + 60;
@@ -69,6 +77,79 @@ class Transport {
     this.headTime = now;
     this.headIndex = 0;
     useLive.getState().set({ playing: true, clockSource: 'app', step: 0, bar: 1, beat: 1 });
+    return now;
+  }
+
+  /** Opens the send panel, and moves the Cycles to the pattern being sent so it can be checked first. */
+  openSend() {
+    const { playing, midi: status, set } = useLive.getState();
+    if (playing || status !== 'connected') return;
+    midi.programChange(0, useProject.getState().current);
+    set({ send: { phase: 'setup' } });
+  }
+
+  /** Plays a silent count-in, then the pattern once, then stops. */
+  startSend() {
+    const project = useProject.getState();
+    const live = useLive.getState();
+    if (live.playing || live.midi !== 'connected') return;
+    const pattern = structuredClone(project.pattern());
+    const sounds = [...STARTER_SOUNDS, ...project.mySounds];
+    // Sent before the Cycles is armed, so these set its sound and are not recorded as locks.
+    for (let track = 0; track < DEVICE_TRACKS; track++) {
+      if (!pattern.lanes[track].some(Boolean)) continue;
+      const sound = sounds.find((s) => s.id === project.trackSound[track]);
+      for (const [cc, value] of trackSetup(sound, live.deviceParams[track])) midi.cc(track, cc, value);
+    }
+    live.set({ incoming: [] });
+    const stepMs = stepDuration(project.bpm) * 1000;
+    const countIn = countInLoops(project.bpm, pattern.length) * pattern.length;
+    this.sendRun = { pattern, bpm: project.bpm, countIn, startsAt: 0, endsAt: 0 };
+    const now = this.begin();
+    this.sendRun.startsAt = now + countIn * stepMs;
+    this.sendRun.endsAt = this.sendRun.startsAt + pattern.length * stepMs;
+    live.set({ send: { phase: 'count-in', seconds: Math.ceil((countIn * stepMs) / 1000) } });
+  }
+
+  /** Closes the panel and lets the app play along with the Cycles again. */
+  endSend() {
+    useLive.getState().set({ send: { phase: 'idle' }, incoming: [] });
+  }
+
+  private tickSend(now: number) {
+    const run = this.sendRun!;
+    const live = useLive.getState();
+    if (live.midi !== 'connected') {
+      this.stop();
+      return;
+    }
+    if (now >= run.endsAt) {
+      this.sendRun = null;
+      this.stop();
+      live.set({ send: { phase: 'check' }, incoming: [] });
+    } else if (now >= run.startsAt) {
+      if (live.send.phase !== 'recording') live.set({ send: { phase: 'recording' } });
+    } else {
+      const seconds = Math.ceil((run.startsAt - now) / 1000);
+      if (live.send.phase !== 'count-in' || live.send.seconds !== seconds) live.set({ send: { phase: 'count-in', seconds } });
+    }
+  }
+
+  /** Sends only T1 to T6, every step that is not muted, and only during the pass. */
+  private scheduleSendStep(index: number, gridTime: number, stepMs: number) {
+    const run = this.sendRun!;
+    const project = useProject.getState();
+    this.visuals.push(gridTime, index);
+    const pos = index - run.countIn;
+    if (pos < 0 || pos >= run.pattern.length) return;
+    const swing = isWired(project.edges, 'groove', 'sequencer') ? project.swing : 50;
+    for (let lane = 0; lane < DEVICE_TRACKS; lane++) {
+      const step = run.pattern.lanes[lane][pos];
+      if (!step || run.pattern.muted[lane]) continue;
+      const at = Math.max(performance.now(), gridTime + stepOffset(pos, stepMs / 1000, swing, step.micro) * 1000);
+      midi.note(lane, step.note, step.vel, at, stepMs * 0.9);
+      this.pulseAt(at, 'cycles', lane);
+    }
   }
 
   stop() {
@@ -77,6 +158,10 @@ class Transport {
   }
 
   private halt() {
+    if (this.sendRun) {
+      this.sendRun = null;
+      useLive.getState().set({ send: { phase: 'stopped' } });
+    }
     midi.panic();
     audio.stopChops();
     useLive.getState().set({ playing: false, clockSource: 'app', step: 0, bar: 1, beat: 1 });
@@ -89,9 +174,14 @@ class Transport {
     this.flushVisuals(now);
     const project = useProject.getState();
     if (live.clockSource !== 'app') return;
+    if (this.sendRun) {
+      this.tickSend(now);
+      if (!useLive.getState().playing) return;
+    }
 
     const horizon = now + LOOKAHEAD_MS;
-    const stepMs = stepDuration(project.bpm) * 1000;
+    const bpm = this.sendRun?.bpm ?? project.bpm;
+    const stepMs = stepDuration(bpm) * 1000;
     // A step can land up to one step early through micro timing, so it is
     // scheduled one step ahead of its grid position.
     while (this.nextStepTime - stepMs < horizon) {
@@ -99,7 +189,7 @@ class Transport {
       this.nextStepTime += stepMs;
       this.stepIndex++;
     }
-    const clockMs = (60000 / project.bpm) / PPQN;
+    const clockMs = (60000 / bpm) / PPQN;
     while (this.nextClockTime < horizon) {
       midi.clock(this.nextClockTime);
       this.nextClockTime += clockMs;
@@ -107,6 +197,12 @@ class Transport {
   }
 
   private scheduleStep(index: number, gridTime: number, stepMs: number) {
+    if (this.sendRun) return this.scheduleSendStep(index, gridTime, stepMs);
+    // While checking a recording, the Cycles must be heard alone.
+    if (useLive.getState().send.phase === 'check') {
+      this.visuals.push(gridTime, index);
+      return;
+    }
     const project = useProject.getState();
     const live = useLive.getState();
     const pattern = project.pattern();
@@ -232,7 +328,7 @@ class Transport {
     const live = useLive.getState();
     pulse('cycles>sequencer');
     flashLane(channel);
-    if (!live.playing) return;
+    if (!live.playing || this.sendRun) return;
     const step = live.clockSource === 'device' ? Math.round(this.followTicks / 6) % useProject.getState().pattern().length : live.step;
     const others = live.incoming.filter((h) => !(h.lane === channel && h.step === step));
     live.set({ incoming: [...others, { step, lane: channel, at: performance.now(), note, vel: velocity }] });

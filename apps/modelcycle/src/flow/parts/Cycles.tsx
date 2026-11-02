@@ -4,7 +4,7 @@ import { audio } from '@/engine/audio';
 import { midi } from '@/engine/midi';
 import { transport } from '@/engine/transport';
 import { KITS } from '@/lib/kits';
-import { mirrorProblem, useLive } from '@/store/live';
+import { type DeviceLink, mirrorProblem, useLive } from '@/store/live';
 import { useProject } from '@/store/project';
 import { Button, Row, Select } from '@/components/ui';
 import { Part } from '../Part';
@@ -30,12 +30,18 @@ const AUDIO_TEXT = {
   error: 'Could not open',
 } as const;
 
+const DEVICE_LINK_TEXT = (link: DeviceLink) => {
+  if (link.status === 'ready') return `${link.projects.length} found, listed in Banks`;
+  return { idle: 'Not read', 'no-sysex': 'Needs permission', reading: 'Asking', 'no-reply': 'No reply', error: 'Unreadable reply' }[link.status];
+};
+
 export function CyclesPart() {
   const midiStatus = useLive((s) => s.midi);
   const midiInput = useLive((s) => s.midiInput);
   const audioStatus = useLive((s) => s.audio);
   const followBpm = useLive((s) => s.followBpm);
   const heard = useLive((s) => s.heard);
+  const deviceLink = useLive((s) => s.deviceLink);
   const kit = useLive((s) => s.kit);
   const kitId = useProject((s) => s.kitId);
   const setTop = useProject((s) => s.setTop);
@@ -56,6 +62,7 @@ export function CyclesPart() {
       <Row label="MIDI">{MIDI_TEXT[midiStatus]}</Row>
       <Row label="Device to app MIDI">{midiInput ? 'Listening' : 'No input'}</Row>
       <Row label="USB audio">{AUDIO_TEXT[audioStatus]}</Row>
+      <Row label="Projects on the Cycles">{DEVICE_LINK_TEXT(deviceLink)}</Row>
       <Row label="Clock from Cycles">{heard.clock ? 'Received' : 'None yet'}</Row>
       <Row label="Start and stop from Cycles">{heard.transport ? 'Received' : 'None yet'}</Row>
       <Row label="Notes from Cycles">{heard.notes ? 'Received' : 'None yet'}</Row>

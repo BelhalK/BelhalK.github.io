@@ -26,7 +26,8 @@ A patchable canvas where the hardware, its sequencer, the audio it makes, and st
 
 - Model:Cycles over USB, showing as a class-compliant MIDI port and a 2-in/2-out audio device at 48 kHz.
 - One transport: Play on either the app or the Cycles runs both. Notes the Cycles sends over MIDI are mirrored on the grid while playing, once clock out and each track's MOut are on.
-- Pattern data stored on the device cannot be read or written, because the SysEx format is undocumented; the app only learns which pattern is active, from Program Change. Sound parameters sync both ways over CC.
+- On connect the app lists the device's projects over SysEx. Elektron does not document the format, so this follows the open source Elektroid project, and only read requests are sent.
+- The app does not read or write pattern data stored on the device; it only learns which pattern is active, from Program Change. To save a pattern on the device, Send to Cycles plays it once over MIDI while the device is in live record, and the producer saves the project on the device. Sound parameters sync both ways over CC.
 - An M-VAVE FM-1 synth joins over USB as another sound source (not yet in hand).
 - Audio monitored through the Mac's output.
 - Recording from a Mac microphone, and uploading a song to chop into samples.
