@@ -356,6 +356,8 @@ article.list-row:hover{border-color:var(--line-strong);}
   border-bottom:1px solid var(--line-strong);padding-bottom:2px;transition:border-color .2s,color .2s;
 }
 .deal-link:hover{color:var(--accent);border-color:var(--accent);}
+.inline-link{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;}
+.inline-link:hover{color:var(--accent);}
 
 /* ---------- generic info card (software) ---------- */
 .info-card{border:1px solid var(--line);border-radius:var(--radius-card);background:var(--paper);padding:28px;}
