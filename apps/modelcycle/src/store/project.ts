@@ -35,6 +35,14 @@ type Project = {
   fmPreset: number | undefined;
   fmMidiPort: string | null;
   fmAudioInput: string | null;
+  /** Which input channel carries the FM-1, counted from 0; null takes them all. */
+  fmAudioChannel: number | null;
+  /** Studio setup: the output the app plays through, and where the Recorder records from, by device label. */
+  outputLabel: string | null;
+  micInput: string | null;
+  micChannel: number | null;
+  /** FM-1 keys play the Chopper's slices instead of being only a synth. */
+  fmKeysChops: boolean;
   nodes: Node[];
   edges: Edge[];
 
@@ -153,6 +161,11 @@ export const useProject = create<Project>()(
         fmPreset: undefined,
         fmMidiPort: null,
         fmAudioInput: null,
+        fmAudioChannel: null,
+        outputLabel: null,
+        micInput: null,
+        micChannel: null,
+        fmKeysChops: false,
         nodes: DEFAULT_NODES,
         edges: DEFAULT_EDGES,
 
@@ -306,8 +319,8 @@ export const useProject = create<Project>()(
           edges: withPresetEdges(state.nodes, state.edges),
         } as never;
       },
-      partialize: ({ bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, matchLevel, matchRows, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, nodes, edges }) => ({
-        bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, matchLevel, matchRows, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput,
+      partialize: ({ bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, matchLevel, matchRows, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, fmAudioChannel, outputLabel, micInput, micChannel, fmKeysChops, nodes, edges }) => ({
+        bpm, swing, sendProgramChange, masterGain, monitorGain, chopLevel, fmLevel, matchLevel, matchRows, kitId, patterns, current, grooveId, mySounds, trackSound, slices, chopSteps, fmChannel, fmPreset, fmMidiPort, fmAudioInput, fmAudioChannel, outputLabel, micInput, micChannel, fmKeysChops,
         nodes: nodes.map(({ id, type, position }) => ({ id, type, position, data: {} })),
         edges,
       }),

@@ -14,6 +14,8 @@ type Handlers = {
   onNote: (channel: number, note: number, velocity: number) => void;
   onCC: (channel: number, cc: number, value: number) => void;
   onProgram: (program: number) => void;
+  /** A key pressed on the FM-1. */
+  onFmNote: (note: number, velocity: number) => void;
 };
 
 class Midi {
@@ -161,6 +163,7 @@ class Midi {
     if (!d || (d[0] & 0xf0) !== 0x90 || d[2] === 0) return;
     useLive.getState().set({ fmLastNote: `${NOTE_NAMES[d[1] % 12]}${Math.floor(d[1] / 12) - 2}` });
     pulse('fm1>sequencer');
+    this.handlers.onFmNote?.(d[1], d[2]);
   }
 
   private lastHeard = { clock: 0, transport: 0, notes: 0 };

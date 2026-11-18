@@ -73,6 +73,8 @@ class Audio {
   private cyclesGain!: GainNode;
   private fmStream: MediaStream | null = null;
   private fmSource: MediaStreamAudioSourceNode | null = null;
+  private fmPicked: AudioNode | null = null;
+  private fmRoutedChannel: number | null = null;
   private fmGain!: GainNode;
   private chopGain!: GainNode;
   private matchGain!: GainNode;
@@ -82,6 +84,9 @@ class Audio {
   private micStream: MediaStream | null = null;
   private micOpening = false;
   private micSource: MediaStreamAudioSourceNode | null = null;
+  private micPicked: AudioNode | null = null;
+  /** The mic's chosen channel alone, for recording, when studio setup picked one. */
+  private micRecordStream: MediaStream | null = null;
   micAnalyser!: AnalyserNode;
   private recorder: MediaRecorder | null = null;
 
@@ -103,6 +108,7 @@ class Audio {
   async start() {
     this.boot();
     await this.connectCycles();
+    await this.applyOutput();
     await this.connectFm();
     this.sync(useProject.getState().nodes, useProject.getState().edges);
   }
@@ -129,7 +135,7 @@ class Audio {
       this.matchGain = c.createGain();
       this.matchGain.gain.value = useProject.getState().matchLevel;
       this.fmGain = c.createGain();
-      this.fmGain.gain.value = useProject.getState().fmLevel;
+      this.fmGain.gain.value = this.fmTarget();
       this.refGain = c.createGain();
       this.refGain.gain.value = 0;
       this.refInput = this.analyser(ANALYSER_FFT);
@@ -322,6 +328,50 @@ class Audio {
     return a;
   }
 
+  /**
+   * One channel of a multichannel input, as mono, so it plays in both speakers.
+   * An interface such as the Komplete Audio 1 carries a mic on input 1 and the FM-1 on input 2.
+   */
+  private pick(source: AudioNode, channel: number | null): AudioNode {
+    if (channel === null) return source;
+    const c = this.ctx!;
+    const split = c.createChannelSplitter(2);
+    const mono = c.createGain();
+    mono.channelCount = 1;
+    mono.channelCountMode = 'explicit';
+    source.connect(split);
+    split.connect(mono, Math.min(channel, 1));
+    return mono;
+  }
+
+  /** The level the FM-1 audio plays at. Silent while its keys play the slices, so only the slices sound. */
+  private fmTarget() {
+    const p = useProject.getState();
+    return p.fmKeysChops ? 0 : p.fmLevel;
+  }
+
+  applyFmLevel() {
+    if (this.ctx && useLive.getState().ab === 'mix') this.fmGain.gain.setTargetAtTime(this.fmTarget(), this.ctx.currentTime, 0.01);
+  }
+
+  /** Plays through the output studio setup chose, when it is plugged in. */
+  async applyOutput() {
+    const label = useProject.getState().outputLabel;
+    if (!label || !this.ctx) return;
+    const outputs = useLive.getState().devices.outputs;
+    const device = outputs.find((d) => d.label === label && d.deviceId !== 'default');
+    if (!device) {
+      useLive.getState().set({ iface: 'missing' });
+      return;
+    }
+    try {
+      await this.setOutput(device.deviceId);
+      useLive.getState().set({ iface: 'connected' });
+    } catch {
+      useLive.getState().set({ iface: 'missing' });
+    }
+  }
+
   async refreshDevices() {
     const all = await navigator.mediaDevices.enumerateDevices();
     useLive.getState().set({
@@ -365,15 +415,17 @@ class Audio {
   /** Opens the FM-1's USB audio. Safe to call again whenever devices change. */
   async connectFm() {
     if (!this.ctx) return;
-    const chosen = useProject.getState().fmAudioInput;
+    const { fmAudioInput: chosen, fmAudioChannel: channel } = useProject.getState();
     const inputs = useLive.getState().devices.inputs;
     const device = inputs.find((d) => (chosen ? d.label === chosen : FM_MATCH.test(d.label)));
     const open = this.fmStream?.getTracks()[0];
-    if (open?.readyState === 'live' && device && open.getSettings().deviceId === device.deviceId) return;
+    if (open?.readyState === 'live' && device && open.getSettings().deviceId === device.deviceId && this.fmRoutedChannel === channel) return;
     open?.stop();
     this.fmSource?.disconnect();
+    this.fmPicked?.disconnect();
     this.fmStream = null;
     this.fmSource = null;
+    this.fmPicked = null;
     if (!device) {
       useLive.getState().set({ fmAudio: 'missing' });
       return;
@@ -381,7 +433,9 @@ class Audio {
     try {
       this.fmStream = await openInput({ ...RAW_AUDIO, deviceId: { exact: device.deviceId } });
       this.fmSource = this.ctx.createMediaStreamSource(this.fmStream);
-      this.fmSource.connect(this.fmGain);
+      this.fmPicked = this.pick(this.fmSource, channel);
+      this.fmPicked.connect(this.fmGain);
+      this.fmRoutedChannel = channel;
       this.fmStream.getTracks()[0].onended = () => useLive.getState().set({ fmAudio: 'missing' });
       useLive.getState().set({ fmAudio: 'connected' });
     } catch (err) {
@@ -434,8 +488,11 @@ class Audio {
   }
 
   startFmCapture() {
-    if (!this.fmStream) throw new Error('FM-1 audio is not connected');
-    return this.startRecording(this.fmStream);
+    if (!this.fmStream || !this.fmPicked) throw new Error('FM-1 audio is not connected');
+    if (this.fmRoutedChannel === null) return this.startRecording(this.fmStream);
+    const out = this.ctx!.createMediaStreamDestination();
+    this.fmPicked.connect(out);
+    return this.startRecording(out.stream).finally(() => this.fmPicked?.disconnect(out));
   }
 
   /** Never leave the output on the Cycles itself: its USB return would loop back. */
@@ -465,7 +522,7 @@ class Audio {
   }
   setFmLevel(v: number) {
     // While A/B is on the reference the FM-1 stays silent; the new level applies on the way back.
-    if (this.ctx && useLive.getState().ab === 'mix') this.fmGain.gain.setTargetAtTime(v, this.ctx.currentTime, 0.01);
+    if (this.ctx && useLive.getState().ab === 'mix') this.fmGain.gain.setTargetAtTime(useProject.getState().fmKeysChops ? 0 : v, this.ctx.currentTime, 0.01);
   }
 
   // Graph: canvas edges are the real audio connections.
@@ -665,7 +722,7 @@ class Audio {
   // Recorder
 
   /** Needs no Connect first: a phone has no device to connect, only its own mic. */
-  async armRecorder(deviceId: string) {
+  async armRecorder(deviceId: string, channel: number | null = null) {
     this.disarmRecorder();
     this.micOpening = true;
     try {
@@ -679,7 +736,13 @@ class Audio {
     this.resume();
     try {
       this.micSource = this.ctx!.createMediaStreamSource(this.micStream);
-      this.micSource.connect(this.micAnalyser);
+      this.micPicked = this.pick(this.micSource, channel);
+      this.micPicked.connect(this.micAnalyser);
+      if (channel !== null) {
+        const out = this.ctx!.createMediaStreamDestination();
+        this.micPicked.connect(out);
+        this.micRecordStream = out.stream;
+      }
     } catch {
       // Some browsers refuse a mic at another sample rate. The take records from the stream regardless; only the meter stays still.
     }
@@ -701,12 +764,15 @@ class Audio {
   disarmRecorder() {
     this.micStream?.getTracks().forEach((t) => t.stop());
     this.micSource?.disconnect();
+    this.micPicked?.disconnect();
     this.micStream = null;
     this.micSource = null;
+    this.micPicked = null;
+    this.micRecordStream = null;
     this.setAudioSession();
   }
 
-  startRecording(stream = this.micStream) {
+  startRecording(stream = this.micRecordStream ?? this.micStream) {
     if (!stream) throw new Error('Recorder is not armed');
     const chunks: Blob[] = [];
     this.recorder = new MediaRecorder(stream);
@@ -778,7 +844,7 @@ class Audio {
     const match = mixLevel > 1e-4 && this.refRms > 0 ? Math.min(2, mixLevel / this.refRms) : 1;
     this.refGain.gain.setTargetAtTime(which === 'reference' ? match : 0, t, 0.01);
     this.cyclesGain.gain.setTargetAtTime(which === 'mix' ? useProject.getState().monitorGain : 0, t, 0.01);
-    this.fmGain.gain.setTargetAtTime(which === 'mix' ? useProject.getState().fmLevel : 0, t, 0.01);
+    this.fmGain.gain.setTargetAtTime(which === 'mix' ? this.fmTarget() : 0, t, 0.01);
     useLive.getState().set({ ab: which });
   }
 

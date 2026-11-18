@@ -18,7 +18,8 @@ import { LeaderEdge } from '@/flow/LeaderEdge';
 import { useTouchCamera } from '@/flow/useTouchCamera';
 import { useDragZoom } from '@/flow/useDragZoom';
 import { PanelView } from '@/flow/PanelView';
-import { connectAll, CyclesPart } from '@/flow/parts/Cycles';
+import { CyclesPart } from '@/flow/parts/Cycles';
+import { setupStudio } from '@/engine/studio';
 import { MonitorPart, ReferencePart, SpectrogramPart, SpectrumPart } from '@/flow/parts/Mix';
 import { BanksPart, GroovePart, SoundsPart } from '@/flow/parts/Produce';
 import { Fm1Part } from '@/flow/parts/Fm1';
@@ -40,12 +41,52 @@ function Position() {
   return <span className="mono w-14">{bar}.{beat}.{(step % 4) + 1}</span>;
 }
 
-function Status({ ok, label }: { ok: boolean; label: string }) {
+function Light({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <span className="flex items-center gap-1.5 text-xs">
+    <span className="flex items-center gap-1.5 text-xs whitespace-nowrap">
       <span className={clsx('size-2', ok ? 'bg-paper' : 'border border-paper')} />
-      {label}: {ok ? 'on' : 'off'}
+      <span className="max-[820px]:hidden">{label}</span>
     </span>
+  );
+}
+
+/** Sets the studio up in one tap, then shows what is connected; tapping again picks up anything plugged in since. */
+function StudioButton() {
+  const audioStatus = useLive((s) => s.audio);
+  const midiStatus = useLive((s) => s.midi);
+  const audioReady = useLive((s) => s.audioReady);
+  const fm = useLive((s) => s.fmMidi || s.fmAudio === 'connected');
+  const iface = useLive((s) => s.iface);
+  const [busy, setBusy] = useState(false);
+  const run = async () => {
+    setBusy(true);
+    try {
+      await setupStudio();
+    } finally {
+      setBusy(false);
+    }
+  };
+  const started = audioStatus !== 'idle' || audioReady;
+  if (!started) {
+    return (
+      <button type="button" disabled={busy} onClick={() => void run()} className="h-8 shrink-0 cursor-pointer rounded-[2px] bg-paper px-3 font-semibold text-ink hover:bg-grid max-[820px]:h-10 max-[820px]:px-2 max-[820px]:text-xs">
+        {busy ? 'Connecting' : <><span className="max-[820px]:hidden">Set up studio</span><span className="hidden max-[820px]:inline">Connect</span></>}
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={() => void run()}
+      title="Set up again, for anything plugged in since"
+      aria-label="Studio connections. Set up again"
+      className="flex h-8 shrink-0 cursor-pointer items-center gap-4 rounded-[2px] border border-paper/50 px-3 hover:border-paper max-[820px]:h-10 max-[820px]:gap-1.5 max-[820px]:px-2"
+    >
+      <Light ok={midiStatus === 'connected' && audioStatus === 'connected'} label="Cycles" />
+      <Light ok={fm} label="FM-1" />
+      <Light ok={iface === 'connected'} label="Audio 1" />
+    </button>
   );
 }
 
@@ -116,13 +157,10 @@ function FullscreenButton() {
 
 function TransportBar({ view, onView }: { view: View; onView: (v: View) => void }) {
   const playing = useLive((s) => s.playing);
-  const midiStatus = useLive((s) => s.midi);
-  const audioStatus = useLive((s) => s.audio);
   const followBpm = useLive((s) => s.followBpm);
   const swing = useProject((s) => s.swing);
   const current = useProject((s) => s.current);
   const clockSource = useLive((s) => s.clockSource);
-  const connected = midiStatus === 'connected' && audioStatus === 'connected';
   const following = playing && clockSource === 'device';
 
   return (
@@ -170,17 +208,7 @@ function TransportBar({ view, onView }: { view: View; onView: (v: View) => void 
       </button>
       <FullscreenButton />
 
-      {connected ? (
-        <div className="flex gap-4 max-[820px]:hidden">
-          <Status ok label="MIDI" />
-          <Status ok label="Audio" />
-        </div>
-      ) : (
-        <button type="button" onClick={connectAll} className="h-8 shrink-0 cursor-pointer rounded-[2px] bg-paper px-3 font-semibold text-ink hover:bg-grid max-[820px]:h-10 max-[820px]:px-2 max-[820px]:text-xs">
-          <span className="max-[820px]:hidden">Connect Model:Cycles</span>
-          <span className="hidden max-[820px]:inline">Connect</span>
-        </button>
-      )}
+      <StudioButton />
     </header>
   );
 }

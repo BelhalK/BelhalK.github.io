@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
-import { audio } from '@/engine/audio';
-import { midi } from '@/engine/midi';
+import { setupStudio } from '@/engine/studio';
 import { transport } from '@/engine/transport';
 import { KITS } from '@/lib/kits';
 import { type DeviceLink, mirrorProblem, useLive } from '@/store/live';
@@ -9,10 +8,8 @@ import { useProject } from '@/store/project';
 import { Button, Row, Select } from '@/components/ui';
 import { Part } from '../Part';
 
-export const connectAll = async () => {
-  // Started together so a refused permission on one never blocks the other.
-  await Promise.allSettled([midi.connect(), audio.start()]);
-};
+/** The canvas's Connect buttons run the same studio setup as the top bar. */
+export const connectAll = setupStudio;
 
 const MIDI_TEXT = {
   idle: 'Not connected',

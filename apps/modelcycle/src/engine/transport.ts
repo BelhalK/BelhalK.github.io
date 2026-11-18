@@ -14,6 +14,8 @@ const TICK_MS = 25;
 const PPQN = 24;
 // The Cycles answers a Start from the app with its own Stop and Start within a few ms.
 const ECHO_MS = 250;
+// The FM-1 key that plays slice 1 when its keys play chops: C2, MIDI note 48.
+const FM_KEY_BASE = 48;
 
 // Runs in a worker so timing survives a backgrounded tab.
 const timer = new Worker(
@@ -41,6 +43,7 @@ class Transport {
       onContinue: () => this.onExternalContinue(),
       onStop: () => this.onExternalStop(),
       onNote: (channel, note, velocity) => this.onExternalNote(channel, note, velocity),
+      onFmNote: (note, velocity) => this.onFmKey(note, velocity),
       onProgram: (program) => {
         if (program < PATTERN_COUNT) useLive.getState().set({ devicePattern: program });
       },
@@ -342,6 +345,19 @@ class Transport {
     const step = live.clockSource === 'device' ? Math.round(this.followTicks / 6) % useProject.getState().pattern().length : live.step;
     const others = live.incoming.filter((h) => !(h.lane === channel && h.step === step));
     live.set({ incoming: [...others, { step, lane: channel, at: performance.now(), note, vel: velocity }] });
+  }
+
+  /**
+   * With FM-1 keys set to play chops, C2 (note 48) plays slice 1 and each key up the next.
+   * The count wraps, so every key plays a slice whatever octave the FM-1 is on.
+   */
+  private onFmKey(note: number, velocity: number) {
+    if (!useProject.getState().fmKeysChops) return;
+    const count = useProject.getState().slices.length;
+    if (!count || !audio.chopBuffer) return;
+    const slice = (((note - FM_KEY_BASE) % count) + count) % count;
+    useLive.getState().set({ selectedSlice: slice });
+    audio.playSlice(slice, performance.now(), velocity / 127);
   }
 
   /** Lets the kit be heard after a Sounds control moves. The Cycles and a running pattern already sound by themselves. */

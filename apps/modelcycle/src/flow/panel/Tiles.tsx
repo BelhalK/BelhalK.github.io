@@ -1,6 +1,6 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { clsx } from 'clsx';
-import { Circle, FolderOpen, ListPlus, Play, Search, Sparkles, Square, Undo2 } from 'lucide-react';
+import { Circle, FolderOpen, KeyboardMusic, ListPlus, Play, Search, Sparkles, Square, Undo2 } from 'lucide-react';
 import { ANALYSER_FFT, audio } from '@/engine/audio';
 import { transport } from '@/engine/transport';
 import { CC, CHOPS_LANE, FM_LANE, LANE_COLORS, LANES, MATCH_LANE } from '@/lib/cycles';
@@ -13,6 +13,8 @@ import { useProject } from '@/store/project';
 import { FREQ_MAX, FREQ_MIN, RAMP, useAnimation, useInput } from '../parts/Mix';
 import { drawWave, INPUT_ERRORS } from '../parts/Sample';
 import { useGenerator } from '../parts/Llm';
+import { micChoice } from '@/engine/studio';
+import { Keyboard } from './Keyboard';
 import { applyPreset } from '../parts/SampleToPreset';
 
 /*
@@ -100,6 +102,13 @@ const LLM_STEPS = 32;
 export function LlmTile() {
   const [prompt, setPrompt] = useState('');
   const { generate, busy, error, made, canUndo, restore } = useGenerator();
+  const [typing, setTyping] = useState(false);
+  const tile = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLTextAreaElement>(null);
+  const close = useCallback(() => {
+    setTyping(false);
+    field.current?.blur();
+  }, []);
   const [asked, setAsked] = useState<string | null>(null);
   const run = (text: string) => {
     setAsked(text);
@@ -107,15 +116,35 @@ export function LlmTile() {
   };
 
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
+    <div ref={tile} className="flex h-full flex-col gap-3 p-3">
       <textarea
+        ref={field}
         value={prompt}
+        // The keyboard below stands in for the system's, which a touch display may not have.
+        inputMode="none"
+        onFocus={() => setTyping(true)}
+        onPointerDown={() => setTyping(true)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            close();
+          }
+        }}
         aria-label="Describe the pattern"
         placeholder="Describe a groove"
         maxLength={500}
         onChange={(e) => setPrompt(e.target.value)}
-        className="h-[110px] shrink-0 resize-none rounded-part border border-ink p-3 text-[16px] placeholder:text-muted"
+        className={clsx('h-[110px] shrink-0 resize-none rounded-part border p-3 text-[16px] placeholder:text-muted', typing ? 'border-2 border-ink' : 'border-ink')}
       />
+      {typing && (
+        <Keyboard
+          anchor={tile}
+          field={field}
+          onKey={(k) => setPrompt((p) => (p + k).slice(0, 500))}
+          onBackspace={() => setPrompt((p) => p.slice(0, -1))}
+          onClose={close}
+        />
+      )}
       <button type="button" disabled={busy || !prompt.trim()} onClick={() => run(prompt)} className={clsx(BIG, SOLID, 'h-16 shrink-0 text-[17px]')}>
         <Sparkles className="size-5" /> {busy && asked === prompt ? 'Writing' : 'Generate'}
       </button>
@@ -363,8 +392,9 @@ export function RecorderTile() {
     setError(null);
     setBusy(true);
     try {
-      // The system's default input: choose the audio interface there.
-      await audio.armRecorder('');
+      // The interface's mic input when studio setup found it, otherwise the system default.
+      const { deviceId, channel } = micChoice();
+      await audio.armRecorder(deviceId, channel);
     } catch (err) {
       const name = err instanceof DOMException ? err.name : '';
       setError(INPUT_ERRORS[name] ?? 'Could not open the input.');
@@ -420,6 +450,8 @@ export function ChopperTile() {
   const selected = useLive((s) => s.selectedSlice);
   const slices = useProject((s) => s.slices);
   const chopSteps = useProject((s) => s.chopSteps);
+  const fmKeys = useProject((s) => s.fmKeysChops);
+  const fmConnected = useLive((s) => s.fmMidi);
   const [laid, setLaid] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const wave = useRef<HTMLCanvasElement>(null);
@@ -480,6 +512,19 @@ export function ChopperTile() {
           </button>
         ))}
         <div className="flex-1" />
+        <button
+          type="button"
+          aria-pressed={fmKeys}
+          aria-label="FM-1 keys play the slices"
+          title={fmConnected ? 'C2 plays slice 1, each key up the next' : 'Connect the FM-1 to play slices from its keys'}
+          onClick={() => {
+            useProject.getState().setTop({ fmKeysChops: !fmKeys });
+            audio.applyFmLevel();
+          }}
+          className={clsx(BIG, fmKeys ? SOLID : OUTLINE, 'px-4 text-[15px]')}
+        >
+          <KeyboardMusic className="size-5" /> FM-1 keys
+        </button>
         <button type="button" aria-label="Lay the slices on the Chops row" onClick={layOut} className={clsx(BIG, laid ? SOLID : OUTLINE, 'px-4 text-[15px]')}>
           <ListPlus className="size-5" /> To Chops row
         </button>

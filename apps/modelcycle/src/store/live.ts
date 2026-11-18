@@ -25,6 +25,8 @@ type Live = {
   fmMidi: boolean;
   fmAudio: AudioStatus;
   fmLastNote: string | null;
+  /** The audio interface chosen by studio setup, once the app plays through it. */
+  iface: 'idle' | 'connected' | 'missing';
   audio: AudioStatus;
   /** The audio graph exists, device or not, so anything can sound and be measured. */
   audioReady: boolean;
@@ -76,6 +78,7 @@ export const useLive = create<Live>((set) => ({
   fmMidi: false,
   fmAudio: 'idle',
   fmLastNote: null,
+  iface: 'idle',
   audio: 'idle',
   audioReady: false,
   kit: 'loading',
