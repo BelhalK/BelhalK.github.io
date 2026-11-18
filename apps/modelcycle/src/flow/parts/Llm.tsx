@@ -12,29 +12,28 @@ import { Part } from '../Part';
 
 type Length = '16' | '32' | '64';
 
-export function LlmPart() {
-  const id = useNodeId();
-  const wired = useProject((s) => s.edges.some((e) => e.source === id && baseType(e.target) === 'sequencer'));
+/** Writes T1 to T6 of the current pattern from a prompt, keeping what was there for Undo. */
+export function useGenerator() {
   const setTop = useProject((s) => s.setTop);
-  const [prompt, setPrompt] = useState('');
-  const [length, setLength] = useState<Length>('32');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [made, setMade] = useState<string | null>(null);
   const [undo, setUndo] = useState<{ patterns: (Pattern | null)[]; bpm: number; swing: number; grooveId: string | null } | null>(null);
 
-  const generate = async () => {
+  const generate = async (prompt: string, steps: number) => {
     setBusy(true);
     setError(null);
     try {
-      const steps = Number(length);
       const response = await fetch(`${import.meta.env.BASE_URL}api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, length: steps }),
       });
-      // A static host such as GitHub Pages has no generator and answers without JSON.
-      const data = await response.json().catch(() => ({ error: 'Generating is not available on this site.' }));
+      // A static host such as GitHub Pages has no generator and refuses the POST without JSON.
+      // Any other page without JSON is a proxy error, usually from a model that took too long.
+      const data = await response.json().catch(() => ({
+        error: response.status === 404 || response.status === 405 ? 'Generating is not available on this site.' : 'The generator did not answer in time. Try again.',
+      }));
       if (!response.ok) throw new Error(data.error);
       const result = readGenerated(data, steps);
       if (!result) throw new Error('The model returned an empty pattern. Try again.');
@@ -53,6 +52,23 @@ export function LlmPart() {
       setBusy(false);
     }
   };
+
+  const restore = () => {
+    if (!undo) return;
+    setTop(undo);
+    setUndo(null);
+    setMade(null);
+  };
+
+  return { generate, busy, error, made, canUndo: !!undo, restore };
+}
+
+export function LlmPart() {
+  const id = useNodeId();
+  const wired = useProject((s) => s.edges.some((e) => e.source === id && baseType(e.target) === 'sequencer'));
+  const [prompt, setPrompt] = useState('');
+  const [length, setLength] = useState<Length>('32');
+  const { generate, busy, error, made, canUndo, restore } = useGenerator();
 
   return (
     <Part type="llm" width={340} status={busy ? 'Generating' : wired ? 'Ready' : 'Not connected'} ports={[{ id: 'midi-out', side: 'right', label: 'Notes', top: 58 }]}>
@@ -73,7 +89,7 @@ export function LlmPart() {
           options={[{ value: '16', label: '16' }, { value: '32', label: '32' }, { value: '64', label: '64' }]}
         />
         <span className="text-xs text-muted">steps</span>
-        <Button className="ml-auto" variant="solid" disabled={!wired || busy || !prompt.trim()} onClick={generate}>
+        <Button className="ml-auto" variant="solid" disabled={!wired || busy || !prompt.trim()} onClick={() => void generate(prompt, Number(length))}>
           <Sparkles className="size-3.5" /> {busy ? 'Generating' : 'Generate'}
         </Button>
       </div>
@@ -82,7 +98,7 @@ export function LlmPart() {
       {made && !error && (
         <div className="mt-2 flex items-center gap-2">
           <p className="min-w-0 truncate text-xs text-muted" title={made}>{made}</p>
-          {undo && <Button size="sm" className="ml-auto" onClick={() => { setTop(undo); setUndo(null); setMade(null); }}>Undo</Button>}
+          {canUndo && <Button size="sm" className="ml-auto" onClick={restore}>Undo</Button>}
         </div>
       )}
     </Part>

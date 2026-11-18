@@ -21,7 +21,7 @@ const download = (blob: Blob, name: string) => {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 };
 
-function drawWave(canvas: HTMLCanvasElement, buffer: AudioBuffer) {
+export function drawWave(canvas: HTMLCanvasElement, buffer: AudioBuffer) {
   const g = canvas.getContext('2d')!;
   const { width: W, height: H } = canvas;
   g.clearRect(0, 0, W, H);
@@ -32,7 +32,7 @@ function drawWave(canvas: HTMLCanvasElement, buffer: AudioBuffer) {
   });
 }
 
-const INPUT_ERRORS: Record<string, string> = {
+export const INPUT_ERRORS: Record<string, string> = {
   NotAllowedError: 'The microphone is blocked. Allow it for this site in the browser settings, then try again.',
   NotFoundError: 'No microphone was found.',
   NotReadableError: 'Another app is using the microphone. Close it and try again.',

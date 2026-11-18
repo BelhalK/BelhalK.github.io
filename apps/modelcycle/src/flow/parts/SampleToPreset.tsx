@@ -37,6 +37,19 @@ const asBuffer = (data: Float32Array, sampleRate: number) => {
   return buffer;
 };
 
+/** Leaves the found sound on the track, as the search's last step. */
+export function applyPreset(t: number, result: PresetResult) {
+  const p = useProject.getState();
+  p.sendMachine(t, result.candidate.machine);
+  for (const [key, value] of Object.entries(result.candidate.params)) p.sendParam(t, key as keyof typeof result.candidate.params, value);
+  p.sendParam(t, 'delay', 0);
+  p.sendParam(t, 'reverb', 0);
+  // The search left the track at this level, so the app should show it.
+  p.sendParam(t, 'level', CAPTURE_LEVEL);
+  useLive.getState().set({ soloTrack: t });
+}
+
+
 export function SampleToPresetPart() {
   const chop = useLive((s) => s.chop);
   const selected = useLive((s) => s.selectedSlice);
@@ -90,7 +103,7 @@ export function SampleToPresetPart() {
       if (result) {
         setFound({ result, target, track: t, sampleRate: buffer.sampleRate });
         setRow(String(t));
-        applyToTrack(t, result);
+        applyPreset(t, result);
       } else if (!controller.signal.aborted) {
         setError('No trial made a usable sound.');
       }
@@ -101,16 +114,6 @@ export function SampleToPresetPart() {
     }
   };
 
-  const applyToTrack = (t: number, result: PresetResult) => {
-    const p = useProject.getState();
-    p.sendMachine(t, result.candidate.machine);
-    for (const [key, value] of Object.entries(result.candidate.params)) p.sendParam(t, key as keyof typeof result.candidate.params, value);
-    p.sendParam(t, 'delay', 0);
-    p.sendParam(t, 'reverb', 0);
-    // The search left the track at this level, so the app should show it.
-    p.sendParam(t, 'level', CAPTURE_LEVEL);
-    useLive.getState().set({ soloTrack: t });
-  };
 
   const backToBack = () => {
     if (!found) return;

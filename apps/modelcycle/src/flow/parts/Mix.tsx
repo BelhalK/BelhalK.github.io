@@ -7,11 +7,11 @@ import { useProject } from '@/store/project';
 import { Button, Heading, Row, Segmented, Select, Slider } from '@/components/ui';
 import { Part } from '../Part';
 
-const FREQ_MIN = 20;
-const FREQ_MAX = 20000;
+export const FREQ_MIN = 20;
+export const FREQ_MAX = 20000;
 const logPos = (f: number) => Math.log(f / FREQ_MIN) / Math.log(FREQ_MAX / FREQ_MIN);
 
-function useAnimation(fn: () => void, active: boolean) {
+export function useAnimation(fn: () => void, active: boolean) {
   const saved = useRef(fn);
   saved.current = fn;
   useEffect(() => {
@@ -26,7 +26,7 @@ function useAnimation(fn: () => void, active: boolean) {
   }, [active]);
 }
 
-function useInput(id: string) {
+export function useInput(id: string) {
   const connected = useLive((s) => s.audioReady);
   const [analyser, setAnalyser] = useState<AnalyserNode | null>(null);
   useEffect(() => {
@@ -36,7 +36,7 @@ function useInput(id: string) {
 }
 
 // One hue, light to dark, so brightness only ever means level.
-const RAMP = Array.from({ length: 256 }, (_, i) => {
+export const RAMP = Array.from({ length: 256 }, (_, i) => {
   const t = i / 255;
   const stops = [[255, 255, 255], [150, 185, 240], [31, 95, 214], [14, 17, 22]];
   const p = t * (stops.length - 1);

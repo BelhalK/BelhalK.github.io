@@ -2,8 +2,11 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 
 // Runs on the server only, for the dev server plugin and the belhal.com service.
 // The API key never leaves this side.
-const MODEL = 'gemini-3.5-flash';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+// Tried in order. The lite models answer in a few seconds; full Flash was often overloaded
+// (503) or ran past a minute. Each try gets ATTEMPT_MS so both fit inside Cloudflare's 100 s.
+const MODELS = ['gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'];
+const ATTEMPT_MS = 25_000;
+const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 const MAX_BODY = 4096;
 const MAX_PROMPT = 500;
 
@@ -45,11 +48,11 @@ const SCHEMA = {
   required: ['name', 'bpm', 'swing', 'kick', 'snare', 'hat', 'perc', 'bass', 'chord'],
 };
 
-async function askGemini(key: string, prompt: string, length: number): Promise<unknown> {
-  const response = await fetch(GEMINI_URL, {
+async function askModel(model: string, key: string, prompt: string, length: number): Promise<unknown> {
+  const response = await fetch(geminiUrl(model), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-    signal: AbortSignal.timeout(90_000),
+    signal: AbortSignal.timeout(ATTEMPT_MS),
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: INSTRUCTIONS }] },
       contents: [{ role: 'user', parts: [{ text: `Style: ${prompt}\nPattern length: ${length} steps, so steps run from 0 to ${length - 1}.` }] }],
@@ -61,6 +64,19 @@ async function askGemini(key: string, prompt: string, length: number): Promise<u
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (typeof text !== 'string') throw new Error('Gemini returned no pattern');
   return JSON.parse(text);
+}
+
+async function askGemini(key: string, prompt: string, length: number): Promise<unknown> {
+  let last: unknown;
+  for (const model of MODELS) {
+    try {
+      return await askModel(model, key, prompt, length);
+    } catch (err) {
+      last = err;
+    }
+  }
+  const timedOut = last instanceof DOMException && last.name === 'TimeoutError';
+  throw new Error(timedOut ? 'The model took too long. Try again.' : `The model is unavailable right now (${last instanceof Error ? last.message : 'no answer'}). Try again in a minute.`);
 }
 
 export const reply = (res: ServerResponse, status: number, body: unknown) => {
@@ -87,6 +103,7 @@ export async function handleGenerate(req: IncomingMessage, res: ServerResponse, 
     if (refused) return reply(res, 429, { error: refused });
     reply(res, 200, await askGemini(key, prompt.trim(), length));
   } catch (err) {
-    reply(res, 502, { error: err instanceof Error ? err.message : 'Generation failed' });
+    // Not 502 or 504: Cloudflare swaps those for its own page, and the reason would be lost.
+    reply(res, 500, { error: err instanceof Error ? err.message : 'Generation failed' });
   }
 }

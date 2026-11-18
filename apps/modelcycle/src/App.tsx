@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   addEdge, applyEdgeChanges, applyNodeChanges, type Connection, type Edge, type EdgeChange, type NodeChange,
-  Background, BackgroundVariant, ReactFlow, ReactFlowProvider, type IsValidConnection,
+  Background, BackgroundVariant, ReactFlow, ReactFlowProvider, type IsValidConnection, useReactFlow,
 } from '@xyflow/react';
-import { Play, Square } from 'lucide-react';
+import { LayoutPanelLeft, Maximize, Minimize, Minus, Network, Play, Plus, Square } from 'lucide-react';
 import { clsx } from 'clsx';
 import { audio } from '@/engine/audio';
 import { midi } from '@/engine/midi';
@@ -16,6 +16,8 @@ import { baseType, KIND_OF_HANDLE } from '@/flow/defaults';
 import { PartsNav, useShowHome } from '@/flow/PartsNav';
 import { LeaderEdge } from '@/flow/LeaderEdge';
 import { useTouchCamera } from '@/flow/useTouchCamera';
+import { useDragZoom } from '@/flow/useDragZoom';
+import { PanelView } from '@/flow/PanelView';
 import { connectAll, CyclesPart } from '@/flow/parts/Cycles';
 import { MonitorPart, ReferencePart, SpectrogramPart, SpectrumPart } from '@/flow/parts/Mix';
 import { BanksPart, GroovePart, SoundsPart } from '@/flow/parts/Produce';
@@ -76,7 +78,43 @@ function BpmInput() {
   );
 }
 
-function TransportBar() {
+type View = 'canvas' | 'panel';
+
+/** `?view=panel` in the address opens straight on the Panel, for a kiosk window on the touch strip. */
+function useView() {
+  const [view, setView] = useState<View>(() => {
+    const asked = new URLSearchParams(location.search).get('view');
+    if (asked === 'panel' || asked === 'canvas') return asked;
+    return localStorage.getItem('modelcycle-view') === 'panel' ? 'panel' : 'canvas';
+  });
+  useEffect(() => localStorage.setItem('modelcycle-view', view), [view]);
+  return [view, setView] as const;
+}
+
+/** Hides the browser's tabs and address bar. Escape, or the same button, leaves. */
+function FullscreenButton() {
+  const [full, setFull] = useState(() => !!document.fullscreenElement);
+  useEffect(() => {
+    const onChange = () => setFull(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+  // iPhone Safari has no fullscreen for pages.
+  if (!document.fullscreenEnabled) return null;
+  return (
+    <button
+      type="button"
+      onClick={() => void (full ? document.exitFullscreen() : document.documentElement.requestFullscreen())}
+      aria-label={full ? 'Leave full screen' : 'Full screen'}
+      title={full ? 'Leave full screen' : 'Full screen'}
+      className="grid size-8 shrink-0 cursor-pointer place-items-center rounded-[2px] border border-paper/50 hover:border-paper max-[820px]:size-10"
+    >
+      {full ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+    </button>
+  );
+}
+
+function TransportBar({ view, onView }: { view: View; onView: (v: View) => void }) {
   const playing = useLive((s) => s.playing);
   const midiStatus = useLive((s) => s.midi);
   const audioStatus = useLive((s) => s.audio);
@@ -120,6 +158,18 @@ function TransportBar() {
 
       <div className="flex-1 max-[820px]:hidden" />
 
+      <button
+        type="button"
+        onClick={() => onView(view === 'panel' ? 'canvas' : 'panel')}
+        aria-label={view === 'panel' ? 'Show canvas' : 'Show panel for the touch strip'}
+        title={view === 'panel' ? 'Back to the canvas' : 'Four tiles sized for a 1920 x 720 touch strip'}
+        className="flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-[2px] border border-paper/50 px-3 font-semibold hover:border-paper max-[820px]:hidden"
+      >
+        {view === 'panel' ? <Network className="size-3.5" /> : <LayoutPanelLeft className="size-3.5" />}
+        {view === 'panel' ? 'Canvas' : 'Panel'}
+      </button>
+      <FullscreenButton />
+
       {connected ? (
         <div className="flex gap-4 max-[820px]:hidden">
           <Status ok label="MIDI" />
@@ -135,6 +185,23 @@ function TransportBar() {
   );
 }
 
+const ZOOM_BUTTON = 'grid size-12 cursor-pointer place-items-center bg-paper text-ink hover:bg-wash active:bg-grid';
+
+/** For when pinching is not available, as on a touch screen a Mac reads as a mouse. */
+function ZoomButtons() {
+  const { zoomIn, zoomOut } = useReactFlow();
+  return (
+    <div className="absolute right-3 bottom-3 z-10 flex flex-col overflow-hidden rounded-part border border-ink shadow-[0_2px_8px_rgb(14_17_22/0.18)]">
+      <button type="button" aria-label="Zoom in" onClick={() => void zoomIn({ duration: 200 })} className={clsx(ZOOM_BUTTON, 'border-b border-ink')}>
+        <Plus className="size-5" />
+      </button>
+      <button type="button" aria-label="Zoom out" onClick={() => void zoomOut({ duration: 200 })} className={ZOOM_BUTTON}>
+        <Minus className="size-5" />
+      </button>
+    </div>
+  );
+}
+
 function Canvas() {
   const nodes = useProject((s) => s.nodes);
   const edges = useProject((s) => s.edges);
@@ -142,13 +209,12 @@ function Canvas() {
 
   const showHome = useShowHome();
   useTouchCamera();
+  useDragZoom();
 
   useEffect(() => {
     const id = setTimeout(() => showHome(), 60);
     return () => clearTimeout(id);
   }, [showHome]);
-
-  useEffect(() => audio.sync(nodes, edges), [nodes, edges]);
 
   const onNodesChange = useCallback((changes: NodeChange[]) => {
     const s = useProject.getState();
@@ -189,6 +255,8 @@ function Canvas() {
       maxZoom={1.5}
       panOnScroll
       zoomOnPinch
+      // Double tap and slide zooms instead; see useDragZoom.
+      zoomOnDoubleClick={false}
       deleteKeyCode={['Backspace', 'Delete']}
       onNodesDelete={undefined}
       nodesFocusable={false}
@@ -247,8 +315,17 @@ function useKeyboard() {
   }, []);
 }
 
+/** Routes audio and notes along the cables, whichever view is showing. */
+function useAudioRouting() {
+  const nodes = useProject((s) => s.nodes);
+  const edges = useProject((s) => s.edges);
+  useEffect(() => audio.sync(nodes, edges), [nodes, edges]);
+}
+
 export default function App() {
   useKeyboard();
+  useAudioRouting();
+  const [view, setView] = useView();
   useEffect(() => { void midi.reconnect(); }, []);
   const kitId = useProject((s) => s.kitId);
   useEffect(() => { void audio.loadKit(kitId); }, [kitId]);
@@ -256,10 +333,15 @@ export default function App() {
     <TipProvider>
       <ReactFlowProvider>
         <div className="flex h-full flex-col">
-          <TransportBar />
+          <TransportBar view={view} onView={setView} />
           <main className="relative min-h-0 flex-1">
-            <PartsNav />
-            <Canvas />
+            {view === 'panel' ? <PanelView /> : (
+              <>
+                <PartsNav />
+                <Canvas />
+                <ZoomButtons />
+              </>
+            )}
           </main>
         </div>
       </ReactFlowProvider>
