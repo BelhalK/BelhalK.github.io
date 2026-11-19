@@ -1,7 +1,7 @@
-import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
-import { handleGenerate, reply } from './generate.ts';
+import { type Call, handleGenerate, reply } from './generate.ts';
 
 // Answers /modelcycle/api/generate for belhal.com, behind Caddy. It listens on
 // localhost only. The page is public, so the limits below are what cap the key's cost.
@@ -13,6 +13,9 @@ const MIN_GAP_MS = 5000;
 
 const stateDir = process.env.STATE_DIRECTORY ?? '/tmp/modelcycle-generate';
 const stateFile = join(stateDir, 'usage.json');
+// One line per Gemini attempt (time, model, tokens, ok), no prompt text. The agents
+// dashboard (personal-agent/agents-dashboard, "Music") reads it for usage and cost.
+const callsFile = join(stateDir, 'calls.jsonl');
 mkdirSync(stateDir, { recursive: true });
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -41,9 +44,17 @@ const admit = () => {
   return null;
 };
 
+const record = (call: Call) => {
+  try {
+    appendFileSync(callsFile, JSON.stringify({ ts: Date.now() / 1000, ...call }) + '\n');
+  } catch {
+    // Tracking must never break generation.
+  }
+};
+
 createServer((req, res) => {
   if (req.url !== ROUTE) return reply(res, 404, { error: 'Not found' });
   if (req.method !== 'POST') return reply(res, 405, { error: 'Use POST' });
   if (!ORIGINS.has(req.headers.origin ?? '') || !req.headers['content-type']?.startsWith('application/json')) return reply(res, 403, { error: 'Not allowed' });
-  void handleGenerate(req, res, process.env.GEMINI_API_KEY, admit);
+  void handleGenerate(req, res, process.env.GEMINI_API_KEY, admit, record);
 }).listen(PORT, '127.0.0.1');

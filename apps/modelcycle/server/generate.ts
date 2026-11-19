@@ -48,7 +48,27 @@ const SCHEMA = {
   required: ['name', 'bpm', 'swing', 'kick', 'snare', 'hat', 'perc', 'bass', 'chord'],
 };
 
-async function askModel(model: string, key: string, prompt: string, length: number): Promise<unknown> {
+/** One Gemini attempt, for usage tracking: model, tokens (0 when it failed before answering), outcome. Never the prompt. */
+export type Call = { model: string; input: number; cached: number; output: number; ok: boolean; error?: string };
+export type Recorder = (call: Call) => void;
+
+type Usage = { promptTokenCount?: number; cachedContentTokenCount?: number; candidatesTokenCount?: number; thoughtsTokenCount?: number };
+
+async function askModel(model: string, key: string, prompt: string, length: number, record?: Recorder): Promise<unknown> {
+  const call: Call = { model, input: 0, cached: 0, output: 0, ok: false };
+  try {
+    const pattern = await requestModel(model, key, prompt, length, call);
+    call.ok = true;
+    return pattern;
+  } catch (err) {
+    call.error = err instanceof Error ? err.message : 'failed';
+    throw err;
+  } finally {
+    record?.(call);
+  }
+}
+
+async function requestModel(model: string, key: string, prompt: string, length: number, call: Call): Promise<unknown> {
   const response = await fetch(geminiUrl(model), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
@@ -60,17 +80,21 @@ async function askModel(model: string, key: string, prompt: string, length: numb
     }),
   });
   if (!response.ok) throw new Error(`Gemini answered ${response.status}`);
-  const data = await response.json() as { candidates?: { content?: { parts?: { text?: unknown }[] } }[] };
+  const data = await response.json() as { candidates?: { content?: { parts?: { text?: unknown }[] } }[]; usageMetadata?: Usage };
+  const u = data.usageMetadata ?? {};
+  call.input = u.promptTokenCount ?? 0;
+  call.cached = u.cachedContentTokenCount ?? 0;
+  call.output = (u.candidatesTokenCount ?? 0) + (u.thoughtsTokenCount ?? 0);
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (typeof text !== 'string') throw new Error('Gemini returned no pattern');
   return JSON.parse(text);
 }
 
-async function askGemini(key: string, prompt: string, length: number): Promise<unknown> {
+async function askGemini(key: string, prompt: string, length: number, record?: Recorder): Promise<unknown> {
   let last: unknown;
   for (const model of MODELS) {
     try {
-      return await askModel(model, key, prompt, length);
+      return await askModel(model, key, prompt, length, record);
     } catch (err) {
       last = err;
     }
@@ -93,7 +117,7 @@ const readBody = async (req: IncomingMessage) => {
 };
 
 /** Answers one generate request. admit may refuse it, with a reason, once it is known to be valid. */
-export async function handleGenerate(req: IncomingMessage, res: ServerResponse, key: string | undefined, admit?: () => string | null) {
+export async function handleGenerate(req: IncomingMessage, res: ServerResponse, key: string | undefined, admit?: () => string | null, record?: Recorder) {
   try {
     if (!key) return reply(res, 500, { error: 'GEMINI_API_KEY is missing from .env' });
     const { prompt, length } = await readBody(req);
@@ -101,7 +125,7 @@ export async function handleGenerate(req: IncomingMessage, res: ServerResponse, 
     if (length !== 16 && length !== 32 && length !== 64) return reply(res, 400, { error: 'Length must be 16, 32 or 64' });
     const refused = admit?.();
     if (refused) return reply(res, 429, { error: refused });
-    reply(res, 200, await askGemini(key, prompt.trim(), length));
+    reply(res, 200, await askGemini(key, prompt.trim(), length, record));
   } catch (err) {
     // Not 502 or 504: Cloudflare swaps those for its own page, and the reason would be lost.
     reply(res, 500, { error: err instanceof Error ? err.message : 'Generation failed' });
